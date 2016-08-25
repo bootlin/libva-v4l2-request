@@ -23,45 +23,26 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _CONTEXT_H_
-#define _CONTEXT_H_
+#ifndef _MPEG4_H_
+#define _MPEG4_H_
 
 #include <va/va_backend.h>
 
-#include "object_heap.h"
+#include "context.h"
+#include "buffer.h"
 
-/* We can't dynamically call VIDIOC_REQBUFS for every MPEG slice we create.
- * Indeed, the queue might be busy processing a previous buffer, so we need to
- * pre-allocate a set of buffers with a max size */
-#define INPUT_BUFFER_MAX_SIZE		131072
-#define INPUT_BUFFERS_NB		4
+#include "surface.h"
 
-#define CONTEXT(id) ((object_context_p) object_heap_lookup(&driver_data->context_heap, id))
-#define CONTEXT_ID_OFFSET		0x02000000
+VAStatus sunxi_cedrus_render_mpeg4_slice_data(VADriverContextP ctx,
+		object_context_p obj_context, object_surface_p obj_surface,
+		object_buffer_p obj_buffer);
 
-struct object_context {
-	struct object_base base;
-	VAContextID context_id;
-	VAConfigID config_id;
-	VASurfaceID current_render_target;
-	int picture_width;
-	int picture_height;
-	int num_render_targets;
-	int flags;
-	VASurfaceID *render_targets;
-	uint32_t num_rendered_surfaces;
+VAStatus sunxi_cedrus_render_mpeg4_picture_parameter(VADriverContextP ctx,
+		object_context_p obj_context, object_surface_p obj_surface,
+		object_buffer_p obj_buffer);
 
-	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
-	struct v4l2_ctrl_mpeg4_frame_hdr mpeg4_frame_hdr;
-};
+VAStatus sunxi_cedrus_render_mpeg4_slice_parameter(VADriverContextP ctx,
+		object_context_p obj_context, object_surface_p obj_surface,
+		object_buffer_p obj_buffer);
 
-typedef struct object_context *object_context_p;
-
-VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
-		int picture_width, int picture_height, int flag,
-		VASurfaceID *render_targets, int num_render_targets,
-		VAContextID *context);
-
-VAStatus sunxi_cedrus_DestroyContext(VADriverContextP ctx, VAContextID context);
-
-#endif /* _CONTEXT_H_ */
+#endif /* _MPEG4_H_ */

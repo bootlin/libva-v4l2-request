@@ -56,6 +56,12 @@ VAStatus sunxi_cedrus_QueryConfigProfiles(VADriverContextP ctx,
 			profile_list[i++] = VAProfileMPEG2Simple;
 			profile_list[i++] = VAProfileMPEG2Main;
 			break;
+		case V4L2_PIX_FMT_MPEG4_FRAME:
+			profile_list[i++] = VAProfileMPEG4Simple;
+			profile_list[i++] = VAProfileMPEG4AdvancedSimple;
+			profile_list[i++] = VAProfileMPEG4Main;
+			break;
+		}
 		vid_fmtdesc.index++;
 	}
 
@@ -75,6 +81,13 @@ VAStatus sunxi_cedrus_QueryConfigEntrypoints(VADriverContextP ctx,
 			*num_entrypoints = 2;
 			entrypoint_list[0] = VAEntrypointVLD;
 			entrypoint_list[1] = VAEntrypointMoComp;
+			break;
+
+		case VAProfileMPEG4Simple:
+		case VAProfileMPEG4AdvancedSimple:
+		case VAProfileMPEG4Main:
+			*num_entrypoints = 1;
+			entrypoint_list[0] = VAEntrypointVLD;
 			break;
 
 		default:
@@ -151,6 +164,15 @@ VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,
 		case VAProfileMPEG2Main:
 			if ((VAEntrypointVLD == entrypoint) ||
 					(VAEntrypointMoComp == entrypoint))
+				vaStatus = VA_STATUS_SUCCESS;
+			else
+				vaStatus = VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
+			break;
+
+		case VAProfileMPEG4Simple:
+		case VAProfileMPEG4AdvancedSimple:
+		case VAProfileMPEG4Main:
+			if (VAEntrypointVLD == entrypoint)
 				vaStatus = VA_STATUS_SUCCESS;
 			else
 				vaStatus = VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;

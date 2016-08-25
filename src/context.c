@@ -121,6 +121,11 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 		case VAProfileMPEG2Main:
 			fmt.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_MPEG2_FRAME;
 			break;
+		case VAProfileMPEG4Simple:
+		case VAProfileMPEG4AdvancedSimple:
+		case VAProfileMPEG4Main:
+			fmt.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_MPEG4_FRAME;
+			break;
 		default:
 			vaStatus = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 			return vaStatus;
