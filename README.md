@@ -10,3 +10,8 @@ You can try this driver with VLC but don't forget to tell libVA to use this
 backend:
 
 	export LIBVA_DRIVER_NAME=sunxi_cedrus
+	vlc big_buck_bunny_480p_MPEG2_MP2_25fps_1800K.MPG
+
+Sample media files can be found here:
+
+	http://samplemedia.linaro.org/MPEG2/

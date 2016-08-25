@@ -117,6 +117,10 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 	fmt.fmt.pix_mp.height = picture_height;
 	fmt.fmt.pix_mp.plane_fmt[0].sizeimage = INPUT_BUFFER_MAX_SIZE;
 	switch(obj_config->profile) {
+		case VAProfileMPEG2Simple:
+		case VAProfileMPEG2Main:
+			fmt.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_MPEG2_FRAME;
+			break;
 		default:
 			vaStatus = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 			return vaStatus;

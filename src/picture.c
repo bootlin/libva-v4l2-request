@@ -30,6 +30,8 @@
 #include "surface.h"
 #include "va_config.h"
 
+#include "mpeg2.h"
+
 #include <assert.h>
 #include <string.h>
 
@@ -107,6 +109,18 @@ VAStatus sunxi_cedrus_RenderPicture(VADriverContextP ctx, VAContextID context,
 			vaStatus = VA_STATUS_ERROR_INVALID_BUFFER;
 			break;
 		}
+
+		switch(obj_config->profile) {
+			case VAProfileMPEG2Simple:
+			case VAProfileMPEG2Main:
+				if(obj_buffer->type == VASliceDataBufferType)
+					vaStatus = sunxi_cedrus_render_mpeg2_slice_data(ctx, obj_context, obj_surface, obj_buffer);
+				else if(obj_buffer->type == VAPictureParameterBufferType)
+					vaStatus = sunxi_cedrus_render_mpeg2_picture_parameter(ctx, obj_context, obj_surface, obj_buffer);
+				break;
+			default:
+				break;
+		}
 	}
 
 	return vaStatus;
@@ -147,6 +161,13 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	out_buf.request = obj_surface->request;
 
 	switch(obj_config->profile) {
+		case VAProfileMPEG2Simple:
+		case VAProfileMPEG2Main:
+			out_buf.m.planes[0].bytesused = obj_context->mpeg2_frame_hdr.slice_len/8;
+			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
+			ctrl.ptr = &obj_context->mpeg2_frame_hdr;
+			ctrl.size = sizeof(obj_context->mpeg2_frame_hdr);
+			break;
 		default:
 			out_buf.m.planes[0].bytesused = 0;
 			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;

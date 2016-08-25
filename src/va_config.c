@@ -51,6 +51,11 @@ VAStatus sunxi_cedrus_QueryConfigProfiles(VADriverContextP ctx,
 
 	while(ioctl(driver_data->mem2mem_fd, VIDIOC_ENUM_FMT, &vid_fmtdesc) == 0)
 	{
+		switch(vid_fmtdesc.pixelformat) {
+		case V4L2_PIX_FMT_MPEG2_FRAME:
+			profile_list[i++] = VAProfileMPEG2Simple;
+			profile_list[i++] = VAProfileMPEG2Main;
+			break;
 		vid_fmtdesc.index++;
 	}
 
@@ -65,6 +70,13 @@ VAStatus sunxi_cedrus_QueryConfigEntrypoints(VADriverContextP ctx,
 		int *num_entrypoints)
 {
 	switch (profile) {
+		case VAProfileMPEG2Simple:
+		case VAProfileMPEG2Main:
+			*num_entrypoints = 2;
+			entrypoint_list[0] = VAEntrypointVLD;
+			entrypoint_list[1] = VAEntrypointMoComp;
+			break;
+
 		default:
 			*num_entrypoints = 0;
 			break;
@@ -135,6 +147,15 @@ VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,
 
 	/* Validate profile & entrypoint */
 	switch (profile) {
+		case VAProfileMPEG2Simple:
+		case VAProfileMPEG2Main:
+			if ((VAEntrypointVLD == entrypoint) ||
+					(VAEntrypointMoComp == entrypoint))
+				vaStatus = VA_STATUS_SUCCESS;
+			else
+				vaStatus = VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
+			break;
+
 		default:
 			vaStatus = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 			break;
