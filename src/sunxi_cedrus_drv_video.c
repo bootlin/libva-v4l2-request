@@ -31,6 +31,8 @@
 #include "surface.h"
 #include "va_config.h"
 
+#include "config.h"
+
 #include <va/va_backend.h>
 
 #include "sunxi_cedrus_drv_video.h"
