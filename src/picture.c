@@ -163,6 +163,13 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 		return vaStatus;
 	}
 
+	/*
+	 * The real rendering is done in EndPicture instead of RenderPicture
+	 * because the v4l2 driver expects to have the full corresponding
+	 * extended control when a buffer is queued and we don't know in which
+	 * order the different RenderPicture will be called.
+	 */
+
 	memset(&(out_buf), 0, sizeof(out_buf));
 	out_buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	out_buf.memory = V4L2_MEMORY_MMAP;
