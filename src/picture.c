@@ -170,6 +170,9 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	 * order the different RenderPicture will be called.
 	 */
 
+	memset(plane, 0, sizeof(struct v4l2_plane));
+	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
+
 	memset(&(out_buf), 0, sizeof(out_buf));
 	out_buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	out_buf.memory = V4L2_MEMORY_MMAP;

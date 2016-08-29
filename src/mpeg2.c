@@ -48,6 +48,8 @@ VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
 
+	memset(plane, 0, sizeof(struct v4l2_plane));
+
 	/* Query */
 	memset(&(buf), 0, sizeof(buf));
 	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;

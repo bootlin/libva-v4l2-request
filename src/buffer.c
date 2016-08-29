@@ -52,6 +52,8 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 	struct v4l2_plane plane[1];
 	object_buffer_p obj_buffer;
 
+	memset(plane, 0, sizeof(struct v4l2_plane));
+
 	/* Validate type */
 	switch (type)
 	{

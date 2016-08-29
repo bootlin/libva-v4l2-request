@@ -63,6 +63,8 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 	struct v4l2_create_buffers create_bufs;
 	struct v4l2_format fmt;
 
+	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
+
 	/* We only support one format */
 	if (VA_RT_FORMAT_YUV420 != format)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
@@ -160,8 +162,12 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	object_surface_p obj_surface;
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
+	struct v4l2_plane planes[2];
         fd_set read_fds;
 	struct timeval tv = {0, 300000};
+
+	memset(plane, 0, sizeof(struct v4l2_plane));
+	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
 
 	obj_surface = SURFACE(render_target);
 	assert(obj_surface);
@@ -186,7 +192,6 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	}
 
 	memset(&(buf), 0, sizeof(buf));
-	struct v4l2_plane planes[2];
 	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	buf.memory = V4L2_MEMORY_MMAP;
 	buf.index = obj_surface->output_buf_index;
