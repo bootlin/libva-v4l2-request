@@ -165,6 +165,8 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	struct v4l2_plane planes[2];
         fd_set read_fds;
 	struct timeval tv = {0, 300000};
+	int request_fd;
+	int rc;
 
 	memset(plane, 0, sizeof(struct v4l2_plane));
 	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
@@ -172,11 +174,19 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	obj_surface = SURFACE(render_target);
 	assert(obj_surface);
 
+	if(obj_surface->status == VASurfaceSkipped)
+		return VA_STATUS_ERROR_UNKNOWN;
+
+	request_fd = driver_data->request_fds[obj_surface->input_buf_index];
+	if(request_fd < 0)
+		return  VA_STATUS_ERROR_UNKNOWN;
+
 	FD_ZERO(&read_fds);
-	FD_SET(driver_data->mem2mem_fd, &read_fds);
-	if(obj_surface->status != VASurfaceSkipped)
-		select(driver_data->mem2mem_fd + 1, &read_fds, NULL, NULL, &tv);
-	else
+	FD_SET(request_fd, &read_fds);
+
+	rc = select(request_fd + 1, &read_fds, NULL, NULL, &tv);
+	// FIXME: Properly dispose of the buffers here?
+	if(rc < 0)
 		return VA_STATUS_ERROR_UNKNOWN;
 
 	memset(&(buf), 0, sizeof(buf));
@@ -204,6 +214,8 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 		sunxi_cedrus_msg("Error when dequeuing output: %s\n", strerror(errno));
 		return VA_STATUS_ERROR_UNKNOWN;
 	}
+
+	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL)==0);
 
 	return VA_STATUS_SUCCESS;
 }

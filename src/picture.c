@@ -147,8 +147,10 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	struct v4l2_plane plane[1];
 	struct v4l2_plane planes[2];
 	struct v4l2_ext_control ctrl;
-	struct v4l2_ext_controls extCtrls;
+	struct v4l2_ext_controls ctrls;
+	struct media_request_new media_request;
 	object_config_p obj_config;
+	int request_fd;
 
 	obj_context = CONTEXT(context);
 	assert(obj_context);
@@ -170,8 +172,17 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	 * order the different RenderPicture will be called.
 	 */
 
+	if(driver_data->request_fds[obj_surface->input_buf_index] < 0) {
+		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_NEW_REQUEST, &media_request)==0);
+		driver_data->request_fds[obj_surface->input_buf_index] = media_request.fd;
+	}
+
+	request_fd = driver_data->request_fds[obj_surface->input_buf_index];
+
 	memset(plane, 0, sizeof(struct v4l2_plane));
 	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
+	memset(&ctrl, 0, sizeof(struct v4l2_ext_control));
+	memset(&ctrls, 0, sizeof(struct v4l2_ext_control));
 
 	memset(&(out_buf), 0, sizeof(out_buf));
 	out_buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
@@ -179,7 +190,6 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	out_buf.index = obj_surface->input_buf_index;
 	out_buf.length = 1;
 	out_buf.m.planes = plane;
-	out_buf.request = obj_surface->request;
 
 	switch(obj_config->profile) {
 		case VAProfileMPEG2Simple:
@@ -212,24 +222,32 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	cap_buf.length = 2;
 	cap_buf.m.planes = planes;
 
-	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &cap_buf)==0);
+	ctrls.controls = &ctrl;
+	ctrls.count = 1;
+	ctrls.request_fd = request_fd;
 
-	extCtrls.controls = &ctrl;
-	extCtrls.count = 1;
-	extCtrls.request = obj_surface->request;
-	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_S_EXT_CTRLS, &extCtrls)==0);
+	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_S_EXT_CTRLS, &ctrls)==0);
+
+	out_buf.request_fd = request_fd;
 
 	if(ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &cap_buf)) {
 		obj_surface->status = VASurfaceSkipped;
 		sunxi_cedrus_msg("Error when queuing output: %s\n", strerror(errno));
+
+		ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL);
 		return VA_STATUS_ERROR_UNKNOWN;
 	}
+
 	if(ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &out_buf)) {
 		obj_surface->status = VASurfaceSkipped;
 		sunxi_cedrus_msg("Error when queuing input: %s\n", strerror(errno));
+
 		ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &cap_buf);
+		ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL);
 		return VA_STATUS_ERROR_UNKNOWN;
 	}
+
+	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_SUBMIT, NULL)==0);
 
 	/* For now, assume that we are done with rendering right away */
 	obj_context->current_render_target = -1;

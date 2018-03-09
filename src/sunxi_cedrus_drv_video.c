@@ -187,6 +187,9 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP ctx)
 	driver_data->mem2mem_fd = open("/dev/video0", O_RDWR | O_NONBLOCK, 0);
 	assert(driver_data->mem2mem_fd >= 0);
 
+	for (int i = 0; i < INPUT_BUFFERS_NB; i++)
+		driver_data->request_fds[i] = -1;
+
 	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYCAP, &cap)==0);
 	if (!(cap.capabilities & V4L2_CAP_VIDEO_M2M_MPLANE))
 	{

@@ -28,6 +28,7 @@
 
 #include <va/va.h>
 #include "object_heap.h"
+#include "context.h"
 
 #include <linux/videodev2.h>
 
@@ -54,6 +55,7 @@ struct sunxi_cedrus_driver_data {
 	char                   *chroma_bufs[VIDEO_MAX_FRAME];
 	unsigned int		num_dst_bufs;
 	int			mem2mem_fd;
+	int			request_fds[INPUT_BUFFERS_NB];
 };
 
 #endif /* _SUNXI_CEDRUS_DRV_VIDEO_H_ */
