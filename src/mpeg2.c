@@ -48,18 +48,6 @@ VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
 
-	memset(plane, 0, sizeof(struct v4l2_plane));
-
-	/* Query */
-	memset(&(buf), 0, sizeof(buf));
-	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	buf.memory = V4L2_MEMORY_MMAP;
-	buf.index = obj_surface->input_buf_index;
-	buf.length = 1;
-	buf.m.planes = plane;
-
-	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &buf)==0);
-
 	/* Populate frame */
 	char *src_buf = mmap(NULL, obj_buffer->size,
 			PROT_READ | PROT_WRITE, MAP_SHARED,
