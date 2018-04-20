@@ -67,12 +67,7 @@ VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
 	object_buffer_p obj_buffer;
 	object_config_p obj_config;
 	object_heap_iterator iter;
-	enum v4l2_buf_type type;
 
-	type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMOFF, &type);
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMOFF, &type);
 
 	close(driver_data->mem2mem_fd);
 
