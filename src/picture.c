@@ -64,8 +64,11 @@ VAStatus sunxi_cedrus_BeginPicture(VADriverContextP ctx, VAContextID context,
 	obj_surface = SURFACE(render_target);
 	assert(obj_surface);
 
-	if(obj_surface->status == VASurfaceRendering)
-		sunxi_cedrus_SyncSurface(ctx, render_target);
+	if (obj_surface->status == VASurfaceRendering) {
+		vaStatus = sunxi_cedrus_SyncSurface(ctx, render_target);
+		if (vaStatus != VA_STATUS_SUCCESS)
+			return vaStatus;
+	}
 
 	obj_surface->status = VASurfaceRendering;
 	obj_surface->request = (obj_context->num_rendered_surfaces)%INPUT_BUFFERS_NB+1;
