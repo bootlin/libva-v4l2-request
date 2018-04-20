@@ -48,15 +48,6 @@ VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
 
-	/* Populate frame */
-	char *src_buf = mmap(NULL, obj_buffer->size,
-			PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->mem2mem_fd, buf.m.planes[0].m.mem_offset);
-	assert(src_buf != MAP_FAILED);
-	memcpy(src_buf, obj_buffer->buffer_data, obj_buffer->size);
-
-	obj_context->mpeg2_frame_hdr.slice_pos = 0;
-	obj_context->mpeg2_frame_hdr.slice_len = obj_buffer->size*8;
 
 	return vaStatus;
 }
