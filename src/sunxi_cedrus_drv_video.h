@@ -56,6 +56,7 @@ struct sunxi_cedrus_driver_data {
 	unsigned int		num_dst_bufs;
 	int			mem2mem_fd;
 	int			request_fds[INPUT_BUFFERS_NB];
+	int			slice_offset[INPUT_BUFFERS_NB];
 };
 
 #endif /* _SUNXI_CEDRUS_DRV_VIDEO_H_ */

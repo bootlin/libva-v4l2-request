@@ -72,10 +72,12 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 	obj_buffer->buffer_data = NULL;
+	obj_buffer->buffer_map = NULL;
 	obj_buffer->type = type;
 	obj_buffer->max_num_elements = num_elements;
 	obj_buffer->num_elements = num_elements;
 	obj_buffer->size = size;
+	obj_buffer->map_size = 0;
 
 	if(obj_buffer->type == VASliceDataBufferType) {
 		object_context_p obj_context;
@@ -93,13 +95,19 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 
 		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &buf)==0);
 
-		obj_buffer->buffer_data = mmap(NULL, size * num_elements,
+		obj_buffer->map_size = driver_data->slice_offset[buf.index] + size * num_elements;
+		obj_buffer->buffer_map = mmap(NULL, obj_buffer->map_size,
 				PROT_READ | PROT_WRITE, MAP_SHARED,
 				driver_data->mem2mem_fd, buf.m.planes[0].m.mem_offset);
-	} else
-		obj_buffer->buffer_data = realloc(obj_buffer->buffer_data, size * num_elements);
 
-	if (obj_buffer->buffer_data == NULL)
+		obj_buffer->buffer_data = obj_buffer->buffer_map + driver_data->slice_offset[buf.index];
+		driver_data->slice_offset[buf.index] += size * num_elements;
+	} else {
+		obj_buffer->buffer_map = NULL;
+		obj_buffer->buffer_data = malloc(size * num_elements);
+	}
+
+	if (obj_buffer->buffer_data == NULL || obj_buffer->buffer_map == MAP_FAILED)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 	if (data)
@@ -158,11 +166,12 @@ void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 		object_buffer_p obj_buffer)
 {
 	if (obj_buffer->buffer_data != NULL) {
-		if(obj_buffer->type == VASliceDataBufferType)
-			munmap(obj_buffer->buffer_data, obj_buffer->size);
-		else
+		if (obj_buffer->type != VASliceDataBufferType)
 			free(obj_buffer->buffer_data);
+		else if (obj_buffer->buffer_map != NULL && obj_buffer->map_size > 0)
+			munmap(obj_buffer->buffer_map, obj_buffer->map_size);
 
+		obj_buffer->buffer_map = NULL;
 		obj_buffer->buffer_data = NULL;
 	}
 

@@ -197,7 +197,10 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	switch(obj_config->profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			out_buf.m.planes[0].bytesused = obj_context->mpeg2_frame_hdr.slice_len/8;
+			obj_context->mpeg2_frame_hdr.slice_pos = 0;
+			obj_context->mpeg2_frame_hdr.slice_len = driver_data->slice_offset[obj_surface->input_buf_index] * 8;
+
+			out_buf.m.planes[0].bytesused = driver_data->slice_offset[obj_surface->input_buf_index];
 			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
 			ctrl.ptr = &obj_context->mpeg2_frame_hdr;
 			ctrl.size = sizeof(obj_context->mpeg2_frame_hdr);
@@ -217,6 +220,8 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 			ctrl.size = 0;
 			break;
 	}
+
+	driver_data->slice_offset[obj_surface->input_buf_index] = 0;
 
 	memset(&(cap_buf), 0, sizeof(cap_buf));
 	cap_buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;

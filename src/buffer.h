@@ -37,10 +37,12 @@
 struct object_buffer {
 	struct object_base base;
 	void *buffer_data;
+	void *buffer_map;
 	int max_num_elements;
 	int num_elements;
 	VABufferType type;
 	unsigned int size;
+	unsigned int map_size;
 };
 
 typedef struct object_buffer *object_buffer_p;
