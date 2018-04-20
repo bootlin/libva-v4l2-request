@@ -34,7 +34,7 @@
  * Indeed, the queue might be busy processing a previous buffer, so we need to
  * pre-allocate a set of buffers with a max size */
 #define INPUT_BUFFER_MAX_SIZE		131072
-#define INPUT_BUFFERS_NB		4
+#define INPUT_BUFFERS_NB		6
 
 #define CONTEXT(id) ((object_context_p) object_heap_lookup(&driver_data->context_heap, id))
 #define CONTEXT_ID_OFFSET		0x02000000
