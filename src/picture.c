@@ -175,13 +175,12 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	 * extended control when a buffer is queued and we don't know in which
 	 * order the different RenderPicture will be called.
 	 */
-
-	if(driver_data->request_fds[obj_surface->input_buf_index] < 0) {
+	request_fd = driver_data->request_fds[obj_surface->input_buf_index];
+	if(request_fd < 0) {
 		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_NEW_REQUEST, &media_request)==0);
 		driver_data->request_fds[obj_surface->input_buf_index] = media_request.fd;
+		request_fd = media_request.fd;
 	}
-
-	request_fd = driver_data->request_fds[obj_surface->input_buf_index];
 
 	memset(plane, 0, sizeof(struct v4l2_plane));
 	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
