@@ -133,6 +133,7 @@ VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 	VAStatus vaStatus = VA_STATUS_ERROR_UNKNOWN;
 	object_buffer_p obj_buffer = BUFFER(buf_id);
 	assert(obj_buffer);
+
 	if (NULL == obj_buffer)
 	{
 		vaStatus = VA_STATUS_ERROR_INVALID_BUFFER;
