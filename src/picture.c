@@ -154,6 +154,7 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	struct media_request_new media_request;
 	object_config_p obj_config;
 	int request_fd;
+	int rc;
 
 	obj_context = CONTEXT(context);
 	assert(obj_context);
@@ -229,7 +230,11 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	ctrls.count = 1;
 	ctrls.request_fd = request_fd;
 
-	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_S_EXT_CTRLS, &ctrls)==0);
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_S_EXT_CTRLS, &ctrls);
+	if (rc) {
+		printf("ioctl VIDIOC_S_EXT_CTRLS failed with %d/%d/%s\n", rc, errno, strerror(errno));
+		assert(0);
+	}
 
 	out_buf.request_fd = request_fd;
 
