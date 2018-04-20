@@ -54,6 +54,8 @@ VAStatus sunxi_cedrus_CreateImage(VADriverContextP ctx, VAImageFormat *format,
 	int sizeY, sizeUV;
 	object_image_p obj_img;
 
+	memset(image, 0, sizeof(VAImage));
+
 	image->format = *format;
 	image->buf = VA_INVALID_ID;
 	image->width = width;
