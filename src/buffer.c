@@ -166,7 +166,7 @@ void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 		obj_buffer->buffer_data = NULL;
 	}
 
-	object_heap_free(&driver_data->buffer_heap, (object_base_p) obj_buffer);
+	object_heap_free(&driver_data->buffer_heap, obj_buffer);
 }
 
 VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id)
