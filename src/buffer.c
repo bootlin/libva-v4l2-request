@@ -157,8 +157,7 @@ VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
 void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 		object_buffer_p obj_buffer)
 {
-	if (NULL != obj_buffer->buffer_data)
-	{
+	if (obj_buffer->buffer_data != NULL) {
 		if(obj_buffer->type == VASliceDataBufferType)
 			munmap(obj_buffer->buffer_data, obj_buffer->size);
 		else
