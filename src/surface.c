@@ -89,7 +89,7 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 
 	for (i = 0; i < create_bufs.count; i++)
 	{
-		int surfaceID = object_heap_allocate(&driver_data->surface_heap);
+		VASurfaceID surfaceID = object_heap_allocate(&driver_data->surface_heap);
 		object_surface_p obj_surface = SURFACE(surfaceID);
 		if (NULL == obj_surface)
 		{
