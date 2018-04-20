@@ -99,8 +99,7 @@ VAStatus sunxi_cedrus_DeriveImage(VADriverContextP ctx, VASurfaceID surface,
 	obj_surface = SURFACE(surface);
 	fmt.fourcc = VA_FOURCC_NV12;
 
-	ret = sunxi_cedrus_CreateImage(ctx, &fmt, obj_surface->width,
-			obj_surface->height, image);
+	ret = sunxi_cedrus_CreateImage(ctx, &fmt, obj_surface->width, obj_surface->height, image);
 	if(ret != VA_STATUS_SUCCESS)
 		return ret;
 
