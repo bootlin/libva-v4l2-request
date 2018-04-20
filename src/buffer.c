@@ -158,6 +158,12 @@ VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 
 VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
 {
+	INIT_DRIVER_DATA
+	object_buffer_p obj_buffer = BUFFER(buf_id);
+
+	if (obj_buffer == NULL)
+		return VA_STATUS_ERROR_INVALID_BUFFER;
+
 	/* Do nothing */
 	return VA_STATUS_SUCCESS;
 }
