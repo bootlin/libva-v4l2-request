@@ -68,6 +68,9 @@ VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
 	object_config_p obj_config;
 	object_heap_iterator iter;
 
+	for (int i = 0; i < INPUT_BUFFERS_NB; i++)
+		if (driver_data->request_fds[i] >= 0)
+			close(driver_data->request_fds[i]);
 
 	close(driver_data->mem2mem_fd);
 
