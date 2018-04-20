@@ -78,8 +78,10 @@ VAStatus sunxi_cedrus_CreateImage(VADriverContextP ctx, VAImageFormat *format,
 	obj_img = IMAGE(image->image_id);
 
 	if (sunxi_cedrus_CreateBuffer(ctx, 0, VAImageBufferType, image->data_size,
-	    1, NULL, &image->buf) != VA_STATUS_SUCCESS)
+	    1, NULL, &image->buf) != VA_STATUS_SUCCESS) {
+		// TODO: free image object
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
+	}
 	obj_img->buf = image->buf;
 
 	return VA_STATUS_SUCCESS;
