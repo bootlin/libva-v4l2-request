@@ -191,6 +191,8 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	if(rc < 0)
 		return VA_STATUS_ERROR_UNKNOWN;
 
+	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL)==0);
+
 	memset(&(buf), 0, sizeof(buf));
 	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	buf.memory = V4L2_MEMORY_MMAP;
@@ -217,7 +219,6 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 		return VA_STATUS_ERROR_UNKNOWN;
 	}
 
-	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL)==0);
 
 	return VA_STATUS_SUCCESS;
 }

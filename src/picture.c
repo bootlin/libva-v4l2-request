@@ -240,8 +240,6 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	if(ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &cap_buf)) {
 		obj_surface->status = VASurfaceSkipped;
 		sunxi_cedrus_msg("Error when queuing output: %s\n", strerror(errno));
-
-		ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL);
 		return VA_STATUS_ERROR_UNKNOWN;
 	}
 
@@ -250,7 +248,6 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 		sunxi_cedrus_msg("Error when queuing input: %s\n", strerror(errno));
 
 		ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &cap_buf);
-		ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL);
 		return VA_STATUS_ERROR_UNKNOWN;
 	}
 
