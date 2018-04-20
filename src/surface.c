@@ -164,7 +164,6 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	struct v4l2_plane plane[1];
 	struct v4l2_plane planes[2];
         fd_set read_fds;
-	struct timeval tv = {0, 300000};
 	int request_fd;
 	int rc;
 
@@ -186,7 +185,7 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	FD_ZERO(&read_fds);
 	FD_SET(request_fd, &read_fds);
 
-	rc = select(request_fd + 1, &read_fds, NULL, NULL, &tv);
+	rc = select(request_fd + 1, &read_fds, NULL, NULL, NULL);
 	// FIXME: Properly dispose of the buffers here?
 	if(rc < 0)
 		return VA_STATUS_ERROR_UNKNOWN;
