@@ -156,6 +156,12 @@ VAStatus sunxi_cedrus_DestroyContext(VADriverContextP ctx, VAContextID context)
 	INIT_DRIVER_DATA
 	object_context_p obj_context = CONTEXT(context);
 	assert(obj_context);
+	enum v4l2_buf_type type;
+
+	type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMOFF, &type);
+	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMOFF, &type);
 
 	obj_context->context_id = -1;
 	obj_context->config_id = -1;
