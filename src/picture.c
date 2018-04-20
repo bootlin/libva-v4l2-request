@@ -185,7 +185,7 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	memset(plane, 0, sizeof(struct v4l2_plane));
 	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
 	memset(&ctrl, 0, sizeof(struct v4l2_ext_control));
-	memset(&ctrls, 0, sizeof(struct v4l2_ext_control));
+	memset(&ctrls, 0, sizeof(struct v4l2_ext_controls));
 
 	memset(&(out_buf), 0, sizeof(out_buf));
 	out_buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
