@@ -54,8 +54,7 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 	memset(plane, 0, sizeof(struct v4l2_plane));
 
 	/* Validate type */
-	switch (type)
-	{
+	switch (type) {
 		case VAPictureParameterBufferType:
 		case VAIQMatrixBufferType: /* Ignored */
 		case VASliceParameterBufferType:
