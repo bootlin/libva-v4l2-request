@@ -102,7 +102,7 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 		memset(&(buf), 0, sizeof(buf));
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = create_bufs.index + i;
+		buf.index = create_bufs.index + i; // FIXME that's just i isn't it?
 		buf.length = 2;
 		buf.m.planes = planes;
 
@@ -119,7 +119,7 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 		assert(driver_data->chroma_bufs[buf.index] != MAP_FAILED);
 
 		obj_surface->input_buf_index = 0;
-		obj_surface->output_buf_index = create_bufs.index + i;
+		obj_surface->output_buf_index = create_bufs.index + i; // FIXME that's just i isn't it?
 
 		obj_surface->width = width;
 		obj_surface->height = height;
