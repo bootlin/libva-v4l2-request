@@ -47,7 +47,6 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 		void *data, VABufferID *buf_id)
 {
 	INIT_DRIVER_DATA
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	int bufferID;
 	struct v4l2_plane plane[1];
 	object_buffer_p obj_buffer;
@@ -65,20 +64,19 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 			/* Ok */
 			break;
 		default:
-			vaStatus = VA_STATUS_ERROR_UNSUPPORTED_BUFFERTYPE;
-			return vaStatus;
+			return VA_STATUS_ERROR_UNSUPPORTED_BUFFERTYPE;
 	}
 
 	bufferID = object_heap_allocate(&driver_data->buffer_heap);
 	obj_buffer = BUFFER(bufferID);
-	if (NULL == obj_buffer)
-	{
-		vaStatus = VA_STATUS_ERROR_ALLOCATION_FAILED;
-		return vaStatus;
-	}
+	if (obj_buffer == NULL)
+		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 	obj_buffer->buffer_data = NULL;
 	obj_buffer->type = type;
+	obj_buffer->max_num_elements = num_elements;
+	obj_buffer->num_elements = num_elements;
+	obj_buffer->size = size;
 
 	if(obj_buffer->type == VASliceDataBufferType) {
 		object_context_p obj_context;
@@ -105,21 +103,12 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 	if (obj_buffer->buffer_data == NULL)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-	if (VA_STATUS_SUCCESS == vaStatus)
-	{
-		obj_buffer->max_num_elements = num_elements;
-		obj_buffer->num_elements = num_elements;
-		obj_buffer->size = size;
+	if (data)
+		memcpy(obj_buffer->buffer_data, data, size * num_elements);
 
-		if (data)
-			memcpy(obj_buffer->buffer_data, data,
-					size * num_elements);
-	}
+	*buf_id = bufferID;
 
-	if (VA_STATUS_SUCCESS == vaStatus)
-		*buf_id = bufferID;
-
-	return vaStatus;
+	return VA_STATUS_SUCCESS;
 }
 
 VAStatus sunxi_cedrus_BufferSetNumElements(VADriverContextP ctx,
