@@ -212,13 +212,13 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	buf.length = 2;
 	buf.m.planes = planes;
 
-	obj_surface->status = VASurfaceReady;
 
 	if(ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &buf)) {
 		sunxi_cedrus_msg("Error when dequeuing output: %s\n", strerror(errno));
 		return VA_STATUS_ERROR_UNKNOWN;
 	}
 
+	obj_surface->status = VASurfaceReady;
 
 	return VA_STATUS_SUCCESS;
 }
