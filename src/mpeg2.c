@@ -106,6 +106,7 @@ VAStatus sunxi_cedrus_render_mpeg2_picture_parameter(VADriverContextP ctx,
 		obj_context->mpeg2_frame_hdr.forward_index = fwd_surface->output_buf_index;
 	else
 		obj_context->mpeg2_frame_hdr.forward_index = obj_surface->output_buf_index;
+
 	object_surface_p bwd_surface = SURFACE(pic_param->backward_reference_picture);
 	if(bwd_surface)
 		obj_context->mpeg2_frame_hdr.backward_index = bwd_surface->output_buf_index;
