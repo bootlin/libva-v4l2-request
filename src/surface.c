@@ -187,7 +187,7 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 
 	rc = select(request_fd + 1, &read_fds, NULL, NULL, NULL);
 	// FIXME: Properly dispose of the buffers here?
-	if(rc < 0)
+	if(rc <= 0)
 		return VA_STATUS_ERROR_UNKNOWN;
 
 	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL)==0);
