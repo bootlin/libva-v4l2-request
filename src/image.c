@@ -124,6 +124,8 @@ VAStatus sunxi_cedrus_DestroyImage(VADriverContextP ctx, VAImageID image)
 	assert(obj_img);
 
 	sunxi_cedrus_DestroyBuffer(ctx, obj_img->buf);
+	object_heap_free(&driver_data->image_heap, &obj_img->base);
+
 	return VA_STATUS_SUCCESS;
 }
 
