@@ -177,6 +177,7 @@ VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id)
 	assert(obj_buffer);
 
 	sunxi_cedrus_destroy_buffer(driver_data, obj_buffer);
+
 	return VA_STATUS_SUCCESS;
 }
 
