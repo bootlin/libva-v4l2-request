@@ -72,7 +72,7 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 		return vaStatus;
 	}
 
-	obj_context->context_id  = contextID;
+	obj_context->context_id = contextID;
 	*context = contextID;
 	obj_context->current_render_target = -1;
 	obj_context->config_id = config_id;
