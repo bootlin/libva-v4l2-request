@@ -72,6 +72,7 @@ VAStatus sunxi_cedrus_CreateImage(VADriverContextP ctx, VAImageFormat *format,
 	image->image_id = object_heap_allocate(&driver_data->image_heap);
 	if (image->image_id == VA_INVALID_ID)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
+
 	obj_img = IMAGE(image->image_id);
 
 	if (sunxi_cedrus_CreateBuffer(ctx, 0, VAImageBufferType, image->data_size,
