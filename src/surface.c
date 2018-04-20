@@ -181,6 +181,8 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	if(request_fd < 0)
 		return  VA_STATUS_ERROR_UNKNOWN;
 
+	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_SUBMIT, NULL)==0);
+
 	FD_ZERO(&read_fds);
 	FD_SET(request_fd, &read_fds);
 
