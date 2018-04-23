@@ -55,11 +55,11 @@ struct object_context {
 	uint32_t num_rendered_surfaces;
 };
 
-VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
-		int picture_width, int picture_height, int flag,
-		VASurfaceID *render_targets, int num_render_targets,
-		VAContextID *context);
-
-VAStatus SunxiCedrusDestroyContext(VADriverContextP ctx, VAContextID context);
+VAStatus SunxiCedrusCreateContext(VADriverContextP context,
+	VAConfigID config_id, int picture_width, int picture_height, int flag,
+	VASurfaceID *render_targets, int render_targets_count,
+	VAContextID *context_id);
+VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
+	VAContextID context_id);
 
 #endif /* _CONTEXT_H_ */

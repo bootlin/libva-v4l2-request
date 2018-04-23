@@ -44,13 +44,13 @@
  * format is set.
  */
 
-VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
-		int picture_width, int picture_height, int flag,
-		VASurfaceID *render_targets, int num_render_targets,
-		VAContextID *context)
+VAStatus SunxiCedrusCreateContext(VADriverContextP context,
+	VAConfigID config_id, int picture_width, int picture_height, int flag,
+	VASurfaceID *render_targets, int render_targets_count,
+	VAContextID *context_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_config *obj_config;
 	int i;
@@ -75,13 +75,13 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
 
 	obj_context->config_id = config_id;
 	obj_context->render_target = VA_INVALID;
-	obj_context->render_targets = (VASurfaceID *) malloc(num_render_targets * sizeof(VASurfaceID));
-	obj_context->render_targets_count = num_render_targets;
+	obj_context->render_targets = (VASurfaceID *) malloc(render_targets_count * sizeof(VASurfaceID));
+	obj_context->render_targets_count = render_targets_count;
 	obj_context->picture_width = picture_width;
 	obj_context->picture_height = picture_height;
 	obj_context->num_rendered_surfaces = 0;
 
-	*context = contextID;
+	*context_id = contextID;
 
 	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
 	uint32_t num_rendered_surfaces;
@@ -92,7 +92,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
 		return vaStatus;
 	}
 
-	for(i = 0; i < num_render_targets; i++)
+	for(i = 0; i < render_targets_count; i++)
 	{
 		if (NULL == SURFACE(render_targets[i]))
 		{
@@ -149,11 +149,12 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
 	return vaStatus;
 }
 
-VAStatus SunxiCedrusDestroyContext(VADriverContextP ctx, VAContextID context)
+VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
+	VAContextID context_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
-	struct object_context *obj_context = CONTEXT(context);
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_context *obj_context = CONTEXT(context_id);
 	assert(obj_context);
 	enum v4l2_buf_type type;
 
