@@ -35,7 +35,7 @@
 
 struct object_image {
 	struct object_base base;
-	VABufferID buf;
+	VABufferID buffer_id;
 };
 
 VAStatus SunxiCedrusQueryImageFormats(VADriverContextP ctx,
