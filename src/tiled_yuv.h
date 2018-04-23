@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef __TILED_YUV_H__
-#define __TILED_YUV_H__
+#ifndef _TILED_YUV_H_
+#define _TILED_YUV_H_
 
 void tiled_to_planar(void *src, void *dst, unsigned int dst_pitch,
                      unsigned int width, unsigned int height);

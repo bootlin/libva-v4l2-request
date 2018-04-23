@@ -23,8 +23,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _SURFACES_H_
-#define _SURFACES_H_
+#ifndef _SURFACE_H_
+#define _SURFACE_H_
 
 #include <va/va_backend.h>
 
