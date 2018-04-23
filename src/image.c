@@ -39,19 +39,19 @@
  * Surface.
  */
 
-VAStatus SunxiCedrusQueryImageFormats(VADriverContextP ctx,
-		VAImageFormat *format_list, int *num_formats)
+VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
+	VAImageFormat *formats, int *formats_count)
 {
-	format_list[0].fourcc = VA_FOURCC_NV12;
-	*num_formats = 1;
+	formats[0].fourcc = VA_FOURCC_NV12;
+	*formats_count = 1;
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusCreateImage(VADriverContextP ctx, VAImageFormat *format,
-		int width, int height, VAImage *image)
+VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
+	int width, int height, VAImage *image)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	int sizeY, sizeUV;
 	struct object_image *obj_img;
 
@@ -78,7 +78,7 @@ VAStatus SunxiCedrusCreateImage(VADriverContextP ctx, VAImageFormat *format,
 
 	obj_img = IMAGE(image->image_id);
 
-	if (SunxiCedrusCreateBuffer(ctx, 0, VAImageBufferType, image->data_size,
+	if (SunxiCedrusCreateBuffer(context, 0, VAImageBufferType, image->data_size,
 	    1, NULL, &image->buf) != VA_STATUS_SUCCESS) {
 		// TODO: free image object
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
@@ -88,11 +88,11 @@ VAStatus SunxiCedrusCreateImage(VADriverContextP ctx, VAImageFormat *format,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusDeriveImage(VADriverContextP ctx, VASurfaceID surface,
-		VAImage *image)
+VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
+	VASurfaceID surface_id, VAImage *image)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *obj_surface;
 	VAImageFormat fmt;
 	struct object_buffer *obj_buffer;
@@ -102,9 +102,9 @@ VAStatus SunxiCedrusDeriveImage(VADriverContextP ctx, VASurfaceID surface,
 	fmt.fourcc = VA_FOURCC_NV12;
 
 	if (obj_surface->status == VASurfaceRendering)
-		SunxiCedrusSyncSurface(ctx, surface);
+		SunxiCedrusSyncSurface(context, surface);
 
-	ret = SunxiCedrusCreateImage(ctx, &fmt, obj_surface->width, obj_surface->height, image);
+	ret = SunxiCedrusCreateImage(context, &fmt, obj_surface->width, obj_surface->height, image);
 	if(ret != VA_STATUS_SUCCESS)
 		return ret;
 
@@ -119,32 +119,32 @@ VAStatus SunxiCedrusDeriveImage(VADriverContextP ctx, VASurfaceID surface,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusDestroyImage(VADriverContextP ctx, VAImageID image)
+VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_image *obj_img;
 
 	obj_img = IMAGE(image);
 	assert(obj_img);
 
-	SunxiCedrusDestroyBuffer(ctx, obj_img->buf);
+	SunxiCedrusDestroyBuffer(context, obj_img->buf);
 	object_heap_free(&driver_data->image_heap, &obj_img->base);
 
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusSetImagePalette(VADriverContextP ctx, VAImageID image,
-		unsigned char *palette)
+VAStatus SunxiCedrusSetImagePalette(VADriverContextP context,
+	VAImageID image_id, unsigned char *palette)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusGetImage(VADriverContextP ctx, VASurfaceID surface,
-		int x, int y, unsigned int width, unsigned int height,
-		VAImageID image)
+VAStatus SunxiCedrusGetImage(VADriverContextP context, VASurfaceID surface_id,
+	int x, int y, unsigned int width, unsigned int height,
+	VAImageID image_id)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusPutImage(VADriverContextP ctx, VASurfaceID surface,
-		VAImageID image, int src_x, int src_y, unsigned int src_width,
-		unsigned int src_height, int dest_x, int dest_y,
-		unsigned int dest_width, unsigned int dest_height)
+VAStatus SunxiCedrusPutImage(VADriverContextP context, VASurfaceID surface_id,
+	VAImageID image, int src_x, int src_y, unsigned int src_width,
+	unsigned int src_height, int dst_x, int dst_y, unsigned int dst_width,
+	unsigned int dst_height)
 { return VA_STATUS_SUCCESS; }
