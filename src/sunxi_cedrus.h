@@ -44,17 +44,17 @@
 void sunxi_cedrus_msg(const char *msg, ...);
 
 struct sunxi_cedrus_driver_data {
-	struct object_heap	config_heap;
-	struct object_heap	context_heap;
-	struct object_heap	surface_heap;
-	struct object_heap	buffer_heap;
-	struct object_heap	image_heap;
-	char                   *luma_bufs[VIDEO_MAX_FRAME];
-	char                   *chroma_bufs[VIDEO_MAX_FRAME];
-	unsigned int		num_dst_bufs;
-	int			mem2mem_fd;
-	int			request_fds[INPUT_BUFFERS_NB];
-	int			slice_offset[INPUT_BUFFERS_NB];
+	struct object_heap config_heap;
+	struct object_heap context_heap;
+	struct object_heap surface_heap;
+	struct object_heap buffer_heap;
+	struct object_heap image_heap;
+	char *luma_bufs[VIDEO_MAX_FRAME];
+	char *chroma_bufs[VIDEO_MAX_FRAME];
+	unsigned int num_dst_bufs;
+	int mem2mem_fd;
+	int request_fds[INPUT_BUFFERS_NB];
+	int slice_offset[INPUT_BUFFERS_NB];
 };
 
 #endif /* _SUNXI_CEDRUS_H_ */
