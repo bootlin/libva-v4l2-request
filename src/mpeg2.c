@@ -40,7 +40,7 @@
  */
 
 VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
-		object_context_p obj_context, object_surface_p obj_surface,
+		struct object_context *obj_context, object_surface_p obj_surface,
 		struct object_buffer *obj_buffer)
 {
 	INIT_DRIVER_DATA
@@ -53,7 +53,7 @@ VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
 }
 
 VAStatus sunxi_cedrus_render_mpeg2_picture_parameter(VADriverContextP ctx,
-		object_context_p obj_context, object_surface_p obj_surface,
+		struct object_context *obj_context, object_surface_p obj_surface,
 		struct object_buffer *obj_buffer)
 {
 	INIT_DRIVER_DATA

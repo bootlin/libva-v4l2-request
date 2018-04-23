@@ -55,7 +55,7 @@ VAStatus sunxi_cedrus_BeginPicture(VADriverContextP ctx, VAContextID context,
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	object_context_p obj_context;
+	struct object_context *obj_context;
 	object_surface_p obj_surface;
 
 	obj_context = CONTEXT(context);
@@ -85,7 +85,7 @@ VAStatus sunxi_cedrus_RenderPicture(VADriverContextP ctx, VAContextID context,
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	object_context_p obj_context;
+	struct object_context *obj_context;
 	object_surface_p obj_surface;
 	object_config_p obj_config;
 	int i;
@@ -144,7 +144,7 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	object_context_p obj_context;
+	struct object_context *obj_context;
 	object_surface_p obj_surface;
 	struct v4l2_buffer out_buf, cap_buf;
 	struct v4l2_plane plane[1];

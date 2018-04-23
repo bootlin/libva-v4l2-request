@@ -36,7 +36,7 @@
 #define INPUT_BUFFER_MAX_SIZE		131072
 #define INPUT_BUFFERS_NB		6
 
-#define CONTEXT(id) ((object_context_p) object_heap_lookup(&driver_data->context_heap, id))
+#define CONTEXT(id) ((struct object_context *) object_heap_lookup(&driver_data->context_heap, id))
 #define CONTEXT_ID_OFFSET		0x02000000
 
 struct object_context {
@@ -54,8 +54,6 @@ struct object_context {
 	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
 	struct v4l2_ctrl_mpeg4_frame_hdr mpeg4_frame_hdr;
 };
-
-typedef struct object_context *object_context_p;
 
 VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 		int picture_width, int picture_height, int flag,

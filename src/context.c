@@ -65,7 +65,7 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 	}
 
 	int contextID = object_heap_allocate(&driver_data->context_heap);
-	object_context_p obj_context = CONTEXT(contextID);
+	struct object_context *obj_context = CONTEXT(contextID);
 	if (NULL == obj_context)
 	{
 		vaStatus = VA_STATUS_ERROR_ALLOCATION_FAILED;
@@ -154,7 +154,7 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 VAStatus sunxi_cedrus_DestroyContext(VADriverContextP ctx, VAContextID context)
 {
 	INIT_DRIVER_DATA
-	object_context_p obj_context = CONTEXT(context);
+	struct object_context *obj_context = CONTEXT(context);
 	assert(obj_context);
 	enum v4l2_buf_type type;
 

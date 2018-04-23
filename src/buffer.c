@@ -80,7 +80,7 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 	obj_buffer->map_size = 0;
 
 	if(obj_buffer->type == VASliceDataBufferType) {
-		object_context_p obj_context;
+		struct object_context *obj_context;
 
 		obj_context = CONTEXT(context);
 		assert(obj_context);
