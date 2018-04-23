@@ -64,4 +64,4 @@ VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
 VAStatus SunxiCedrusSetDisplayAttributes(VADriverContextP context,
 	VADisplayAttribute *attributes, int *attributes_count);
 
-#endif /* _CONFIG_H_ */
+#endif

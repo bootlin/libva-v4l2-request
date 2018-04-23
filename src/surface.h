@@ -69,4 +69,4 @@ VAStatus SunxiCedrusLockSurface(VADriverContextP context,
 VAStatus SunxiCedrusUnlockSurface(VADriverContextP context,
 	VASurfaceID surface_id);
 
-#endif /* _SURFACES_H_ */
+#endif

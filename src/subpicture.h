@@ -54,4 +54,4 @@ VAStatus SunxiCedrusDeassociateSubpicture(VADriverContextP context,
 	VASubpictureID subpicture_id, VASurfaceID *surfaces_ids,
 	int surfaces_count);
 
-#endif /* _SUBPICTURE_H_ */
+#endif

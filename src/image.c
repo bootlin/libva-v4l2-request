@@ -32,13 +32,6 @@
 
 #include "tiled_yuv.h"
 
-/*
- * An Image is a standard data structure containing rendered frames in a usable
- * pixel format. Here we only use NV12 buffers which are converted from sunxi's
- * proprietary tiled pixel format with tiled_yuv when deriving an Image from a
- * Surface.
- */
-
 VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
 	VAImageFormat *formats, int *formats_count)
 {

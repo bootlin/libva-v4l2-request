@@ -90,4 +90,4 @@ void object_heap_free(object_heap_p heap, object_base_p obj);
  */
 void object_heap_destroy(object_heap_p heap);
 
-#endif /* OBJECT_HEAP_H */
+#endif

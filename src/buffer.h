@@ -63,4 +63,4 @@ VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
 VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,
 	VABufferType *type, unsigned int *size, unsigned int *count);
 
-#endif /* _BUFFER_H_ */
+#endif

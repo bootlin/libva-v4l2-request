@@ -49,18 +49,17 @@
 
 #include <linux/videodev2.h>
 
-/* We need to use stderr if we want to be heard */
 void sunxi_cedrus_msg(const char *msg, ...)
 {
 	va_list args;
 
+	/* We need to use stderr if we want to be heard */
 	fprintf(stderr, "sunxi_cedrus_drv_video: ");
 	va_start(args, msg);
 	vfprintf(stderr, msg, args);
 	va_end(args);
 }
 
-/* Free memory and close v4l device */
 VAStatus SunxiCedrusTerminate(VADriverContextP context)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -68,6 +67,8 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	struct object_buffer *obj_buffer;
 	struct object_config *obj_config;
 	object_heap_iterator iter;
+
+	/* Free memory and close v4l device */
 
 	for (int i = 0; i < INPUT_BUFFERS_NB; i++)
 		if (driver_data->request_fds[i] >= 0)
@@ -103,12 +104,8 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	return VA_STATUS_SUCCESS;
 }
 
-/* Only expose the init function */
-VAStatus __attribute__((visibility("default")))
-VA_DRIVER_INIT_FUNC(VADriverContextP context);
-
-/* Setup a bunch of function pointers for VA */
-VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
+/* Only expose the init function. */
+VAStatus __attribute__((visibility("default"))) VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
 	struct VADriverVTable * const vtable = context->vtable;
 	struct sunxi_cedrus_driver_data *driver_data;
@@ -206,4 +203,3 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 
 	return VA_STATUS_SUCCESS;
 }
-

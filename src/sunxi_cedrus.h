@@ -57,4 +57,4 @@ struct sunxi_cedrus_driver_data {
 	int slice_offset[INPUT_BUFFERS_NB];
 };
 
-#endif /* _SUNXI_CEDRUS_H_ */
+#endif

@@ -41,14 +41,6 @@
 
 #include <linux/videodev2.h>
 
-/*
- * A Picture is an encoded input frame made of several buffers. A single input
- * can contain slice data, headers and IQ matrix. Each Picture is assigned a
- * request ID when created and each corresponding buffer might be turned into a
- * v4l buffers or extended control when rendered. Finally they are submitted to
- * kernel space when reaching EndPicture.
- */
-
 VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 	VAContextID context_id, VASurfaceID surface_id)
 {
@@ -162,12 +154,6 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		return vaStatus;
 	}
 
-	/*
-	 * The real rendering is done in EndPicture instead of RenderPicture
-	 * because the v4l2 driver expects to have the full corresponding
-	 * extended control when a buffer is queued and we don't know in which
-	 * order the different RenderPicture will be called.
-	 */
 	request_fd = driver_data->request_fds[obj_surface->input_buf_index];
 	if(request_fd < 0) {
 		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_NEW_REQUEST, &media_request)==0);

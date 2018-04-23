@@ -26,10 +26,6 @@
 #include "sunxi_cedrus.h"
 #include "subpicture.h"
 
-/*
- * Subpictures aren't supported yet
- */
-
 VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
 	VAImageFormat *formats, unsigned int *flags,
 	unsigned int *formats_count)

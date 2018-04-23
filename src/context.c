@@ -37,13 +37,6 @@
 
 #include <linux/videodev2.h>
 
-/*
- * A Context is a global data structure used for rendering a video of a certain
- * format. When a context is created, input buffers are created and v4l's output
- * (which is the compressed data input queue, since capture is the real output)
- * format is set.
- */
-
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VAConfigID config_id, int picture_width, int picture_height, int flag,
 	VASurfaceID *surfaces_ids, int surfaces_count,

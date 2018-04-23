@@ -34,11 +34,6 @@
 
 #include <linux/videodev2.h>
 
-/*
- * This file takes care of filling v4l2's frame API MPEG2 headers extended
- * controls from VA's data structures.
- */
-
 VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
 		struct object_context *obj_context, struct object_surface *obj_surface,
 		struct object_buffer *obj_buffer)

@@ -55,4 +55,4 @@ VAStatus SunxiCedrusPutImage(VADriverContextP context, VASurfaceID surface_id,
 	unsigned int src_height, int dst_x, int dst_y, unsigned int dst_width,
 	unsigned int dst_height);
 
-#endif /* _IMAGE_H_ */
+#endif

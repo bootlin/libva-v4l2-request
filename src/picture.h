@@ -37,4 +37,4 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	VAContextID context_id);
 
-#endif /* _PICTURE_H_ */
+#endif

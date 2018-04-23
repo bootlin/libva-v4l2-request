@@ -36,12 +36,6 @@
 
 #include <linux/videodev2.h>
 
-/*
- * A Buffer is a memory zone used to handle all kind of data, for example an IQ
- * matrix or image buffer (which are allocated using realloc) or slice data
- * (which are mmapped from v4l's kernel space)
- */
-
 VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	VAContextID context_id, VABufferType type, unsigned int size,
 	unsigned int count, void *data, VABufferID *buffer_id)
@@ -53,6 +47,12 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	struct object_buffer *obj_buffer;
 
 	memset(plane, 0, sizeof(struct v4l2_plane));
+
+	/*
+	 * A Buffer is a memory zone used to handle all kind of data, for example an IQ
+	 * matrix or image buffer (which are allocated using realloc) or slice data
+	 * (which are mmapped from v4l's kernel space)
+	 */
 
 	/* Validate type */
 	switch (type) {
@@ -202,7 +202,6 @@ VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-/* sunxi-cedrus doesn't support buffer info */
 VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,
 	VABufferType *type, unsigned int *size, unsigned int *count)
 { return VA_STATUS_ERROR_UNIMPLEMENTED; }

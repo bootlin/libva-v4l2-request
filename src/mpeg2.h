@@ -41,4 +41,4 @@ VAStatus sunxi_cedrus_render_mpeg2_picture_parameter(VADriverContextP ctx,
 		struct object_context *obj_context, struct object_surface *obj_surface,
 		struct object_buffer *obj_buffer);
 
-#endif /* _MPEG2_H_ */
+#endif

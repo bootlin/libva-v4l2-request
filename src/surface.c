@@ -38,20 +38,6 @@
 
 #include <X11/Xlib.h>
 
-/*
- * A Surface is an internal data structure never handled by the VA's user
- * containing the output of a rendering. Usualy, a bunch of surfaces are created
- * at the begining of decoding and they are then used alternatively. When
- * created, a surface is assigned a corresponding v4l capture buffer and it is
- * kept until the end of decoding. Syncing a surface waits for the v4l buffer to
- * be available and then dequeue it.
- *
- * Note: since a Surface is kept private from the VA's user, it can ask to
- * directly render a Surface on screen in an X Drawable. Some kind of
- * implementation is available in PutSurface but this is only for development
- * purpose.
- */
-
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	int height, int format, int surfaces_count, VASurfaceID *surfaces)
 {
@@ -241,7 +227,7 @@ VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 	return vaStatus;
 }
 
-/* WARNING: This is for development purpose only!!! */
+
 VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 	void *draw, short src_x, short src_y, unsigned short src_width,
 	unsigned short src_height, short dst_x, short dst_y,
@@ -260,6 +246,8 @@ VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 	int colorratio = 65535 / 255;
 	int x, y;
 	struct object_surface *obj_surface;
+
+	/* WARNING: This is for development purpose only!!! */
 
 	obj_surface = SURFACE(surface);
 	assert(obj_surface);

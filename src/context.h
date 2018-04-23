@@ -30,9 +30,6 @@
 
 #include "object_heap.h"
 
-/* We can't dynamically call VIDIOC_REQBUFS for every MPEG slice we create.
- * Indeed, the queue might be busy processing a previous buffer, so we need to
- * pre-allocate a set of buffers with a max size */
 #define INPUT_BUFFER_MAX_SIZE		131072
 #define INPUT_BUFFERS_NB		6
 
@@ -62,4 +59,4 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 	VAContextID context_id);
 
-#endif /* _CONTEXT_H_ */
+#endif

@@ -33,12 +33,6 @@
 
 #include <linux/videodev2.h>
 
-/*
- * This file provides generalities to VA's user regarding the file formats
- * supported by the v4l driver. It uses VIDIOC_ENUM_FMT to make the
- * correspondence between v4l and VA video formats.
- */
-
 VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
 	VAProfile *profiles, int *profiles_count)
 {
@@ -237,7 +231,6 @@ VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
 	return vaStatus;
 }
 
-/* sunxi-cedrus doesn't support display attributes */
 VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
 	VADisplayAttribute *attributes, int *attributes_count)
 { return VA_STATUS_ERROR_UNKNOWN; }
