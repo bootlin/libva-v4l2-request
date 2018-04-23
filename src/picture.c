@@ -49,23 +49,23 @@
  * kernel space when reaching EndPicture.
  */
 
-VAStatus SunxiCedrusBeginPicture(VADriverContextP ctx, VAContextID context,
-		VASurfaceID render_target)
+VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
+	VAContextID context_id, VASurfaceID surface_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_context *obj_context;
 	struct object_surface *obj_surface;
 
-	obj_context = CONTEXT(context);
+	obj_context = CONTEXT(context_id);
 	assert(obj_context);
 
-	obj_surface = SURFACE(render_target);
+	obj_surface = SURFACE(surface_id);
 	assert(obj_surface);
 
 	if (obj_surface->status == VASurfaceRendering) {
-		vaStatus = SunxiCedrusSyncSurface(ctx, render_target);
+		vaStatus = SunxiCedrusSyncSurface(context, surface_id);
 		if (vaStatus != VA_STATUS_SUCCESS)
 			return vaStatus;
 	}
@@ -80,18 +80,18 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP ctx, VAContextID context,
 	return vaStatus;
 }
 
-VAStatus SunxiCedrusRenderPicture(VADriverContextP ctx, VAContextID context,
-		VABufferID *buffers, int num_buffers)
+VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
+	VAContextID context_id, VABufferID *buffers, int buffers_count)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_context *obj_context;
 	struct object_surface *obj_surface;
 	struct object_config *obj_config;
 	int i;
 
-	obj_context = CONTEXT(context);
+	obj_context = CONTEXT(context_id);
 	assert(obj_context);
 
 	obj_config = CONFIG(obj_context->config_id);
@@ -105,7 +105,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP ctx, VAContextID context,
 	assert(obj_surface);
 
 	/* verify that we got valid buffer references */
-	for(i = 0; i < num_buffers; i++)
+	for(i = 0; i < buffers_count; i++)
 	{
 		struct object_buffer *obj_buffer = BUFFER(buffers[i]);
 		assert(obj_buffer);
@@ -131,10 +131,11 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP ctx, VAContextID context,
 	return vaStatus;
 }
 
-VAStatus SunxiCedrusEndPicture(VADriverContextP ctx, VAContextID context)
+VAStatus SunxiCedrusEndPicture(VADriverContextP context,
+	VAContextID context_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_context *obj_context;
 	struct object_surface *obj_surface;
@@ -148,7 +149,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP ctx, VAContextID context)
 	int request_fd;
 	int rc;
 
-	obj_context = CONTEXT(context);
+	obj_context = CONTEXT(context_id);
 	assert(obj_context);
 
 	obj_surface = SURFACE(obj_context->render_surface_id);
