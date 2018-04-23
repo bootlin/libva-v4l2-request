@@ -28,38 +28,30 @@
 
 #include <va/va_backend.h>
 
-VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP ctx,
-		VAImageFormat *format_list, unsigned int *flags,
-		unsigned int *num_formats);
-
-VAStatus SunxiCedrusCreateSubpicture(VADriverContextP ctx, VAImageID image,
-		VASubpictureID *subpicture);
-
-VAStatus SunxiCedrusDestroySubpicture(VADriverContextP ctx,
-		VASubpictureID subpicture);
-
-VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP ctx,
-		VASubpictureID subpicture, VAImageID image);
-
-VAStatus SunxiCedrusSetSubpicturePalette(VADriverContextP ctx,
-		VASubpictureID subpicture, unsigned char *palette);
-
-VAStatus SunxiCedrusSetSubpictureChromakey(VADriverContextP ctx,
-		VASubpictureID subpicture, unsigned int chromakey_min,
-		unsigned int chromakey_max, unsigned int chromakey_mask);
-
-VAStatus SunxiCedrusSetSubpictureGlobalAlpha(VADriverContextP ctx,
-		VASubpictureID subpicture, float global_alpha);
-
-VAStatus SunxiCedrusAssociateSubpicture(VADriverContextP ctx,
-		VASubpictureID subpicture, VASurfaceID *target_surfaces,
-		int num_surfaces, short src_x, short src_y,
-		unsigned short src_width, unsigned short src_height,
-		short dest_x, short dest_y, unsigned short dest_width,
-		unsigned short dest_height, unsigned int flags);
-
-VAStatus SunxiCedrusDeassociateSubpicture(VADriverContextP ctx,
-		VASubpictureID subpicture, VASurfaceID *target_surfaces,
-		int num_surfaces);
+VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
+	VAImageFormat *formats, unsigned int *flags,
+	unsigned int *formats_count);
+VAStatus SunxiCedrusCreateSubpicture(VADriverContextP context,
+	VAImageID image_id, VASubpictureID *subpicture_id);
+VAStatus SunxiCedrusDestroySubpicture(VADriverContextP context,
+	VASubpictureID subpicture_id);
+VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP context,
+	VASubpictureID subpicture_id, VAImageID image_id);
+VAStatus SunxiCedrusSetSubpicturePalette(VADriverContextP context,
+	VASubpictureID subpicture_id, unsigned char *palette);
+VAStatus SunxiCedrusSetSubpictureChromakey(VADriverContextP context,
+	VASubpictureID subpicture_id, unsigned int chromakey_min,
+	unsigned int chromakey_max, unsigned int chromakey_mask);
+VAStatus SunxiCedrusSetSubpictureGlobalAlpha(VADriverContextP context,
+	VASubpictureID subpicture_id, float global_alpha);
+VAStatus SunxiCedrusAssociateSubpicture(VADriverContextP context,
+	VASubpictureID subpicture_id, VASurfaceID *surfaces_ids,
+	int surfaces_count, short src_x, short src_y, unsigned short src_width,
+	unsigned short src_height, short dst_x, short dst_y,
+	unsigned short dst_width, unsigned short dst_height,
+	unsigned int flags);
+VAStatus SunxiCedrusDeassociateSubpicture(VADriverContextP context,
+	VASubpictureID subpicture_id, VASurfaceID *surfaces_ids,
+	int surfaces_count);
 
 #endif /* _SUBPICTURE_H_ */

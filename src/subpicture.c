@@ -30,46 +30,45 @@
  * Subpictures aren't supported yet
  */
 
-VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP ctx,
-		VAImageFormat *format_list, unsigned int *flags,
-		unsigned int *num_formats)
+VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
+	VAImageFormat *formats, unsigned int *flags,
+	unsigned int *formats_count)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusCreateSubpicture(VADriverContextP ctx, VAImageID image,
-		VASubpictureID *subpicture)
+VAStatus SunxiCedrusCreateSubpicture(VADriverContextP context,
+	VAImageID image_id, VASubpictureID *subpicture_id)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusDestroySubpicture(VADriverContextP ctx,
-		VASubpictureID subpicture)
+VAStatus SunxiCedrusDestroySubpicture(VADriverContextP context,
+	VASubpictureID subpicture_id)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP ctx,
-		VASubpictureID subpicture, VAImageID image)
+VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP context,
+	VASubpictureID subpicture_id, VAImageID image_id)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusSetSubpicturePalette(VADriverContextP ctx,
-		VASubpictureID subpicture, unsigned char *palette)
+VAStatus SunxiCedrusSetSubpicturePalette(VADriverContextP context,
+	VASubpictureID subpicture_id, unsigned char *palette)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusSetSubpictureChromakey(VADriverContextP ctx,
-		VASubpictureID subpicture, unsigned int chromakey_min,
-		unsigned int chromakey_max, unsigned int chromakey_mask)
+VAStatus SunxiCedrusSetSubpictureChromakey(VADriverContextP context,
+	VASubpictureID subpicture_id, unsigned int chromakey_min,
+	unsigned int chromakey_max, unsigned int chromakey_mask)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusSetSubpictureGlobalAlpha(VADriverContextP ctx,
-		VASubpictureID subpicture, float global_alpha)
+VAStatus SunxiCedrusSetSubpictureGlobalAlpha(VADriverContextP context,
+	VASubpictureID subpicture_id, float global_alpha)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusAssociateSubpicture(VADriverContextP ctx,
-		VASubpictureID subpicture, VASurfaceID *target_surfaces,
-		int num_surfaces, short src_x, short src_y,
-		unsigned short src_width, unsigned short src_height,
-		short dest_x, short dest_y, unsigned short dest_width,
-		unsigned short dest_height, unsigned int flags)
+VAStatus SunxiCedrusAssociateSubpicture(VADriverContextP context,
+	VASubpictureID subpicture_id, VASurfaceID *surfaces_ids,
+	int surfaces_count, short src_x, short src_y, unsigned short src_width,
+	unsigned short src_height, short dst_x, short dst_y,
+	unsigned short dst_width, unsigned short dst_height, unsigned int flags)
 { return VA_STATUS_SUCCESS; }
 
-VAStatus SunxiCedrusDeassociateSubpicture(VADriverContextP ctx,
-		VASubpictureID subpicture, VASurfaceID *target_surfaces,
-		int num_surfaces)
+VAStatus SunxiCedrusDeassociateSubpicture(VADriverContextP context,
+	VASubpictureID subpicture_id, VASurfaceID *surfaces_ids,
+	int surfaces_count)
 { return VA_STATUS_SUCCESS; }
 
