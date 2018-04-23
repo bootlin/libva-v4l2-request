@@ -35,13 +35,15 @@
 
 struct object_surface {
 	struct object_base base;
+
 	VASurfaceID surface_id;
+	VAStatus status;
+	int width;
+	int height;
+
 	uint32_t request;
 	uint32_t input_buf_index;
 	uint32_t output_buf_index;
-	int width;
-	int height;
-	VAStatus status;
 };
 
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP ctx, int width,
