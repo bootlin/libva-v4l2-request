@@ -35,7 +35,7 @@
 
 #include <va/va_backend.h>
 
-#include "sunxi_cedrus_drv_video.h"
+#include "sunxi_cedrus.h"
 
 #include <assert.h>
 #include <stdlib.h>

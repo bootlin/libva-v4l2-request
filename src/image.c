@@ -23,7 +23,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sunxi_cedrus_drv_video.h"
+#include "sunxi_cedrus.h"
 #include "image.h"
 #include "surface.h"
 #include "buffer.h"

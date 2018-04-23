@@ -19,7 +19,7 @@ driver_libs = \
 	$(X11_DEPS_LIBS)	\
 	$(LIBVA_DEPS_LIBS)
 
-source_c = sunxi_cedrus_drv_video.c object_heap.c buffer.c va_config.c \
+source_c = sunxi_cedrus.c object_heap.c buffer.c va_config.c \
 	context.c image.c mpeg2.c mpeg4.c picture.c subpicture.c surface.c
 
 source_s = \
