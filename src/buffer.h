@@ -45,24 +45,24 @@ struct object_buffer {
 	unsigned int map_size;
 };
 
-VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
+VAStatus SunxiCedrusCreateBuffer(VADriverContextP ctx, VAContextID context,
 		VABufferType type, unsigned int size, unsigned int num_elements,
 		void *data, VABufferID *buf_id);
 
-VAStatus sunxi_cedrus_BufferSetNumElements(VADriverContextP ctx,
+VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP ctx,
 		VABufferID buf_id, unsigned int num_elements);
 
-VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
+VAStatus SunxiCedrusMapBuffer(VADriverContextP ctx, VABufferID buf_id,
 		void **pbuf);
 
-VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id);
+VAStatus SunxiCedrusUnmapBuffer(VADriverContextP ctx, VABufferID buf_id);
 
 void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 		struct object_buffer *obj_buffer);
 
-VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id);
+VAStatus SunxiCedrusDestroyBuffer(VADriverContextP ctx, VABufferID buffer_id);
 
-VAStatus sunxi_cedrus_BufferInfo(VADriverContextP ctx, VABufferID buf_id,
+VAStatus SunxiCedrusBufferInfo(VADriverContextP ctx, VABufferID buf_id,
 		VABufferType *type, unsigned int *size,
 		unsigned int *num_elements);
 

@@ -38,25 +38,25 @@ struct object_image {
 	VABufferID buf;
 };
 
-VAStatus sunxi_cedrus_QueryImageFormats(VADriverContextP ctx,
+VAStatus SunxiCedrusQueryImageFormats(VADriverContextP ctx,
 		VAImageFormat *format_list, int *num_formats);
 
-VAStatus sunxi_cedrus_CreateImage(VADriverContextP ctx, VAImageFormat *format,
+VAStatus SunxiCedrusCreateImage(VADriverContextP ctx, VAImageFormat *format,
 		int width, int height, VAImage *image);
 
-VAStatus sunxi_cedrus_DeriveImage(VADriverContextP ctx, VASurfaceID surface,
+VAStatus SunxiCedrusDeriveImage(VADriverContextP ctx, VASurfaceID surface,
 		VAImage *image);
 
-VAStatus sunxi_cedrus_DestroyImage(VADriverContextP ctx, VAImageID image);
+VAStatus SunxiCedrusDestroyImage(VADriverContextP ctx, VAImageID image);
 
-VAStatus sunxi_cedrus_SetImagePalette(VADriverContextP ctx, VAImageID image,
+VAStatus SunxiCedrusSetImagePalette(VADriverContextP ctx, VAImageID image,
 		unsigned char *palette);
 
-VAStatus sunxi_cedrus_GetImage(VADriverContextP ctx, VASurfaceID surface,
+VAStatus SunxiCedrusGetImage(VADriverContextP ctx, VASurfaceID surface,
 		int x, int y, unsigned int width, unsigned int height,
 		VAImageID image);
 
-VAStatus sunxi_cedrus_PutImage(VADriverContextP ctx, VASurfaceID surface,
+VAStatus SunxiCedrusPutImage(VADriverContextP ctx, VASurfaceID surface,
 		VAImageID image, int src_x, int src_y, unsigned int src_width,
 		unsigned int src_height, int dest_x, int dest_y,
 		unsigned int dest_width, unsigned int dest_height);

@@ -61,7 +61,7 @@ void sunxi_cedrus_msg(const char *msg, ...)
 }
 
 /* Free memory and close v4l device */
-VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
+VAStatus SunxiCedrusTerminate(VADriverContextP ctx)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
@@ -125,50 +125,50 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP ctx)
 	ctx->max_display_attributes = SUNXI_CEDRUS_MAX_DISPLAY_ATTRIBUTES;
 	ctx->str_vendor = SUNXI_CEDRUS_STR_VENDOR;
 
-	vtable->vaTerminate = sunxi_cedrus_Terminate;
-	vtable->vaQueryConfigEntrypoints = sunxi_cedrus_QueryConfigEntrypoints;
-	vtable->vaQueryConfigProfiles = sunxi_cedrus_QueryConfigProfiles;
-	vtable->vaQueryConfigEntrypoints = sunxi_cedrus_QueryConfigEntrypoints;
-	vtable->vaQueryConfigAttributes = sunxi_cedrus_QueryConfigAttributes;
-	vtable->vaCreateConfig = sunxi_cedrus_CreateConfig;
-	vtable->vaDestroyConfig = sunxi_cedrus_DestroyConfig;
-	vtable->vaGetConfigAttributes = sunxi_cedrus_GetConfigAttributes;
-	vtable->vaCreateSurfaces = sunxi_cedrus_CreateSurfaces;
-	vtable->vaDestroySurfaces = sunxi_cedrus_DestroySurfaces;
-	vtable->vaCreateContext = sunxi_cedrus_CreateContext;
-	vtable->vaDestroyContext = sunxi_cedrus_DestroyContext;
-	vtable->vaCreateBuffer = sunxi_cedrus_CreateBuffer;
-	vtable->vaBufferSetNumElements = sunxi_cedrus_BufferSetNumElements;
-	vtable->vaMapBuffer = sunxi_cedrus_MapBuffer;
-	vtable->vaUnmapBuffer = sunxi_cedrus_UnmapBuffer;
-	vtable->vaDestroyBuffer = sunxi_cedrus_DestroyBuffer;
-	vtable->vaBeginPicture = sunxi_cedrus_BeginPicture;
-	vtable->vaRenderPicture = sunxi_cedrus_RenderPicture;
-	vtable->vaEndPicture = sunxi_cedrus_EndPicture;
-	vtable->vaSyncSurface = sunxi_cedrus_SyncSurface;
-	vtable->vaQuerySurfaceStatus = sunxi_cedrus_QuerySurfaceStatus;
-	vtable->vaPutSurface = sunxi_cedrus_PutSurface;
-	vtable->vaQueryImageFormats = sunxi_cedrus_QueryImageFormats;
-	vtable->vaCreateImage = sunxi_cedrus_CreateImage;
-	vtable->vaDeriveImage = sunxi_cedrus_DeriveImage;
-	vtable->vaDestroyImage = sunxi_cedrus_DestroyImage;
-	vtable->vaSetImagePalette = sunxi_cedrus_SetImagePalette;
-	vtable->vaGetImage = sunxi_cedrus_GetImage;
-	vtable->vaPutImage = sunxi_cedrus_PutImage;
-	vtable->vaQuerySubpictureFormats = sunxi_cedrus_QuerySubpictureFormats;
-	vtable->vaCreateSubpicture = sunxi_cedrus_CreateSubpicture;
-	vtable->vaDestroySubpicture = sunxi_cedrus_DestroySubpicture;
-	vtable->vaSetSubpictureImage = sunxi_cedrus_SetSubpictureImage;
-	vtable->vaSetSubpictureChromakey = sunxi_cedrus_SetSubpictureChromakey;
-	vtable->vaSetSubpictureGlobalAlpha = sunxi_cedrus_SetSubpictureGlobalAlpha;
-	vtable->vaAssociateSubpicture = sunxi_cedrus_AssociateSubpicture;
-	vtable->vaDeassociateSubpicture = sunxi_cedrus_DeassociateSubpicture;
-	vtable->vaQueryDisplayAttributes = sunxi_cedrus_QueryDisplayAttributes;
-	vtable->vaGetDisplayAttributes = sunxi_cedrus_GetDisplayAttributes;
-	vtable->vaSetDisplayAttributes = sunxi_cedrus_SetDisplayAttributes;
-	vtable->vaLockSurface = sunxi_cedrus_LockSurface;
-	vtable->vaUnlockSurface = sunxi_cedrus_UnlockSurface;
-	vtable->vaBufferInfo = sunxi_cedrus_BufferInfo;
+	vtable->vaTerminate = SunxiCedrusTerminate;
+	vtable->vaQueryConfigEntrypoints = SunxiCedrusQueryConfigEntrypoints;
+	vtable->vaQueryConfigProfiles = SunxiCedrusQueryConfigProfiles;
+	vtable->vaQueryConfigEntrypoints = SunxiCedrusQueryConfigEntrypoints;
+	vtable->vaQueryConfigAttributes = SunxiCedrusQueryConfigAttributes;
+	vtable->vaCreateConfig = SunxiCedrusCreateConfig;
+	vtable->vaDestroyConfig = SunxiCedrusDestroyConfig;
+	vtable->vaGetConfigAttributes = SunxiCedrusGetConfigAttributes;
+	vtable->vaCreateSurfaces = SunxiCedrusCreateSurfaces;
+	vtable->vaDestroySurfaces = SunxiCedrusDestroySurfaces;
+	vtable->vaCreateContext = SunxiCedrusCreateContext;
+	vtable->vaDestroyContext = SunxiCedrusDestroyContext;
+	vtable->vaCreateBuffer = SunxiCedrusCreateBuffer;
+	vtable->vaBufferSetNumElements = SunxiCedrusBufferSetNumElements;
+	vtable->vaMapBuffer = SunxiCedrusMapBuffer;
+	vtable->vaUnmapBuffer = SunxiCedrusUnmapBuffer;
+	vtable->vaDestroyBuffer = SunxiCedrusDestroyBuffer;
+	vtable->vaBeginPicture = SunxiCedrusBeginPicture;
+	vtable->vaRenderPicture = SunxiCedrusRenderPicture;
+	vtable->vaEndPicture = SunxiCedrusEndPicture;
+	vtable->vaSyncSurface = SunxiCedrusSyncSurface;
+	vtable->vaQuerySurfaceStatus = SunxiCedrusQuerySurfaceStatus;
+	vtable->vaPutSurface = SunxiCedrusPutSurface;
+	vtable->vaQueryImageFormats = SunxiCedrusQueryImageFormats;
+	vtable->vaCreateImage = SunxiCedrusCreateImage;
+	vtable->vaDeriveImage = SunxiCedrusDeriveImage;
+	vtable->vaDestroyImage = SunxiCedrusDestroyImage;
+	vtable->vaSetImagePalette = SunxiCedrusSetImagePalette;
+	vtable->vaGetImage = SunxiCedrusGetImage;
+	vtable->vaPutImage = SunxiCedrusPutImage;
+	vtable->vaQuerySubpictureFormats = SunxiCedrusQuerySubpictureFormats;
+	vtable->vaCreateSubpicture = SunxiCedrusCreateSubpicture;
+	vtable->vaDestroySubpicture = SunxiCedrusDestroySubpicture;
+	vtable->vaSetSubpictureImage = SunxiCedrusSetSubpictureImage;
+	vtable->vaSetSubpictureChromakey = SunxiCedrusSetSubpictureChromakey;
+	vtable->vaSetSubpictureGlobalAlpha = SunxiCedrusSetSubpictureGlobalAlpha;
+	vtable->vaAssociateSubpicture = SunxiCedrusAssociateSubpicture;
+	vtable->vaDeassociateSubpicture = SunxiCedrusDeassociateSubpicture;
+	vtable->vaQueryDisplayAttributes = SunxiCedrusQueryDisplayAttributes;
+	vtable->vaGetDisplayAttributes = SunxiCedrusGetDisplayAttributes;
+	vtable->vaSetDisplayAttributes = SunxiCedrusSetDisplayAttributes;
+	vtable->vaLockSurface = SunxiCedrusLockSurface;
+	vtable->vaUnlockSurface = SunxiCedrusUnlockSurface;
+	vtable->vaBufferInfo = SunxiCedrusBufferInfo;
 
 	driver_data =
 		(struct sunxi_cedrus_driver_data *) malloc(sizeof(*driver_data));

@@ -39,7 +39,7 @@
  * correspondence between v4l and VA video formats.
  */
 
-VAStatus sunxi_cedrus_QueryConfigProfiles(VADriverContextP ctx,
+VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP ctx,
 		VAProfile *profile_list, int *num_profiles)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -72,7 +72,7 @@ VAStatus sunxi_cedrus_QueryConfigProfiles(VADriverContextP ctx,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_QueryConfigEntrypoints(VADriverContextP ctx,
+VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP ctx,
 		VAProfile profile, VAEntrypoint  *entrypoint_list,
 		int *num_entrypoints)
 {
@@ -100,7 +100,7 @@ VAStatus sunxi_cedrus_QueryConfigEntrypoints(VADriverContextP ctx,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_GetConfigAttributes(VADriverContextP ctx,
+VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP ctx,
 		VAProfile profile, VAEntrypoint entrypoint,
 		VAConfigAttrib *attrib_list, int num_attribs)
 {
@@ -124,7 +124,7 @@ VAStatus sunxi_cedrus_GetConfigAttributes(VADriverContextP ctx,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_update_attribute(struct object_config *obj_config,
+VAStatus SunxiCedrusupdate_attribute(struct object_config *obj_config,
 		VAConfigAttrib *attrib)
 {
 	int i;
@@ -149,7 +149,7 @@ VAStatus sunxi_cedrus_update_attribute(struct object_config *obj_config,
 	return VA_STATUS_ERROR_MAX_NUM_EXCEEDED;
 }
 
-VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,
+VAStatus SunxiCedrusCreateConfig(VADriverContextP ctx, VAProfile profile,
 		VAEntrypoint entrypoint, VAConfigAttrib *attrib_list,
 		int num_attribs, VAConfigID *config_id)
 {
@@ -218,7 +218,7 @@ VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,
 	return vaStatus;
 }
 
-VAStatus sunxi_cedrus_DestroyConfig(VADriverContextP ctx, VAConfigID config_id)
+VAStatus SunxiCedrusDestroyConfig(VADriverContextP ctx, VAConfigID config_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
@@ -236,7 +236,7 @@ VAStatus sunxi_cedrus_DestroyConfig(VADriverContextP ctx, VAConfigID config_id)
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_QueryConfigAttributes(VADriverContextP ctx,
+VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP ctx,
 		VAConfigID config_id, VAProfile *profile,
 		VAEntrypoint *entrypoint, VAConfigAttrib *attrib_list,
 		int *num_attribs)
@@ -260,14 +260,14 @@ VAStatus sunxi_cedrus_QueryConfigAttributes(VADriverContextP ctx,
 }
 
 /* sunxi-cedrus doesn't support display attributes */
-VAStatus sunxi_cedrus_QueryDisplayAttributes (VADriverContextP ctx,
+VAStatus SunxiCedrusQueryDisplayAttributes (VADriverContextP ctx,
 		VADisplayAttribute *attr_list, int *num_attributes)
 { return VA_STATUS_ERROR_UNKNOWN; }
 
-VAStatus sunxi_cedrus_GetDisplayAttributes (VADriverContextP ctx,
+VAStatus SunxiCedrusGetDisplayAttributes (VADriverContextP ctx,
 		VADisplayAttribute *attr_list, int num_attributes)
 { return VA_STATUS_ERROR_UNKNOWN; }
 
-VAStatus sunxi_cedrus_SetDisplayAttributes (VADriverContextP ctx,
+VAStatus SunxiCedrusSetDisplayAttributes (VADriverContextP ctx,
 		VADisplayAttribute *attr_list, int num_attributes)
 { return VA_STATUS_ERROR_UNKNOWN; }

@@ -42,7 +42,7 @@
  * (which are mmapped from v4l's kernel space)
  */
 
-VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
+VAStatus SunxiCedrusCreateBuffer(VADriverContextP ctx, VAContextID context,
 		VABufferType type, unsigned int size, unsigned int num_elements,
 		void *data, VABufferID *buf_id)
 {
@@ -119,7 +119,7 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_BufferSetNumElements(VADriverContextP ctx,
+VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP ctx,
 		VABufferID buf_id, unsigned int num_elements)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -136,7 +136,7 @@ VAStatus sunxi_cedrus_BufferSetNumElements(VADriverContextP ctx,
 	return vaStatus;
 }
 
-VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
+VAStatus SunxiCedrusMapBuffer(VADriverContextP ctx, VABufferID buf_id,
 		void **pbuf)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -159,7 +159,7 @@ VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 	return vaStatus;
 }
 
-VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
+VAStatus SunxiCedrusUnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
@@ -188,7 +188,7 @@ void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 	object_heap_free(&driver_data->buffer_heap, obj_buffer);
 }
 
-VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id)
+VAStatus SunxiCedrusDestroyBuffer(VADriverContextP ctx, VABufferID buffer_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
@@ -201,7 +201,7 @@ VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id)
 }
 
 /* sunxi-cedrus doesn't support buffer info */
-VAStatus sunxi_cedrus_BufferInfo(VADriverContextP ctx, VABufferID buf_id,
+VAStatus SunxiCedrusBufferInfo(VADriverContextP ctx, VABufferID buf_id,
 		VABufferType *type, unsigned int *size,
 		unsigned int *num_elements)
 { return VA_STATUS_ERROR_UNIMPLEMENTED; }

@@ -52,7 +52,7 @@
  * purpose.
  */
 
-VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
+VAStatus SunxiCedrusCreateSurfaces(VADriverContextP ctx, int width,
 		int height, int format, int num_surfaces, VASurfaceID *surfaces)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -142,7 +142,7 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 	return vaStatus;
 }
 
-VAStatus sunxi_cedrus_DestroySurfaces(VADriverContextP ctx,
+VAStatus SunxiCedrusDestroySurfaces(VADriverContextP ctx,
 		VASurfaceID *surface_list, int num_surfaces)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -157,7 +157,7 @@ VAStatus sunxi_cedrus_DestroySurfaces(VADriverContextP ctx,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
+VAStatus SunxiCedrusSyncSurface(VADriverContextP ctx,
 		VASurfaceID render_target)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -225,7 +225,7 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_QuerySurfaceStatus(VADriverContextP ctx,
+VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP ctx,
 		VASurfaceID render_target, VASurfaceStatus *status)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -242,7 +242,7 @@ VAStatus sunxi_cedrus_QuerySurfaceStatus(VADriverContextP ctx,
 }
 
 /* WARNING: This is for development purpose only!!! */
-VAStatus sunxi_cedrus_PutSurface(VADriverContextP ctx, VASurfaceID surface,
+VAStatus SunxiCedrusPutSurface(VADriverContextP ctx, VASurfaceID surface,
 		void *draw, short srcx, short srcy, unsigned short srcw,
 		unsigned short srch, short destx, short desty,
 		unsigned short destw, unsigned short desth,
@@ -293,7 +293,7 @@ VAStatus sunxi_cedrus_PutSurface(VADriverContextP ctx, VASurfaceID surface,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_LockSurface(VADriverContextP ctx, VASurfaceID surface,
+VAStatus SunxiCedrusLockSurface(VADriverContextP ctx, VASurfaceID surface,
 		unsigned int *fourcc, unsigned int *luma_stride,
 		unsigned int *chroma_u_stride, unsigned int *chroma_v_stride,
 		unsigned int *luma_offset, unsigned int *chroma_u_offset,
@@ -301,5 +301,5 @@ VAStatus sunxi_cedrus_LockSurface(VADriverContextP ctx, VASurfaceID surface,
 		void **buffer)
 { return VA_STATUS_ERROR_UNIMPLEMENTED; }
 
-VAStatus sunxi_cedrus_UnlockSurface(VADriverContextP ctx, VASurfaceID surface)
+VAStatus SunxiCedrusUnlockSurface(VADriverContextP ctx, VASurfaceID surface)
 { return VA_STATUS_ERROR_UNIMPLEMENTED; }

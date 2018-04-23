@@ -44,32 +44,32 @@ struct object_surface {
 	VAStatus status;
 };
 
-VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
+VAStatus SunxiCedrusCreateSurfaces(VADriverContextP ctx, int width,
 		int height, int format, int num_surfaces, VASurfaceID *surfaces);
 
-VAStatus sunxi_cedrus_DestroySurfaces(VADriverContextP ctx,
+VAStatus SunxiCedrusDestroySurfaces(VADriverContextP ctx,
 		VASurfaceID *surface_list, int num_surfaces);
 
-VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
+VAStatus SunxiCedrusSyncSurface(VADriverContextP ctx,
 		VASurfaceID render_target);
 
-VAStatus sunxi_cedrus_QuerySurfaceStatus(VADriverContextP ctx,
+VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP ctx,
 		VASurfaceID render_target, VASurfaceStatus *status);
 
-VAStatus sunxi_cedrus_PutSurface(VADriverContextP ctx, VASurfaceID surface,
+VAStatus SunxiCedrusPutSurface(VADriverContextP ctx, VASurfaceID surface,
 		void *draw, short srcx, short srcy, unsigned short srcw,
 		unsigned short srch, short destx, short desty,
 		unsigned short destw, unsigned short desth,
 		VARectangle *cliprects, unsigned int number_cliprects,
 		unsigned int flags);
 
-VAStatus sunxi_cedrus_LockSurface(VADriverContextP ctx, VASurfaceID surface,
+VAStatus SunxiCedrusLockSurface(VADriverContextP ctx, VASurfaceID surface,
 		unsigned int *fourcc, unsigned int *luma_stride,
 		unsigned int *chroma_u_stride, unsigned int *chroma_v_stride,
 		unsigned int *luma_offset, unsigned int *chroma_u_offset,
 		unsigned int *chroma_v_offset, unsigned int *buffer_name,
 		void **buffer);
 
-VAStatus sunxi_cedrus_UnlockSurface(VADriverContextP ctx, VASurfaceID surface);
+VAStatus SunxiCedrusUnlockSurface(VADriverContextP ctx, VASurfaceID surface);
 
 #endif /* _SURFACES_H_ */

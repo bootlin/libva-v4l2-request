@@ -28,37 +28,37 @@
 
 #include <va/va_backend.h>
 
-VAStatus sunxi_cedrus_QuerySubpictureFormats(VADriverContextP ctx,
+VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP ctx,
 		VAImageFormat *format_list, unsigned int *flags,
 		unsigned int *num_formats);
 
-VAStatus sunxi_cedrus_CreateSubpicture(VADriverContextP ctx, VAImageID image,
+VAStatus SunxiCedrusCreateSubpicture(VADriverContextP ctx, VAImageID image,
 		VASubpictureID *subpicture);
 
-VAStatus sunxi_cedrus_DestroySubpicture(VADriverContextP ctx,
+VAStatus SunxiCedrusDestroySubpicture(VADriverContextP ctx,
 		VASubpictureID subpicture);
 
-VAStatus sunxi_cedrus_SetSubpictureImage(VADriverContextP ctx,
+VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP ctx,
 		VASubpictureID subpicture, VAImageID image);
 
-VAStatus sunxi_cedrus_SetSubpicturePalette(VADriverContextP ctx,
+VAStatus SunxiCedrusSetSubpicturePalette(VADriverContextP ctx,
 		VASubpictureID subpicture, unsigned char *palette);
 
-VAStatus sunxi_cedrus_SetSubpictureChromakey(VADriverContextP ctx,
+VAStatus SunxiCedrusSetSubpictureChromakey(VADriverContextP ctx,
 		VASubpictureID subpicture, unsigned int chromakey_min,
 		unsigned int chromakey_max, unsigned int chromakey_mask);
 
-VAStatus sunxi_cedrus_SetSubpictureGlobalAlpha(VADriverContextP ctx,
+VAStatus SunxiCedrusSetSubpictureGlobalAlpha(VADriverContextP ctx,
 		VASubpictureID subpicture, float global_alpha);
 
-VAStatus sunxi_cedrus_AssociateSubpicture(VADriverContextP ctx,
+VAStatus SunxiCedrusAssociateSubpicture(VADriverContextP ctx,
 		VASubpictureID subpicture, VASurfaceID *target_surfaces,
 		int num_surfaces, short src_x, short src_y,
 		unsigned short src_width, unsigned short src_height,
 		short dest_x, short dest_y, unsigned short dest_width,
 		unsigned short dest_height, unsigned int flags);
 
-VAStatus sunxi_cedrus_DeassociateSubpicture(VADriverContextP ctx,
+VAStatus SunxiCedrusDeassociateSubpicture(VADriverContextP ctx,
 		VASubpictureID subpicture, VASurfaceID *target_surfaces,
 		int num_surfaces);
 

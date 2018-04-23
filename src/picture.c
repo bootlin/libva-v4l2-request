@@ -50,7 +50,7 @@
  * kernel space when reaching EndPicture.
  */
 
-VAStatus sunxi_cedrus_BeginPicture(VADriverContextP ctx, VAContextID context,
+VAStatus SunxiCedrusBeginPicture(VADriverContextP ctx, VAContextID context,
 		VASurfaceID render_target)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -66,7 +66,7 @@ VAStatus sunxi_cedrus_BeginPicture(VADriverContextP ctx, VAContextID context,
 	assert(obj_surface);
 
 	if (obj_surface->status == VASurfaceRendering) {
-		vaStatus = sunxi_cedrus_SyncSurface(ctx, render_target);
+		vaStatus = SunxiCedrusSyncSurface(ctx, render_target);
 		if (vaStatus != VA_STATUS_SUCCESS)
 			return vaStatus;
 	}
@@ -81,7 +81,7 @@ VAStatus sunxi_cedrus_BeginPicture(VADriverContextP ctx, VAContextID context,
 	return vaStatus;
 }
 
-VAStatus sunxi_cedrus_RenderPicture(VADriverContextP ctx, VAContextID context,
+VAStatus SunxiCedrusRenderPicture(VADriverContextP ctx, VAContextID context,
 		VABufferID *buffers, int num_buffers)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -142,7 +142,7 @@ VAStatus sunxi_cedrus_RenderPicture(VADriverContextP ctx, VAContextID context,
 	return vaStatus;
 }
 
-VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
+VAStatus SunxiCedrusEndPicture(VADriverContextP ctx, VAContextID context)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;

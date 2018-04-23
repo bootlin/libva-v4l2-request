@@ -55,11 +55,11 @@ struct object_context {
 	struct v4l2_ctrl_mpeg4_frame_hdr mpeg4_frame_hdr;
 };
 
-VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
+VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
 		int picture_width, int picture_height, int flag,
 		VASurfaceID *render_targets, int num_render_targets,
 		VAContextID *context);
 
-VAStatus sunxi_cedrus_DestroyContext(VADriverContextP ctx, VAContextID context);
+VAStatus SunxiCedrusDestroyContext(VADriverContextP ctx, VAContextID context);
 
 #endif /* _CONTEXT_H_ */

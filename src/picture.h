@@ -30,12 +30,12 @@
 
 #include "object_heap.h"
 
-VAStatus sunxi_cedrus_BeginPicture(VADriverContextP ctx, VAContextID context,
+VAStatus SunxiCedrusBeginPicture(VADriverContextP ctx, VAContextID context,
 		VASurfaceID render_target);
 
-VAStatus sunxi_cedrus_RenderPicture(VADriverContextP ctx, VAContextID context,
+VAStatus SunxiCedrusRenderPicture(VADriverContextP ctx, VAContextID context,
 		VABufferID *buffers, int num_buffers);
 
-VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context);
+VAStatus SunxiCedrusEndPicture(VADriverContextP ctx, VAContextID context);
 
 #endif /* _PICTURE_H_ */
