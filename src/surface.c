@@ -90,7 +90,7 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 	for (i = 0; i < create_bufs.count; i++)
 	{
 		VASurfaceID surfaceID = object_heap_allocate(&driver_data->surface_heap);
-		object_surface_p obj_surface = SURFACE(surfaceID);
+		struct object_surface *obj_surface = SURFACE(surfaceID);
 		if (NULL == obj_surface)
 		{
 			vaStatus = VA_STATUS_ERROR_ALLOCATION_FAILED;
@@ -132,7 +132,7 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 		/* surfaces[i-1] was the last successful allocation */
 		for(; i--;)
 		{
-			object_surface_p obj_surface = SURFACE(surfaces[i]);
+			struct object_surface *obj_surface = SURFACE(surfaces[i]);
 			surfaces[i] = VA_INVALID_SURFACE;
 			assert(obj_surface);
 			object_heap_free(&driver_data->surface_heap, (object_base_p) obj_surface);
@@ -148,7 +148,7 @@ VAStatus sunxi_cedrus_DestroySurfaces(VADriverContextP ctx,
 	int i;
 	for(i = num_surfaces; i--;)
 	{
-		object_surface_p obj_surface = SURFACE(surface_list[i]);
+		struct object_surface *obj_surface = SURFACE(surface_list[i]);
 		assert(obj_surface);
 		object_heap_free(&driver_data->surface_heap, (object_base_p) obj_surface);
 	}
@@ -159,7 +159,7 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 		VASurfaceID render_target)
 {
 	INIT_DRIVER_DATA
-	object_surface_p obj_surface;
+	struct object_surface *obj_surface;
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
 	struct v4l2_plane planes[2];
@@ -227,7 +227,7 @@ VAStatus sunxi_cedrus_QuerySurfaceStatus(VADriverContextP ctx,
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	object_surface_p obj_surface;
+	struct object_surface *obj_surface;
 
 	obj_surface = SURFACE(render_target);
 	assert(obj_surface);
@@ -254,7 +254,7 @@ VAStatus sunxi_cedrus_PutSurface(VADriverContextP ctx, VASurfaceID surface,
 	Colormap cm;
 	int colorratio = 65535 / 255;
 	int x, y;
-	object_surface_p obj_surface;
+	struct object_surface *obj_surface;
 
 	obj_surface = SURFACE(surface);
 	assert(obj_surface);

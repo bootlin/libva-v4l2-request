@@ -40,7 +40,7 @@
  */
 
 VAStatus sunxi_cedrus_render_mpeg4_slice_data(VADriverContextP ctx,
-		struct object_context *obj_context, object_surface_p obj_surface,
+		struct object_context *obj_context, struct object_surface *obj_surface,
 		struct object_buffer *obj_buffer)
 {
 	INIT_DRIVER_DATA
@@ -71,7 +71,7 @@ VAStatus sunxi_cedrus_render_mpeg4_slice_data(VADriverContextP ctx,
 }
 
 VAStatus sunxi_cedrus_render_mpeg4_picture_parameter(VADriverContextP ctx,
-		struct object_context *obj_context, object_surface_p obj_surface,
+		struct object_context *obj_context, struct object_surface *obj_surface,
 		struct object_buffer *obj_buffer)
 {
 	INIT_DRIVER_DATA
@@ -107,12 +107,12 @@ VAStatus sunxi_cedrus_render_mpeg4_picture_parameter(VADriverContextP ctx,
 	obj_context->mpeg4_frame_hdr.trb = pic_param->TRB;
 	obj_context->mpeg4_frame_hdr.trd = pic_param->TRD;
 
-	object_surface_p fwd_surface = SURFACE(pic_param->forward_reference_picture);
+	struct object_surface *fwd_surface = SURFACE(pic_param->forward_reference_picture);
 	if(fwd_surface)
 		obj_context->mpeg4_frame_hdr.forward_index = fwd_surface->output_buf_index;
 	else
 		obj_context->mpeg4_frame_hdr.forward_index = obj_surface->output_buf_index;
-	object_surface_p bwd_surface = SURFACE(pic_param->backward_reference_picture);
+	struct object_surface *bwd_surface = SURFACE(pic_param->backward_reference_picture);
 	if(bwd_surface)
 		obj_context->mpeg4_frame_hdr.backward_index = bwd_surface->output_buf_index;
 	else
@@ -122,7 +122,7 @@ VAStatus sunxi_cedrus_render_mpeg4_picture_parameter(VADriverContextP ctx,
 }
 
 VAStatus sunxi_cedrus_render_mpeg4_slice_parameter(VADriverContextP ctx,
-		struct object_context *obj_context, object_surface_p obj_surface,
+		struct object_context *obj_context, struct object_surface *obj_surface,
 		struct object_buffer *obj_buffer)
 {
 	VASliceParameterBufferMPEG4 *slice_param = (VASliceParameterBufferMPEG4 *)obj_buffer->buffer_data;

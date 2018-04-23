@@ -30,7 +30,7 @@
 
 #include "object_heap.h"
 
-#define SURFACE(id) ((object_surface_p) object_heap_lookup(&driver_data->surface_heap, id))
+#define SURFACE(id) ((struct object_surface *) object_heap_lookup(&driver_data->surface_heap, id))
 #define SURFACE_ID_OFFSET		0x04000000
 
 struct object_surface {
@@ -43,8 +43,6 @@ struct object_surface {
 	int height;
 	VAStatus status;
 };
-
-typedef struct object_surface *object_surface_p;
 
 VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 		int height, int format, int num_surfaces, VASurfaceID *surfaces);
