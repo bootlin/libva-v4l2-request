@@ -72,11 +72,12 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP ctx, VAContextID context,
 	if (obj_buffer == NULL)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-	obj_buffer->buffer_data = NULL;
-	obj_buffer->buffer_map = NULL;
 	obj_buffer->type = type;
-	obj_buffer->max_num_elements = num_elements;
-	obj_buffer->num_elements = num_elements;
+	obj_buffer->initial_count = num_elements;
+	obj_buffer->count = num_elements;
+
+	obj_buffer->data = NULL;
+	obj_buffer->map = NULL;
 	obj_buffer->size = size;
 	obj_buffer->map_size = 0;
 
@@ -97,22 +98,22 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP ctx, VAContextID context,
 		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &buf)==0);
 
 		obj_buffer->map_size = driver_data->slice_offset[buf.index] + size * num_elements;
-		obj_buffer->buffer_map = mmap(NULL, obj_buffer->map_size,
+		obj_buffer->map = mmap(NULL, obj_buffer->map_size,
 				PROT_READ | PROT_WRITE, MAP_SHARED,
 				driver_data->mem2mem_fd, buf.m.planes[0].m.mem_offset);
 
-		obj_buffer->buffer_data = obj_buffer->buffer_map + driver_data->slice_offset[buf.index];
+		obj_buffer->data = obj_buffer->map + driver_data->slice_offset[buf.index];
 		driver_data->slice_offset[buf.index] += size * num_elements;
 	} else {
-		obj_buffer->buffer_map = NULL;
-		obj_buffer->buffer_data = malloc(size * num_elements);
+		obj_buffer->map = NULL;
+		obj_buffer->data = malloc(size * num_elements);
 	}
 
-	if (obj_buffer->buffer_data == NULL || obj_buffer->buffer_map == MAP_FAILED)
+	if (obj_buffer->data == NULL || obj_buffer->map == MAP_FAILED)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 	if (data)
-		memcpy(obj_buffer->buffer_data, data, size * num_elements);
+		memcpy(obj_buffer->data, data, size * num_elements);
 
 	*buf_id = bufferID;
 
@@ -128,10 +129,10 @@ VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP ctx,
 	struct object_buffer *obj_buffer = BUFFER(buf_id);
 	assert(obj_buffer);
 
-	if ((num_elements < 0) || (num_elements > obj_buffer->max_num_elements))
+	if ((num_elements < 0) || (num_elements > obj_buffer->initial_count))
 		vaStatus = VA_STATUS_ERROR_UNKNOWN;
 	if (VA_STATUS_SUCCESS == vaStatus)
-		obj_buffer->num_elements = num_elements;
+		obj_buffer->count = num_elements;
 
 	return vaStatus;
 }
@@ -151,9 +152,9 @@ VAStatus SunxiCedrusMapBuffer(VADriverContextP ctx, VABufferID buf_id,
 		return vaStatus;
 	}
 
-	if (NULL != obj_buffer->buffer_data)
+	if (NULL != obj_buffer->data)
 	{
-		*pbuf = obj_buffer->buffer_data;
+		*pbuf = obj_buffer->data;
 		vaStatus = VA_STATUS_SUCCESS;
 	}
 	return vaStatus;
@@ -175,14 +176,14 @@ VAStatus SunxiCedrusUnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
 void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 		struct object_buffer *obj_buffer)
 {
-	if (obj_buffer->buffer_data != NULL) {
+	if (obj_buffer->data != NULL) {
 		if (obj_buffer->type != VASliceDataBufferType)
-			free(obj_buffer->buffer_data);
-		else if (obj_buffer->buffer_map != NULL && obj_buffer->map_size > 0)
-			munmap(obj_buffer->buffer_map, obj_buffer->map_size);
+			free(obj_buffer->data);
+		else if (obj_buffer->map != NULL && obj_buffer->map_size > 0)
+			munmap(obj_buffer->map, obj_buffer->map_size);
 
-		obj_buffer->buffer_map = NULL;
-		obj_buffer->buffer_data = NULL;
+		obj_buffer->map = NULL;
+		obj_buffer->data = NULL;
 	}
 
 	object_heap_free(&driver_data->buffer_heap, obj_buffer);

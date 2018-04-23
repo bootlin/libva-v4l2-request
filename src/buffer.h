@@ -36,12 +36,15 @@
 
 struct object_buffer {
 	struct object_base base;
-	void *buffer_data;
-	void *buffer_map;
-	int max_num_elements;
-	int num_elements;
+
 	VABufferType type;
+	unsigned int initial_count;
+	unsigned int count;
+
+	void *data;
 	unsigned int size;
+
+	void *map;
 	unsigned int map_size;
 };
 
