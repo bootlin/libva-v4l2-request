@@ -171,4 +171,3 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 
 	return VA_STATUS_SUCCESS;
 }
-

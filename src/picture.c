@@ -233,5 +233,3 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 
 	return vaStatus;
 }
-
-

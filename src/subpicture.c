@@ -26,17 +26,17 @@
 #include "sunxi_cedrus.h"
 #include "subpicture.h"
 
-VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
-	VAImageFormat *formats, unsigned int *flags,
-	unsigned int *formats_count)
-{ return VA_STATUS_SUCCESS; }
-
 VAStatus SunxiCedrusCreateSubpicture(VADriverContextP context,
 	VAImageID image_id, VASubpictureID *subpicture_id)
 { return VA_STATUS_SUCCESS; }
 
 VAStatus SunxiCedrusDestroySubpicture(VADriverContextP context,
 	VASubpictureID subpicture_id)
+{ return VA_STATUS_SUCCESS; }
+
+VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
+	VAImageFormat *formats, unsigned int *flags,
+	unsigned int *formats_count)
 { return VA_STATUS_SUCCESS; }
 
 VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP context,

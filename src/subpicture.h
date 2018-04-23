@@ -28,13 +28,13 @@
 
 #include <va/va_backend.h>
 
-VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
-	VAImageFormat *formats, unsigned int *flags,
-	unsigned int *formats_count);
 VAStatus SunxiCedrusCreateSubpicture(VADriverContextP context,
 	VAImageID image_id, VASubpictureID *subpicture_id);
 VAStatus SunxiCedrusDestroySubpicture(VADriverContextP context,
 	VASubpictureID subpicture_id);
+VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
+	VAImageFormat *formats, unsigned int *flags,
+	unsigned int *formats_count);
 VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP context,
 	VASubpictureID subpicture_id, VAImageID image_id);
 VAStatus SunxiCedrusSetSubpicturePalette(VADriverContextP context,

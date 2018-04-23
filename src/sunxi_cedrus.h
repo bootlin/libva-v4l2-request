@@ -41,8 +41,6 @@
 #define SUNXI_CEDRUS_MAX_SUBPIC_FORMATS		4
 #define SUNXI_CEDRUS_MAX_DISPLAY_ATTRIBUTES	4
 
-void sunxi_cedrus_msg(const char *msg, ...);
-
 struct sunxi_cedrus_driver_data {
 	struct object_heap config_heap;
 	struct object_heap context_heap;
@@ -56,5 +54,10 @@ struct sunxi_cedrus_driver_data {
 	int request_fds[INPUT_BUFFERS_NB];
 	int slice_offset[INPUT_BUFFERS_NB];
 };
+
+void sunxi_cedrus_msg(const char *msg, ...);
+
+VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context);
+VAStatus SunxiCedrusTerminate(VADriverContextP context);
 
 #endif

@@ -227,7 +227,6 @@ VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 	return vaStatus;
 }
 
-
 VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 	void *draw, short src_x, short src_y, unsigned short src_width,
 	unsigned short src_height, short dst_x, short dst_y,

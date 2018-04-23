@@ -60,52 +60,11 @@ void sunxi_cedrus_msg(const char *msg, ...)
 	va_end(args);
 }
 
-VAStatus SunxiCedrusTerminate(VADriverContextP context)
-{
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	struct object_buffer *obj_buffer;
-	struct object_config *obj_config;
-	object_heap_iterator iter;
+/* Set default visibility for the init function only. */
+VAStatus __attribute__((visibility("default")))
+	VA_DRIVER_INIT_FUNC(VADriverContextP context);
 
-	/* Free memory and close v4l device */
-
-	for (int i = 0; i < INPUT_BUFFERS_NB; i++)
-		if (driver_data->request_fds[i] >= 0)
-			close(driver_data->request_fds[i]);
-
-	close(driver_data->mem2mem_fd);
-
-	/* Clean up left over buffers */
-	obj_buffer = (struct object_buffer *) object_heap_first(&driver_data->buffer_heap, &iter);
-	while (obj_buffer)
-	{
-		sunxi_cedrus_msg("vaTerminate: bufferID %08x still allocated, destroying\n", obj_buffer->base.id);
-		sunxi_cedrus_destroy_buffer(driver_data, obj_buffer);
-		obj_buffer = (struct object_buffer *) object_heap_next(&driver_data->buffer_heap, &iter);
-	}
-
-	object_heap_destroy(&driver_data->buffer_heap);
-	object_heap_destroy(&driver_data->surface_heap);
-	object_heap_destroy(&driver_data->context_heap);
-
-	/* Clean up configIDs */
-	obj_config = (struct object_config *) object_heap_first(&driver_data->config_heap, &iter);
-	while (obj_config)
-	{
-		object_heap_free(&driver_data->config_heap, (object_base_p) obj_config);
-		obj_config = (struct object_config *) object_heap_next(&driver_data->config_heap, &iter);
-	}
-	object_heap_destroy(&driver_data->config_heap);
-
-	free(context->pDriverData);
-	context->pDriverData = NULL;
-
-	return VA_STATUS_SUCCESS;
-}
-
-/* Only expose the init function. */
-VAStatus __attribute__((visibility("default"))) VA_DRIVER_INIT_FUNC(VADriverContextP context)
+VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
 	struct VADriverVTable * const vtable = context->vtable;
 	struct sunxi_cedrus_driver_data *driver_data;
@@ -200,6 +159,50 @@ VAStatus __attribute__((visibility("default"))) VA_DRIVER_INIT_FUNC(VADriverCont
 		sunxi_cedrus_msg("%s does not support m2m_mplane\n", path);
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 	}
+
+	return VA_STATUS_SUCCESS;
+}
+
+VAStatus SunxiCedrusTerminate(VADriverContextP context)
+{
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_buffer *obj_buffer;
+	struct object_config *obj_config;
+	object_heap_iterator iter;
+
+	/* Free memory and close v4l device */
+
+	for (int i = 0; i < INPUT_BUFFERS_NB; i++)
+		if (driver_data->request_fds[i] >= 0)
+			close(driver_data->request_fds[i]);
+
+	close(driver_data->mem2mem_fd);
+
+	/* Clean up left over buffers */
+	obj_buffer = (struct object_buffer *) object_heap_first(&driver_data->buffer_heap, &iter);
+	while (obj_buffer)
+	{
+		sunxi_cedrus_msg("vaTerminate: bufferID %08x still allocated, destroying\n", obj_buffer->base.id);
+		sunxi_cedrus_destroy_buffer(driver_data, obj_buffer);
+		obj_buffer = (struct object_buffer *) object_heap_next(&driver_data->buffer_heap, &iter);
+	}
+
+	object_heap_destroy(&driver_data->buffer_heap);
+	object_heap_destroy(&driver_data->surface_heap);
+	object_heap_destroy(&driver_data->context_heap);
+
+	/* Clean up configIDs */
+	obj_config = (struct object_config *) object_heap_first(&driver_data->config_heap, &iter);
+	while (obj_config)
+	{
+		object_heap_free(&driver_data->config_heap, (object_base_p) obj_config);
+		obj_config = (struct object_config *) object_heap_next(&driver_data->config_heap, &iter);
+	}
+	object_heap_destroy(&driver_data->config_heap);
+
+	free(context->pDriverData);
+	context->pDriverData = NULL;
 
 	return VA_STATUS_SUCCESS;
 }

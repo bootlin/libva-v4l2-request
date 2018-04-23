@@ -120,21 +120,33 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
-	VABufferID buffer_id, unsigned int count)
+void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
+	struct object_buffer *obj_buffer)
+{
+	if (obj_buffer->data != NULL) {
+		if (obj_buffer->type != VASliceDataBufferType)
+			free(obj_buffer->data);
+		else if (obj_buffer->map != NULL && obj_buffer->map_size > 0)
+			munmap(obj_buffer->map, obj_buffer->map_size);
+
+		obj_buffer->map = NULL;
+		obj_buffer->data = NULL;
+	}
+
+	object_heap_free(&driver_data->buffer_heap, obj_buffer);
+}
+
+VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
+	VABufferID buffer_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_buffer *obj_buffer = BUFFER(buffer_id);
 	assert(obj_buffer);
 
-	if ((count < 0) || (count > obj_buffer->initial_count))
-		vaStatus = VA_STATUS_ERROR_UNKNOWN;
-	if (VA_STATUS_SUCCESS == vaStatus)
-		obj_buffer->count = count;
+	sunxi_cedrus_destroy_buffer(driver_data, obj_buffer);
 
-	return vaStatus;
+	return VA_STATUS_SUCCESS;
 }
 
 VAStatus SunxiCedrusMapBuffer(VADriverContextP context, VABufferID buffer_id,
@@ -173,33 +185,21 @@ VAStatus SunxiCedrusUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 	return VA_STATUS_SUCCESS;
 }
 
-void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
-	struct object_buffer *obj_buffer)
-{
-	if (obj_buffer->data != NULL) {
-		if (obj_buffer->type != VASliceDataBufferType)
-			free(obj_buffer->data);
-		else if (obj_buffer->map != NULL && obj_buffer->map_size > 0)
-			munmap(obj_buffer->map, obj_buffer->map_size);
-
-		obj_buffer->map = NULL;
-		obj_buffer->data = NULL;
-	}
-
-	object_heap_free(&driver_data->buffer_heap, obj_buffer);
-}
-
-VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
-	VABufferID buffer_id)
+VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
+	VABufferID buffer_id, unsigned int count)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_buffer *obj_buffer = BUFFER(buffer_id);
 	assert(obj_buffer);
 
-	sunxi_cedrus_destroy_buffer(driver_data, obj_buffer);
+	if ((count < 0) || (count > obj_buffer->initial_count))
+		vaStatus = VA_STATUS_ERROR_UNKNOWN;
+	if (VA_STATUS_SUCCESS == vaStatus)
+		obj_buffer->count = count;
 
-	return VA_STATUS_SUCCESS;
+	return vaStatus;
 }
 
 VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,

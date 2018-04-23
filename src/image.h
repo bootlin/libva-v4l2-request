@@ -38,13 +38,13 @@ struct object_image {
 	VABufferID buffer_id;
 };
 
-VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
-	VAImageFormat *formats, int *formats_count);
 VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
 	int width, int height, VAImage *image);
+VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id);
 VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 	VASurfaceID surface_id, VAImage *image);
-VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id);
+VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
+	VAImageFormat *formats, int *formats_count);
 VAStatus SunxiCedrusSetImagePalette(VADriverContextP context,
 	VAImageID image_id, unsigned char *palette);
 VAStatus SunxiCedrusGetImage(VADriverContextP context, VASurfaceID surface_id,

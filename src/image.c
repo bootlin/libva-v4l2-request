@@ -32,14 +32,6 @@
 
 #include "tiled_yuv.h"
 
-VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
-	VAImageFormat *formats, int *formats_count)
-{
-	formats[0].fourcc = VA_FOURCC_NV12;
-	*formats_count = 1;
-	return VA_STATUS_SUCCESS;
-}
-
 VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
 	int width, int height, VAImage *image)
 {
@@ -81,6 +73,21 @@ VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
 	return VA_STATUS_SUCCESS;
 }
 
+VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id)
+{
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_image *obj_img;
+
+	obj_img = IMAGE(image);
+	assert(obj_img);
+
+	SunxiCedrusDestroyBuffer(context, obj_img->buf);
+	object_heap_free(&driver_data->image_heap, &obj_img->base);
+
+	return VA_STATUS_SUCCESS;
+}
+
 VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 	VASurfaceID surface_id, VAImage *image)
 {
@@ -112,18 +119,11 @@ VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id)
+VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
+	VAImageFormat *formats, int *formats_count)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	struct object_image *obj_img;
-
-	obj_img = IMAGE(image);
-	assert(obj_img);
-
-	SunxiCedrusDestroyBuffer(context, obj_img->buf);
-	object_heap_free(&driver_data->image_heap, &obj_img->base);
-
+	formats[0].fourcc = VA_FOURCC_NV12;
+	*formats_count = 1;
 	return VA_STATUS_SUCCESS;
 }
 
