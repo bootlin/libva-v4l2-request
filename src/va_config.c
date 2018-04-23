@@ -39,11 +39,11 @@
  * correspondence between v4l and VA video formats.
  */
 
-VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP ctx,
-		VAProfile *profile_list, int *num_profiles)
+VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
+	VAProfile *profiles, int *profiles_count)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	int i = 0;
 	struct v4l2_fmtdesc vid_fmtdesc;
 	memset(&vid_fmtdesc, 0, sizeof(vid_fmtdesc));
@@ -54,57 +54,56 @@ VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP ctx,
 	{
 		switch(vid_fmtdesc.pixelformat) {
 		case V4L2_PIX_FMT_MPEG2_FRAME:
-			profile_list[i++] = VAProfileMPEG2Simple;
-			profile_list[i++] = VAProfileMPEG2Main;
+			profiles[i++] = VAProfileMPEG2Simple;
+			profiles[i++] = VAProfileMPEG2Main;
 			break;
 		}
 		vid_fmtdesc.index++;
 	}
 
 	assert(i <= SUNXI_CEDRUS_MAX_PROFILES);
-	*num_profiles = i;
+	*profiles_count = i;
 
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP ctx,
-		VAProfile profile, VAEntrypoint  *entrypoint_list,
-		int *num_entrypoints)
+VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
+	VAProfile profile, VAEntrypoint *entrypoints, int *entrypoints_count)
 {
 	switch (profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			*num_entrypoints = 2;
-			entrypoint_list[0] = VAEntrypointVLD;
-			entrypoint_list[1] = VAEntrypointMoComp;
+			*entrypoints_count = 2;
+			entrypoints[0] = VAEntrypointVLD;
+			entrypoints[1] = VAEntrypointMoComp;
 			break;
 
 		default:
-			*num_entrypoints = 0;
+			*entrypoints_count = 0;
 			break;
 	}
 
-	assert(*num_entrypoints <= SUNXI_CEDRUS_MAX_ENTRYPOINTS);
+	assert(*entrypoints_count <= SUNXI_CEDRUS_MAX_ENTRYPOINTS);
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP ctx,
-		VAProfile profile, VAEntrypoint entrypoint,
-		VAConfigAttrib *attrib_list, int num_attribs)
+VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
+	VAProfile profile, VAEntrypoint entrypoint, VAConfigAttrib *attributes,
+	int attributes_count)
 {
 	int i;
 
-	for (i = 0; i < num_attribs; i++)
+	for (i = 0; i < attributes_count; i++)
 	{
-		switch (attrib_list[i].type)
+		switch (attributes[i].type)
 		{
 			case VAConfigAttribRTFormat:
-				attrib_list[i].value = VA_RT_FORMAT_YUV420;
+				attributes[i].value = VA_RT_FORMAT_YUV420;
 				break;
 
 			default:
 				/* Do nothing */
-				attrib_list[i].value = VA_ATTRIB_NOT_SUPPORTED;
+				attributes[i].value = VA_ATTRIB_NOT_SUPPORTED;
 				break;
 		}
 	}
@@ -112,8 +111,8 @@ VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP ctx,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusupdate_attribute(struct object_config *obj_config,
-		VAConfigAttrib *attrib)
+VAStatus sunxi_cedrus_update_attribute(struct object_config *obj_config,
+	VAConfigAttrib *attrib)
 {
 	int i;
 	/* Check existing attributes */
@@ -137,12 +136,12 @@ VAStatus SunxiCedrusupdate_attribute(struct object_config *obj_config,
 	return VA_STATUS_ERROR_MAX_NUM_EXCEEDED;
 }
 
-VAStatus SunxiCedrusCreateConfig(VADriverContextP ctx, VAProfile profile,
-		VAEntrypoint entrypoint, VAConfigAttrib *attrib_list,
-		int num_attribs, VAConfigID *config_id)
+VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
+	VAEntrypoint entrypoint, VAConfigAttrib *attributes,
+	int attributes_count, VAConfigID *config_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	VAStatus vaStatus;
 	int configID;
 	struct object_config *obj_config;
@@ -181,9 +180,9 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP ctx, VAProfile profile,
 	obj_config->attributes[0].value = VA_RT_FORMAT_YUV420;
 	obj_config->attributes_count = 1;
 
-	for(i = 0; i < num_attribs; i++)
+	for(i = 0; i < attributes_count; i++)
 	{
-		vaStatus = sunxi_cedrus_update_attribute(obj_config, &(attrib_list[i]));
+		vaStatus = sunxi_cedrus_update_attribute(obj_config, &(attributes[i]));
 		if (VA_STATUS_SUCCESS != vaStatus)
 			break;
 	}
@@ -197,10 +196,11 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP ctx, VAProfile profile,
 	return vaStatus;
 }
 
-VAStatus SunxiCedrusDestroyConfig(VADriverContextP ctx, VAConfigID config_id)
+VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
+	VAConfigID config_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	VAStatus vaStatus;
 	struct object_config *obj_config;
 
@@ -215,13 +215,12 @@ VAStatus SunxiCedrusDestroyConfig(VADriverContextP ctx, VAConfigID config_id)
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP ctx,
-		VAConfigID config_id, VAProfile *profile,
-		VAEntrypoint *entrypoint, VAConfigAttrib *attrib_list,
-		int *num_attribs)
+VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
+	VAConfigID config_id, VAProfile *profile, VAEntrypoint *entrypoint,
+	VAConfigAttrib *attributes, int *attributes_count)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_config *obj_config;
 	int i;
@@ -231,22 +230,22 @@ VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP ctx,
 
 	*profile = obj_config->profile;
 	*entrypoint = obj_config->entrypoint;
-	*num_attribs =  obj_config->attributes_count;
+	*attributes_count =  obj_config->attributes_count;
 	for(i = 0; i < obj_config->attributes_count; i++)
-		attrib_list[i] = obj_config->attributes[i];
+		attributes[i] = obj_config->attributes[i];
 
 	return vaStatus;
 }
 
 /* sunxi-cedrus doesn't support display attributes */
-VAStatus SunxiCedrusQueryDisplayAttributes (VADriverContextP ctx,
-		VADisplayAttribute *attr_list, int *num_attributes)
+VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
+	VADisplayAttribute *attributes, int *attributes_count)
 { return VA_STATUS_ERROR_UNKNOWN; }
 
-VAStatus SunxiCedrusGetDisplayAttributes (VADriverContextP ctx,
-		VADisplayAttribute *attr_list, int num_attributes)
+VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
+	VADisplayAttribute *attributes, int *attributes_count)
 { return VA_STATUS_ERROR_UNKNOWN; }
 
-VAStatus SunxiCedrusSetDisplayAttributes (VADriverContextP ctx,
-		VADisplayAttribute *attr_list, int num_attributes)
+VAStatus SunxiCedrusSetDisplayAttributes(VADriverContextP context,
+	VADisplayAttribute *attributes, int *attributes_count)
 { return VA_STATUS_ERROR_UNKNOWN; }

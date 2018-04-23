@@ -42,38 +42,26 @@ struct object_config {
 	int attributes_count;
 };
 
-VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP ctx,
-		VAProfile *profile_list, int *num_profiles);
-
-VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP ctx,
-		VAProfile profile, VAEntrypoint  *entrypoint_list,
-		int *num_entrypoints);
-
-VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP ctx,
-		VAProfile profile, VAEntrypoint entrypoint,
-		VAConfigAttrib *attrib_list, int num_attribs);
-
-VAStatus SunxiCedrusupdate_attribute(struct object_config *obj_config,
-		VAConfigAttrib *attrib);
-
-VAStatus SunxiCedrusCreateConfig(VADriverContextP ctx, VAProfile profile,
-		VAEntrypoint entrypoint, VAConfigAttrib *attrib_list,
-		int num_attribs, VAConfigID *config_id);
-
-VAStatus SunxiCedrusDestroyConfig(VADriverContextP ctx, VAConfigID config_id);
-
-VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP ctx,
-		VAConfigID config_id, VAProfile *profile,
-		VAEntrypoint *entrypoint, VAConfigAttrib *attrib_list,
-		int *num_attribs);
-
-VAStatus SunxiCedrusQueryDisplayAttributes (VADriverContextP ctx,
-		VADisplayAttribute *attr_list, int *num_attributes);
-
-VAStatus SunxiCedrusGetDisplayAttributes (VADriverContextP ctx,
-		VADisplayAttribute *attr_list, int num_attributes);
-
-VAStatus SunxiCedrusSetDisplayAttributes (VADriverContextP ctx,
-		VADisplayAttribute *attr_list, int num_attributes);
+VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
+	VAProfile *profiles, int *profiles_count);
+VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
+	VAProfile profile, VAEntrypoint *entrypoints, int *entrypoints_count);
+VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
+	VAProfile profile, VAEntrypoint entrypoint, VAConfigAttrib *attributes,
+	int attributes_count);
+VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
+	VAEntrypoint entrypoint, VAConfigAttrib *attributes,
+	int attributes_count, VAConfigID *config_id);
+VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
+	VAConfigID config_id);
+VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
+	VAConfigID config_id, VAProfile *profile, VAEntrypoint *entrypoint,
+	VAConfigAttrib *attributes, int *attributes_count);
+VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
+	VADisplayAttribute *attributes, int *attributes_count);
+VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
+	VADisplayAttribute *attributes, int *attributes_count);
+VAStatus SunxiCedrusSetDisplayAttributes(VADriverContextP context,
+	VADisplayAttribute *attributes, int *attributes_count);
 
 #endif /* _CONFIG_H_ */
