@@ -123,7 +123,7 @@ VAStatus sunxi_cedrus_GetConfigAttributes(VADriverContextP ctx,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus sunxi_cedrus_update_attribute(object_config_p obj_config,
+VAStatus sunxi_cedrus_update_attribute(struct object_config *obj_config,
 		VAConfigAttrib *attrib)
 {
 	int i;
@@ -155,7 +155,7 @@ VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,
 	INIT_DRIVER_DATA
 	VAStatus vaStatus;
 	int configID;
-	object_config_p obj_config;
+	struct object_config *obj_config;
 	int i;
 
 	/* Validate profile & entrypoint */
@@ -220,7 +220,7 @@ VAStatus sunxi_cedrus_DestroyConfig(VADriverContextP ctx, VAConfigID config_id)
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus;
-	object_config_p obj_config;
+	struct object_config *obj_config;
 
 	obj_config = CONFIG(config_id);
 	if (NULL == obj_config)
@@ -240,7 +240,7 @@ VAStatus sunxi_cedrus_QueryConfigAttributes(VADriverContextP ctx,
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	object_config_p obj_config;
+	struct object_config *obj_config;
 	int i;
 
 	obj_config = CONFIG(config_id);

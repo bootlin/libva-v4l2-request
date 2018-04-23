@@ -51,7 +51,7 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	object_config_p obj_config;
+	struct object_config *obj_config;
 	int i;
 	struct v4l2_create_buffers create_bufs;
 	struct v4l2_format fmt;

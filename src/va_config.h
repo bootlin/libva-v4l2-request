@@ -30,7 +30,7 @@
 
 #include "object_heap.h"
 
-#define CONFIG(id)  ((object_config_p)  object_heap_lookup(&driver_data->config_heap,  id))
+#define CONFIG(id)  ((struct object_config *)  object_heap_lookup(&driver_data->config_heap,  id))
 #define CONFIG_ID_OFFSET		0x01000000
 
 struct object_config {
@@ -40,8 +40,6 @@ struct object_config {
 	VAConfigAttrib attrib_list[SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES];
 	int attrib_count;
 };
-
-typedef struct object_config *object_config_p;
 
 VAStatus sunxi_cedrus_QueryConfigProfiles(VADriverContextP ctx,
 		VAProfile *profile_list, int *num_profiles);
@@ -54,7 +52,7 @@ VAStatus sunxi_cedrus_GetConfigAttributes(VADriverContextP ctx,
 		VAProfile profile, VAEntrypoint entrypoint,
 		VAConfigAttrib *attrib_list, int num_attribs);
 
-VAStatus sunxi_cedrus_update_attribute(object_config_p obj_config,
+VAStatus sunxi_cedrus_update_attribute(struct object_config *obj_config,
 		VAConfigAttrib *attrib);
 
 VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,

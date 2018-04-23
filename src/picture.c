@@ -87,7 +87,7 @@ VAStatus sunxi_cedrus_RenderPicture(VADriverContextP ctx, VAContextID context,
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_context *obj_context;
 	struct object_surface *obj_surface;
-	object_config_p obj_config;
+	struct object_config *obj_config;
 	int i;
 
 	obj_context = CONTEXT(context);
@@ -152,7 +152,7 @@ VAStatus sunxi_cedrus_EndPicture(VADriverContextP ctx, VAContextID context)
 	struct v4l2_ext_control ctrl;
 	struct v4l2_ext_controls ctrls;
 	struct media_request_new media_request;
-	object_config_p obj_config;
+	struct object_config *obj_config;
 	int request_fd;
 	int rc;
 

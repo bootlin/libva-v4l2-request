@@ -65,7 +65,7 @@ VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
 {
 	INIT_DRIVER_DATA
 	struct object_buffer *obj_buffer;
-	object_config_p obj_config;
+	struct object_config *obj_config;
 	object_heap_iterator iter;
 
 	for (int i = 0; i < INPUT_BUFFERS_NB; i++)
@@ -88,11 +88,11 @@ VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
 	object_heap_destroy(&driver_data->context_heap);
 
 	/* Clean up configIDs */
-	obj_config = (object_config_p) object_heap_first(&driver_data->config_heap, &iter);
+	obj_config = (struct object_config *) object_heap_first(&driver_data->config_heap, &iter);
 	while (obj_config)
 	{
 		object_heap_free(&driver_data->config_heap, (object_base_p) obj_config);
-		obj_config = (object_config_p) object_heap_next(&driver_data->config_heap, &iter);
+		obj_config = (struct object_config *) object_heap_next(&driver_data->config_heap, &iter);
 	}
 	object_heap_destroy(&driver_data->config_heap);
 
