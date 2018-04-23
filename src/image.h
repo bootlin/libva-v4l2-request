@@ -30,15 +30,13 @@
 
 #include "object_heap.h"
 
-#define IMAGE(id)   ((object_image_p)   object_heap_lookup(&driver_data->image_heap,   id))
+#define IMAGE(id)   ((struct object_image *)   object_heap_lookup(&driver_data->image_heap,   id))
 #define IMAGE_ID_OFFSET			0x10000000
 
 struct object_image {
 	struct object_base base;
 	VABufferID buf;
 };
-
-typedef struct object_image *object_image_p;
 
 VAStatus sunxi_cedrus_QueryImageFormats(VADriverContextP ctx,
 		VAImageFormat *format_list, int *num_formats);

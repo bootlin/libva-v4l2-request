@@ -52,7 +52,7 @@ VAStatus sunxi_cedrus_CreateImage(VADriverContextP ctx, VAImageFormat *format,
 {
 	INIT_DRIVER_DATA
 	int sizeY, sizeUV;
-	object_image_p obj_img;
+	struct object_image *obj_img;
 
 	memset(image, 0, sizeof(VAImage));
 
@@ -120,7 +120,7 @@ VAStatus sunxi_cedrus_DeriveImage(VADriverContextP ctx, VASurfaceID surface,
 VAStatus sunxi_cedrus_DestroyImage(VADriverContextP ctx, VAImageID image)
 {
 	INIT_DRIVER_DATA
-	object_image_p obj_img;
+	struct object_image *obj_img;
 
 	obj_img = IMAGE(image);
 	assert(obj_img);
