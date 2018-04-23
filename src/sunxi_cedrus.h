@@ -32,7 +32,7 @@
 
 #include <linux/videodev2.h>
 
-#define SUNXI_CEDRUS_STR_VENDOR			"Sunxi Cedrus Driver 1.0"
+#define SUNXI_CEDRUS_STR_VENDOR			"Sunxi-Cedrus"
 
 #define SUNXI_CEDRUS_MAX_PROFILES		11
 #define SUNXI_CEDRUS_MAX_ENTRYPOINTS		5
