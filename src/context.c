@@ -46,7 +46,7 @@
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VAConfigID config_id, int picture_width, int picture_height, int flag,
-	VASurfaceID *render_targets, int render_targets_count,
+	VASurfaceID *surfaces_ids, int surfaces_count,
 	VAContextID *context_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
@@ -74,9 +74,9 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	}
 
 	obj_context->config_id = config_id;
-	obj_context->render_target = VA_INVALID;
-	obj_context->render_targets = (VASurfaceID *) malloc(render_targets_count * sizeof(VASurfaceID));
-	obj_context->render_targets_count = render_targets_count;
+	obj_context->render_surface_id = VA_INVALID;
+	obj_context->surfaces_ids = (VASurfaceID *) malloc(surfaces_count * sizeof(VASurfaceID));
+	obj_context->surfaces_count = surfaces_count;
 	obj_context->picture_width = picture_width;
 	obj_context->picture_height = picture_height;
 	obj_context->num_rendered_surfaces = 0;
@@ -86,20 +86,20 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
 	uint32_t num_rendered_surfaces;
 
-	if (obj_context->render_targets == NULL)
+	if (obj_context->surfaces_ids == NULL)
 	{
 		vaStatus = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		return vaStatus;
 	}
 
-	for(i = 0; i < render_targets_count; i++)
+	for(i = 0; i < surfaces_count; i++)
 	{
-		if (NULL == SURFACE(render_targets[i]))
+		if (NULL == SURFACE(surfaces_ids[i]))
 		{
 			vaStatus = VA_STATUS_ERROR_INVALID_SURFACE;
 			break;
 		}
-		obj_context->render_targets[i] = render_targets[i];
+		obj_context->surfaces_ids[i] = surfaces_ids[i];
 	}
 	obj_context->flags = flag;
 
@@ -107,9 +107,9 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	if (VA_STATUS_SUCCESS != vaStatus)
 	{
 		obj_context->config_id = -1;
-		free(obj_context->render_targets);
-		obj_context->render_targets = NULL;
-		obj_context->render_targets_count = 0;
+		free(obj_context->surfaces_ids);
+		obj_context->surfaces_ids = NULL;
+		obj_context->surfaces_count = 0;
 		obj_context->flags = 0;
 		object_heap_free(&driver_data->context_heap, (object_base_p) obj_context);
 	}
@@ -166,13 +166,13 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 	obj_context->config_id = -1;
 	obj_context->picture_width = 0;
 	obj_context->picture_height = 0;
-	if (obj_context->render_targets)
-		free(obj_context->render_targets);
-	obj_context->render_targets = NULL;
-	obj_context->render_targets_count = 0;
+	if (obj_context->surfaces_ids)
+		free(obj_context->surfaces_ids);
+	obj_context->surfaces_ids = NULL;
+	obj_context->surfaces_count = 0;
 	obj_context->flags = 0;
 
-	obj_context->render_target = -1;
+	obj_context->render_surface_id = -1;
 
 	object_heap_free(&driver_data->context_heap, (object_base_p) obj_context);
 

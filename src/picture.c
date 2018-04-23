@@ -75,7 +75,7 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP ctx, VAContextID context,
 	obj_surface->input_buf_index = obj_context->num_rendered_surfaces%INPUT_BUFFERS_NB;
 	obj_context->num_rendered_surfaces ++;
 
-	obj_context->render_target = obj_surface->base.id;
+	obj_context->render_surface_id = obj_surface->base.id;
 
 	return vaStatus;
 }
@@ -101,7 +101,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP ctx, VAContextID context,
 		return vaStatus;
 	}
 
-	obj_surface = SURFACE(obj_context->render_target);
+	obj_surface = SURFACE(obj_context->render_surface_id);
 	assert(obj_surface);
 
 	/* verify that we got valid buffer references */
@@ -151,7 +151,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP ctx, VAContextID context)
 	obj_context = CONTEXT(context);
 	assert(obj_context);
 
-	obj_surface = SURFACE(obj_context->render_target);
+	obj_surface = SURFACE(obj_context->render_surface_id);
 	assert(obj_surface);
 
 	obj_config = CONFIG(obj_context->config_id);
@@ -242,7 +242,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP ctx, VAContextID context)
 
 
 	/* For now, assume that we are done with rendering right away */
-	obj_context->render_target = -1;
+	obj_context->render_surface_id = -1;
 
 	return vaStatus;
 }
