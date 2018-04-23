@@ -35,10 +35,11 @@
 
 struct object_config {
 	struct object_base base;
+
 	VAProfile profile;
 	VAEntrypoint entrypoint;
-	VAConfigAttrib attrib_list[SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES];
-	int attrib_count;
+	VAConfigAttrib attributes[SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES];
+	int attributes_count;
 };
 
 VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP ctx,

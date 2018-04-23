@@ -117,21 +117,21 @@ VAStatus SunxiCedrusupdate_attribute(struct object_config *obj_config,
 {
 	int i;
 	/* Check existing attributes */
-	for(i = 0; obj_config->attrib_count < i; i++)
+	for(i = 0; obj_config->attributes_count < i; i++)
 	{
-		if (obj_config->attrib_list[i].type == attrib->type)
+		if (obj_config->attributes[i].type == attrib->type)
 		{
 			/* Update existing attribute */
-			obj_config->attrib_list[i].value = attrib->value;
+			obj_config->attributes[i].value = attrib->value;
 			return VA_STATUS_SUCCESS;
 		}
 	}
-	if (obj_config->attrib_count < SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES)
+	if (obj_config->attributes_count < SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES)
 	{
-		i = obj_config->attrib_count;
-		obj_config->attrib_list[i].type = attrib->type;
-		obj_config->attrib_list[i].value = attrib->value;
-		obj_config->attrib_count++;
+		i = obj_config->attributes_count;
+		obj_config->attributes[i].type = attrib->type;
+		obj_config->attributes[i].value = attrib->value;
+		obj_config->attributes_count++;
 		return VA_STATUS_SUCCESS;
 	}
 	return VA_STATUS_ERROR_MAX_NUM_EXCEEDED;
@@ -177,9 +177,9 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP ctx, VAProfile profile,
 
 	obj_config->profile = profile;
 	obj_config->entrypoint = entrypoint;
-	obj_config->attrib_list[0].type = VAConfigAttribRTFormat;
-	obj_config->attrib_list[0].value = VA_RT_FORMAT_YUV420;
-	obj_config->attrib_count = 1;
+	obj_config->attributes[0].type = VAConfigAttribRTFormat;
+	obj_config->attributes[0].value = VA_RT_FORMAT_YUV420;
+	obj_config->attributes_count = 1;
 
 	for(i = 0; i < num_attribs; i++)
 	{
@@ -231,9 +231,9 @@ VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP ctx,
 
 	*profile = obj_config->profile;
 	*entrypoint = obj_config->entrypoint;
-	*num_attribs =  obj_config->attrib_count;
-	for(i = 0; i < obj_config->attrib_count; i++)
-		attrib_list[i] = obj_config->attrib_list[i];
+	*num_attribs =  obj_config->attributes_count;
+	for(i = 0; i < obj_config->attributes_count; i++)
+		attrib_list[i] = obj_config->attributes[i];
 
 	return vaStatus;
 }
