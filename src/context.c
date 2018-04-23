@@ -49,7 +49,8 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 		VASurfaceID *render_targets, int num_render_targets,
 		VAContextID *context)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_config *obj_config;
 	int i;
@@ -153,7 +154,8 @@ VAStatus sunxi_cedrus_CreateContext(VADriverContextP ctx, VAConfigID config_id,
 
 VAStatus sunxi_cedrus_DestroyContext(VADriverContextP ctx, VAContextID context)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	struct object_context *obj_context = CONTEXT(context);
 	assert(obj_context);
 	enum v4l2_buf_type type;

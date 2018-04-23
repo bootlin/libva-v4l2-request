@@ -55,7 +55,8 @@
 VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 		int height, int format, int num_surfaces, VASurfaceID *surfaces)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	int i;
 	struct v4l2_buffer buf;
@@ -144,7 +145,8 @@ VAStatus sunxi_cedrus_CreateSurfaces(VADriverContextP ctx, int width,
 VAStatus sunxi_cedrus_DestroySurfaces(VADriverContextP ctx,
 		VASurfaceID *surface_list, int num_surfaces)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	int i;
 	for(i = num_surfaces; i--;)
 	{
@@ -158,7 +160,8 @@ VAStatus sunxi_cedrus_DestroySurfaces(VADriverContextP ctx,
 VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 		VASurfaceID render_target)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	struct object_surface *obj_surface;
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
@@ -225,7 +228,8 @@ VAStatus sunxi_cedrus_SyncSurface(VADriverContextP ctx,
 VAStatus sunxi_cedrus_QuerySurfaceStatus(VADriverContextP ctx,
 		VASurfaceID render_target, VASurfaceStatus *status)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_surface *obj_surface;
 
@@ -245,7 +249,8 @@ VAStatus sunxi_cedrus_PutSurface(VADriverContextP ctx, VASurfaceID surface,
 		VARectangle *cliprects, unsigned int number_cliprects,
 		unsigned int flags)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	GC gc;
 	Display *display;
 	const XID xid = (XID)(uintptr_t)draw;

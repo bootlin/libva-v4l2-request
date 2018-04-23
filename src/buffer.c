@@ -46,7 +46,8 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 		VABufferType type, unsigned int size, unsigned int num_elements,
 		void *data, VABufferID *buf_id)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	int bufferID;
 	struct v4l2_plane plane[1];
 	struct object_buffer *obj_buffer;
@@ -121,7 +122,8 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 VAStatus sunxi_cedrus_BufferSetNumElements(VADriverContextP ctx,
 		VABufferID buf_id, unsigned int num_elements)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_buffer *obj_buffer = BUFFER(buf_id);
 	assert(obj_buffer);
@@ -137,7 +139,8 @@ VAStatus sunxi_cedrus_BufferSetNumElements(VADriverContextP ctx,
 VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 		void **pbuf)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_ERROR_UNKNOWN;
 	struct object_buffer *obj_buffer = BUFFER(buf_id);
 	assert(obj_buffer);
@@ -158,7 +161,8 @@ VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 
 VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	struct object_buffer *obj_buffer = BUFFER(buf_id);
 
 	if (obj_buffer == NULL)
@@ -186,7 +190,8 @@ void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 
 VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	struct object_buffer *obj_buffer = BUFFER(buffer_id);
 	assert(obj_buffer);
 

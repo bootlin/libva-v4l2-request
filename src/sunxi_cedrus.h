@@ -23,16 +23,14 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _SUNXI_CEDRUS_DRV_VIDEO_H_
-#define _SUNXI_CEDRUS_DRV_VIDEO_H_
+#ifndef _SUNXI_CEDRUS_H_
+#define _SUNXI_CEDRUS_H_
 
 #include <va/va.h>
 #include "object_heap.h"
 #include "context.h"
 
 #include <linux/videodev2.h>
-
-#define INIT_DRIVER_DATA struct sunxi_cedrus_driver_data * const driver_data = (struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 
 #define SUNXI_CEDRUS_STR_VENDOR			"Sunxi Cedrus Driver 1.0"
 
@@ -59,4 +57,4 @@ struct sunxi_cedrus_driver_data {
 	int			slice_offset[INPUT_BUFFERS_NB];
 };
 
-#endif /* _SUNXI_CEDRUS_DRV_VIDEO_H_ */
+#endif /* _SUNXI_CEDRUS_H_ */

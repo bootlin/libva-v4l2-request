@@ -63,7 +63,8 @@ void sunxi_cedrus_msg(const char *msg, ...)
 /* Free memory and close v4l device */
 VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	struct object_buffer *obj_buffer;
 	struct object_config *obj_config;
 	object_heap_iterator iter;
@@ -169,7 +170,8 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP ctx)
 	vtable->vaUnlockSurface = sunxi_cedrus_UnlockSurface;
 	vtable->vaBufferInfo = sunxi_cedrus_BufferInfo;
 
-	driver_data = (struct sunxi_cedrus_driver_data *) malloc(sizeof(*driver_data));
+	driver_data =
+		(struct sunxi_cedrus_driver_data *) malloc(sizeof(*driver_data));
 	ctx->pDriverData = (void *) driver_data;
 
 	assert(object_heap_init(&driver_data->config_heap,

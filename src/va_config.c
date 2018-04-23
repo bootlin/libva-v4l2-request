@@ -42,7 +42,8 @@
 VAStatus sunxi_cedrus_QueryConfigProfiles(VADriverContextP ctx,
 		VAProfile *profile_list, int *num_profiles)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	int i = 0;
 	struct v4l2_fmtdesc vid_fmtdesc;
 	memset(&vid_fmtdesc, 0, sizeof(vid_fmtdesc));
@@ -152,7 +153,8 @@ VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,
 		VAEntrypoint entrypoint, VAConfigAttrib *attrib_list,
 		int num_attribs, VAConfigID *config_id)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus;
 	int configID;
 	struct object_config *obj_config;
@@ -218,7 +220,8 @@ VAStatus sunxi_cedrus_CreateConfig(VADriverContextP ctx, VAProfile profile,
 
 VAStatus sunxi_cedrus_DestroyConfig(VADriverContextP ctx, VAConfigID config_id)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus;
 	struct object_config *obj_config;
 
@@ -238,7 +241,8 @@ VAStatus sunxi_cedrus_QueryConfigAttributes(VADriverContextP ctx,
 		VAEntrypoint *entrypoint, VAConfigAttrib *attrib_list,
 		int *num_attribs)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct object_config *obj_config;
 	int i;

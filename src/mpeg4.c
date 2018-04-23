@@ -43,7 +43,8 @@ VAStatus sunxi_cedrus_render_mpeg4_slice_data(VADriverContextP ctx,
 		struct object_context *obj_context, struct object_surface *obj_surface,
 		struct object_buffer *obj_buffer)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
@@ -74,7 +75,8 @@ VAStatus sunxi_cedrus_render_mpeg4_picture_parameter(VADriverContextP ctx,
 		struct object_context *obj_context, struct object_surface *obj_surface,
 		struct object_buffer *obj_buffer)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
 
 	VAPictureParameterBufferMPEG4 *pic_param = (VAPictureParameterBufferMPEG4 *)obj_buffer->buffer_data;

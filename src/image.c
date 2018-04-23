@@ -50,7 +50,8 @@ VAStatus sunxi_cedrus_QueryImageFormats(VADriverContextP ctx,
 VAStatus sunxi_cedrus_CreateImage(VADriverContextP ctx, VAImageFormat *format,
 		int width, int height, VAImage *image)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	int sizeY, sizeUV;
 	struct object_image *obj_img;
 
@@ -90,7 +91,8 @@ VAStatus sunxi_cedrus_CreateImage(VADriverContextP ctx, VAImageFormat *format,
 VAStatus sunxi_cedrus_DeriveImage(VADriverContextP ctx, VASurfaceID surface,
 		VAImage *image)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	struct object_surface *obj_surface;
 	VAImageFormat fmt;
 	struct object_buffer *obj_buffer;
@@ -119,7 +121,8 @@ VAStatus sunxi_cedrus_DeriveImage(VADriverContextP ctx, VASurfaceID surface,
 
 VAStatus sunxi_cedrus_DestroyImage(VADriverContextP ctx, VAImageID image)
 {
-	INIT_DRIVER_DATA
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
 	struct object_image *obj_img;
 
 	obj_img = IMAGE(image);
