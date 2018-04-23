@@ -61,10 +61,10 @@ void sunxi_cedrus_msg(const char *msg, ...)
 }
 
 /* Free memory and close v4l device */
-VAStatus SunxiCedrusTerminate(VADriverContextP ctx)
+VAStatus SunxiCedrusTerminate(VADriverContextP context)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_buffer *obj_buffer;
 	struct object_config *obj_config;
 	object_heap_iterator iter;
@@ -97,33 +97,33 @@ VAStatus SunxiCedrusTerminate(VADriverContextP ctx)
 	}
 	object_heap_destroy(&driver_data->config_heap);
 
-	free(ctx->pDriverData);
-	ctx->pDriverData = NULL;
+	free(context->pDriverData);
+	context->pDriverData = NULL;
 
 	return VA_STATUS_SUCCESS;
 }
 
 /* Only expose the init function */
 VAStatus __attribute__((visibility("default")))
-VA_DRIVER_INIT_FUNC(VADriverContextP ctx);
+VA_DRIVER_INIT_FUNC(VADriverContextP context);
 
 /* Setup a bunch of function pointers for VA */
-VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP ctx)
+VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
-	struct VADriverVTable * const vtable = ctx->vtable;
+	struct VADriverVTable * const vtable = context->vtable;
 	struct sunxi_cedrus_driver_data *driver_data;
 	struct v4l2_capability cap;
 	char *path;
 
-	ctx->version_major = VA_MAJOR_VERSION;
-	ctx->version_minor = VA_MINOR_VERSION;
-	ctx->max_profiles = SUNXI_CEDRUS_MAX_PROFILES;
-	ctx->max_entrypoints = SUNXI_CEDRUS_MAX_ENTRYPOINTS;
-	ctx->max_attributes = SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES;
-	ctx->max_image_formats = SUNXI_CEDRUS_MAX_IMAGE_FORMATS;
-	ctx->max_subpic_formats = SUNXI_CEDRUS_MAX_SUBPIC_FORMATS;
-	ctx->max_display_attributes = SUNXI_CEDRUS_MAX_DISPLAY_ATTRIBUTES;
-	ctx->str_vendor = SUNXI_CEDRUS_STR_VENDOR;
+	context->version_major = VA_MAJOR_VERSION;
+	context->version_minor = VA_MINOR_VERSION;
+	context->max_profiles = SUNXI_CEDRUS_MAX_PROFILES;
+	context->max_entrypoints = SUNXI_CEDRUS_MAX_ENTRYPOINTS;
+	context->max_attributes = SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES;
+	context->max_image_formats = SUNXI_CEDRUS_MAX_IMAGE_FORMATS;
+	context->max_subpic_formats = SUNXI_CEDRUS_MAX_SUBPIC_FORMATS;
+	context->max_display_attributes = SUNXI_CEDRUS_MAX_DISPLAY_ATTRIBUTES;
+	context->str_vendor = SUNXI_CEDRUS_STR_VENDOR;
 
 	vtable->vaTerminate = SunxiCedrusTerminate;
 	vtable->vaQueryConfigEntrypoints = SunxiCedrusQueryConfigEntrypoints;
@@ -172,7 +172,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP ctx)
 
 	driver_data =
 		(struct sunxi_cedrus_driver_data *) malloc(sizeof(*driver_data));
-	ctx->pDriverData = (void *) driver_data;
+	context->pDriverData = (void *) driver_data;
 
 	assert(object_heap_init(&driver_data->config_heap,
 			sizeof(struct object_config), CONFIG_ID_OFFSET)==0);
