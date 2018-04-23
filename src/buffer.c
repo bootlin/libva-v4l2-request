@@ -204,4 +204,6 @@ VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
 
 VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,
 	VABufferType *type, unsigned int *size, unsigned int *count)
-{ return VA_STATUS_ERROR_UNIMPLEMENTED; }
+{
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}

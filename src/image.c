@@ -129,15 +129,21 @@ VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
 
 VAStatus SunxiCedrusSetImagePalette(VADriverContextP context,
 	VAImageID image_id, unsigned char *palette)
-{ return VA_STATUS_SUCCESS; }
+{
+	return VA_STATUS_SUCCESS;
+}
 
 VAStatus SunxiCedrusGetImage(VADriverContextP context, VASurfaceID surface_id,
 	int x, int y, unsigned int width, unsigned int height,
 	VAImageID image_id)
-{ return VA_STATUS_SUCCESS; }
+{
+	return VA_STATUS_SUCCESS;
+}
 
 VAStatus SunxiCedrusPutImage(VADriverContextP context, VASurfaceID surface_id,
 	VAImageID image, int src_x, int src_y, unsigned int src_width,
 	unsigned int src_height, int dst_x, int dst_y, unsigned int dst_width,
 	unsigned int dst_height)
-{ return VA_STATUS_SUCCESS; }
+{
+	return VA_STATUS_SUCCESS;
+}

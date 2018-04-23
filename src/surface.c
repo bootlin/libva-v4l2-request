@@ -285,8 +285,12 @@ VAStatus SunxiCedrusLockSurface(VADriverContextP context,
 	unsigned int *chroma_u_stride, unsigned int *chroma_v_stride,
 	unsigned int *luma_offset, unsigned int *chroma_u_offset,
 	unsigned int *chroma_v_offset, unsigned int *buffer_name, void **buffer)
-{ return VA_STATUS_ERROR_UNIMPLEMENTED; }
+{
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}
 
 VAStatus SunxiCedrusUnlockSurface(VADriverContextP context,
 	VASurfaceID surface_id)
-{ return VA_STATUS_ERROR_UNIMPLEMENTED; }
+{
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}
