@@ -64,7 +64,7 @@ void sunxi_cedrus_msg(const char *msg, ...)
 VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
 {
 	INIT_DRIVER_DATA
-	object_buffer_p obj_buffer;
+	struct object_buffer *obj_buffer;
 	object_config_p obj_config;
 	object_heap_iterator iter;
 
@@ -75,12 +75,12 @@ VAStatus sunxi_cedrus_Terminate(VADriverContextP ctx)
 	close(driver_data->mem2mem_fd);
 
 	/* Clean up left over buffers */
-	obj_buffer = (object_buffer_p) object_heap_first(&driver_data->buffer_heap, &iter);
+	obj_buffer = (struct object_buffer *) object_heap_first(&driver_data->buffer_heap, &iter);
 	while (obj_buffer)
 	{
 		sunxi_cedrus_msg("vaTerminate: bufferID %08x still allocated, destroying\n", obj_buffer->base.id);
 		sunxi_cedrus_destroy_buffer(driver_data, obj_buffer);
-		obj_buffer = (object_buffer_p) object_heap_next(&driver_data->buffer_heap, &iter);
+		obj_buffer = (struct object_buffer *) object_heap_next(&driver_data->buffer_heap, &iter);
 	}
 
 	object_heap_destroy(&driver_data->buffer_heap);

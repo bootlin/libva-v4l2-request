@@ -41,7 +41,7 @@
 
 VAStatus sunxi_cedrus_render_mpeg4_slice_data(VADriverContextP ctx,
 		object_context_p obj_context, object_surface_p obj_surface,
-		object_buffer_p obj_buffer)
+		struct object_buffer *obj_buffer)
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
@@ -72,7 +72,7 @@ VAStatus sunxi_cedrus_render_mpeg4_slice_data(VADriverContextP ctx,
 
 VAStatus sunxi_cedrus_render_mpeg4_picture_parameter(VADriverContextP ctx,
 		object_context_p obj_context, object_surface_p obj_surface,
-		object_buffer_p obj_buffer)
+		struct object_buffer *obj_buffer)
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
@@ -123,7 +123,7 @@ VAStatus sunxi_cedrus_render_mpeg4_picture_parameter(VADriverContextP ctx,
 
 VAStatus sunxi_cedrus_render_mpeg4_slice_parameter(VADriverContextP ctx,
 		object_context_p obj_context, object_surface_p obj_surface,
-		object_buffer_p obj_buffer)
+		struct object_buffer *obj_buffer)
 {
 	VASliceParameterBufferMPEG4 *slice_param = (VASliceParameterBufferMPEG4 *)obj_buffer->buffer_data;
 

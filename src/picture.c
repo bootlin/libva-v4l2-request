@@ -106,7 +106,7 @@ VAStatus sunxi_cedrus_RenderPicture(VADriverContextP ctx, VAContextID context,
 	/* verify that we got valid buffer references */
 	for(i = 0; i < num_buffers; i++)
 	{
-		object_buffer_p obj_buffer = BUFFER(buffers[i]);
+		struct object_buffer *obj_buffer = BUFFER(buffers[i]);
 		assert(obj_buffer);
 		if (NULL == obj_buffer)
 		{

@@ -49,7 +49,7 @@ VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 	INIT_DRIVER_DATA
 	int bufferID;
 	struct v4l2_plane plane[1];
-	object_buffer_p obj_buffer;
+	struct object_buffer *obj_buffer;
 
 	memset(plane, 0, sizeof(struct v4l2_plane));
 
@@ -123,7 +123,7 @@ VAStatus sunxi_cedrus_BufferSetNumElements(VADriverContextP ctx,
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	object_buffer_p obj_buffer = BUFFER(buf_id);
+	struct object_buffer *obj_buffer = BUFFER(buf_id);
 	assert(obj_buffer);
 
 	if ((num_elements < 0) || (num_elements > obj_buffer->max_num_elements))
@@ -139,7 +139,7 @@ VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 {
 	INIT_DRIVER_DATA
 	VAStatus vaStatus = VA_STATUS_ERROR_UNKNOWN;
-	object_buffer_p obj_buffer = BUFFER(buf_id);
+	struct object_buffer *obj_buffer = BUFFER(buf_id);
 	assert(obj_buffer);
 
 	if (NULL == obj_buffer)
@@ -159,7 +159,7 @@ VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
 {
 	INIT_DRIVER_DATA
-	object_buffer_p obj_buffer = BUFFER(buf_id);
+	struct object_buffer *obj_buffer = BUFFER(buf_id);
 
 	if (obj_buffer == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
@@ -169,7 +169,7 @@ VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id)
 }
 
 void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
-		object_buffer_p obj_buffer)
+		struct object_buffer *obj_buffer)
 {
 	if (obj_buffer->buffer_data != NULL) {
 		if (obj_buffer->type != VASliceDataBufferType)
@@ -187,7 +187,7 @@ void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
 VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id)
 {
 	INIT_DRIVER_DATA
-	object_buffer_p obj_buffer = BUFFER(buffer_id);
+	struct object_buffer *obj_buffer = BUFFER(buffer_id);
 	assert(obj_buffer);
 
 	sunxi_cedrus_destroy_buffer(driver_data, obj_buffer);

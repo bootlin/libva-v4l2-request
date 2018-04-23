@@ -31,7 +31,7 @@
 #include "object_heap.h"
 #include "sunxi_cedrus_drv_video.h"
 
-#define BUFFER(id)  ((object_buffer_p)  object_heap_lookup(&driver_data->buffer_heap,  id))
+#define BUFFER(id)  ((struct object_buffer *)  object_heap_lookup(&driver_data->buffer_heap,  id))
 #define BUFFER_ID_OFFSET		0x08000000
 
 struct object_buffer {
@@ -44,8 +44,6 @@ struct object_buffer {
 	unsigned int size;
 	unsigned int map_size;
 };
-
-typedef struct object_buffer *object_buffer_p;
 
 VAStatus sunxi_cedrus_CreateBuffer(VADriverContextP ctx, VAContextID context,
 		VABufferType type, unsigned int size, unsigned int num_elements,
@@ -60,7 +58,7 @@ VAStatus sunxi_cedrus_MapBuffer(VADriverContextP ctx, VABufferID buf_id,
 VAStatus sunxi_cedrus_UnmapBuffer(VADriverContextP ctx, VABufferID buf_id);
 
 void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
-		object_buffer_p obj_buffer);
+		struct object_buffer *obj_buffer);
 
 VAStatus sunxi_cedrus_DestroyBuffer(VADriverContextP ctx, VABufferID buffer_id);
 

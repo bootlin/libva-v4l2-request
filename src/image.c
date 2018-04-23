@@ -93,7 +93,7 @@ VAStatus sunxi_cedrus_DeriveImage(VADriverContextP ctx, VASurfaceID surface,
 	INIT_DRIVER_DATA
 	object_surface_p obj_surface;
 	VAImageFormat fmt;
-	object_buffer_p obj_buffer;
+	struct object_buffer *obj_buffer;
 	VAStatus ret;
 
 	obj_surface = SURFACE(surface);
