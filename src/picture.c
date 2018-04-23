@@ -31,7 +31,6 @@
 #include "va_config.h"
 
 #include "mpeg2.h"
-#include "mpeg4.h"
 
 #include <assert.h>
 #include <string.h>
@@ -124,16 +123,6 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP ctx, VAContextID context,
 				else if(obj_buffer->type == VAPictureParameterBufferType)
 					vaStatus = sunxi_cedrus_render_mpeg2_picture_parameter(ctx, obj_context, obj_surface, obj_buffer);
 				break;
-			case VAProfileMPEG4Simple:
-			case VAProfileMPEG4AdvancedSimple:
-			case VAProfileMPEG4Main:
-				if(obj_buffer->type == VASliceDataBufferType)
-					vaStatus = sunxi_cedrus_render_mpeg4_slice_data(ctx, obj_context, obj_surface, obj_buffer);
-				else if(obj_buffer->type == VAPictureParameterBufferType)
-					vaStatus = sunxi_cedrus_render_mpeg4_picture_parameter(ctx, obj_context, obj_surface, obj_buffer);
-				else if(obj_buffer->type == VASliceParameterBufferType)
-					vaStatus = sunxi_cedrus_render_mpeg4_slice_parameter(ctx, obj_context, obj_surface, obj_buffer);
-				break;
 			default:
 				break;
 		}
@@ -207,14 +196,6 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP ctx, VAContextID context)
 			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
 			ctrl.ptr = &obj_context->mpeg2_frame_hdr;
 			ctrl.size = sizeof(obj_context->mpeg2_frame_hdr);
-			break;
-		case VAProfileMPEG4Simple:
-		case VAProfileMPEG4AdvancedSimple:
-		case VAProfileMPEG4Main:
-			out_buf.m.planes[0].bytesused = obj_context->mpeg4_frame_hdr.slice_len/8;
-			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG4_FRAME_HDR;
-			ctrl.ptr = &obj_context->mpeg4_frame_hdr;
-			ctrl.size = sizeof(obj_context->mpeg4_frame_hdr);
 			break;
 		default:
 			out_buf.m.planes[0].bytesused = 0;

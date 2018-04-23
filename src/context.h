@@ -52,7 +52,6 @@ struct object_context {
 	uint32_t num_rendered_surfaces;
 
 	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
-	struct v4l2_ctrl_mpeg4_frame_hdr mpeg4_frame_hdr;
 };
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
