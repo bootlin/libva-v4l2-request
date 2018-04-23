@@ -41,17 +41,18 @@
 
 struct object_context {
 	struct object_base base;
-	VAContextID context_id;
+
 	VAConfigID config_id;
-	VASurfaceID current_render_target;
+	VASurfaceID render_target;
+	VASurfaceID *render_targets;
+	int render_targets_count;
+
 	int picture_width;
 	int picture_height;
-	int num_render_targets;
 	int flags;
-	VASurfaceID *render_targets;
-	uint32_t num_rendered_surfaces;
 
 	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
+	uint32_t num_rendered_surfaces;
 };
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,

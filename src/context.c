@@ -73,15 +73,18 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
 		return vaStatus;
 	}
 
-	obj_context->context_id = contextID;
-	*context = contextID;
-	obj_context->current_render_target = -1;
 	obj_context->config_id = config_id;
+	obj_context->render_target = VA_INVALID;
+	obj_context->render_targets = (VASurfaceID *) malloc(num_render_targets * sizeof(VASurfaceID));
+	obj_context->render_targets_count = num_render_targets;
 	obj_context->picture_width = picture_width;
 	obj_context->picture_height = picture_height;
-	obj_context->num_render_targets = num_render_targets;
-	obj_context->render_targets = (VASurfaceID *) malloc(num_render_targets * sizeof(VASurfaceID));
 	obj_context->num_rendered_surfaces = 0;
+
+	*context = contextID;
+
+	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
+	uint32_t num_rendered_surfaces;
 
 	if (obj_context->render_targets == NULL)
 	{
@@ -103,11 +106,10 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP ctx, VAConfigID config_id,
 	/* Error recovery */
 	if (VA_STATUS_SUCCESS != vaStatus)
 	{
-		obj_context->context_id = -1;
 		obj_context->config_id = -1;
 		free(obj_context->render_targets);
 		obj_context->render_targets = NULL;
-		obj_context->num_render_targets = 0;
+		obj_context->render_targets_count = 0;
 		obj_context->flags = 0;
 		object_heap_free(&driver_data->context_heap, (object_base_p) obj_context);
 	}
@@ -160,17 +162,16 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP ctx, VAContextID context)
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMOFF, &type);
 
-	obj_context->context_id = -1;
 	obj_context->config_id = -1;
 	obj_context->picture_width = 0;
 	obj_context->picture_height = 0;
 	if (obj_context->render_targets)
 		free(obj_context->render_targets);
 	obj_context->render_targets = NULL;
-	obj_context->num_render_targets = 0;
+	obj_context->render_targets_count = 0;
 	obj_context->flags = 0;
 
-	obj_context->current_render_target = -1;
+	obj_context->render_target = -1;
 
 	object_heap_free(&driver_data->context_heap, (object_base_p) obj_context);
 
