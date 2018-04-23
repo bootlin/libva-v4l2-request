@@ -19,13 +19,13 @@ driver_libs = \
 	$(X11_DEPS_LIBS)	\
 	$(LIBVA_DEPS_LIBS)
 
-source_c = sunxi_cedrus.c object_heap.c buffer.c va_config.c \
+source_c = sunxi_cedrus.c object_heap.c buffer.c config.c \
 	context.c image.c mpeg2.c picture.c subpicture.c surface.c
 
 source_s = \
 	tiled_yuv.S
 
-source_h = sunxi_cedrus_drv_video.h object_heap.h buffer.h va_config.h \
+source_h = sunxi_cedrus_drv_video.h object_heap.h buffer.h config.h \
 	context.h image.h mpeg2.h picture.h subpicture.h surface.h \
 	tiled_yuv.h
 
@@ -37,4 +37,4 @@ sunxi_cedrus_drv_video_la_LIBADD	= $(driver_libs)
 sunxi_cedrus_drv_video_la_SOURCES	= $(source_c) $(source_s)
 noinst_HEADERS				= $(source_h)
 
-MAINTAINERCLEANFILES = Makefile.in config.h.in
+MAINTAINERCLEANFILES = Makefile.in autoconfig.h.in

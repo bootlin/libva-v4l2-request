@@ -29,9 +29,9 @@
 #include "picture.h"
 #include "subpicture.h"
 #include "surface.h"
-#include "va_config.h"
-
 #include "config.h"
+
+#include "autoconfig.h"
 
 #include <va/va_backend.h>
 

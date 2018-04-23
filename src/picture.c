@@ -28,7 +28,7 @@
 #include "buffer.h"
 #include "context.h"
 #include "surface.h"
-#include "va_config.h"
+#include "config.h"
 
 #include "mpeg2.h"
 

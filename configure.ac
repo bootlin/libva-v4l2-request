@@ -22,7 +22,7 @@ AC_INIT([liva_wrapper], [sunxi_cedrus_version],
 AC_CONFIG_SRCDIR([Makefile.am])
 AM_INIT_AUTOMAKE([1.9 tar-ustar])
 
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([src/autoconfig.h])
 
 SUNXI_CEDRUS_MAJOR_VERSION=sunxi_cedrus_major_version
 SUNXI_CEDRUS_MINOR_VERSION=sunxi_cedrus_minor_version

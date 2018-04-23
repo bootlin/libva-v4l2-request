@@ -31,8 +31,8 @@ compile
 missing
 Makefile
 Makefile.in
-config.h
-config.h.in
+autoconfig.h
+autoconfig.h.in
 stamp-h1
 aclocal.m4
 autom4te.cache

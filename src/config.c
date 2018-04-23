@@ -24,7 +24,7 @@
  */
 
 #include "sunxi_cedrus.h"
-#include "va_config.h"
+#include "config.h"
 
 #include <assert.h>
 #include <string.h>
@@ -233,12 +233,18 @@ VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
 
 VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
 	VADisplayAttribute *attributes, int *attributes_count)
-{ return VA_STATUS_ERROR_UNKNOWN; }
+{
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}
 
 VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
 	VADisplayAttribute *attributes, int *attributes_count)
-{ return VA_STATUS_ERROR_UNKNOWN; }
+{
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}
 
 VAStatus SunxiCedrusSetDisplayAttributes(VADriverContextP context,
 	VADisplayAttribute *attributes, int *attributes_count)
-{ return VA_STATUS_ERROR_UNKNOWN; }
+{
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}

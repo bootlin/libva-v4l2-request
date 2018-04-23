@@ -25,7 +25,7 @@
 
 #include "sunxi_cedrus.h"
 #include "context.h"
-#include "va_config.h"
+#include "config.h"
 #include "surface.h"
 
 #include <stdlib.h>
