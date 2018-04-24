@@ -138,18 +138,15 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	if (request_fd < 0)
 		return VA_STATUS_ERROR_UNKNOWN;
 
-	rc = ioctl(request_fd, MEDIA_REQUEST_IOC_SUBMIT, NULL);
+	rc = media_request_queue(request_fd);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	FD_ZERO(&read_fds);
-	FD_SET(request_fd, &read_fds);
+	rc = media_request_wait_completion(request_fd);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = select(request_fd + 1, &read_fds, NULL, NULL, NULL);
-	if(rc <= 0)
-		return VA_STATUS_ERROR_UNKNOWN;
-
-	rc = ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL);
+	rc = media_request_reinit(request_fd);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

@@ -139,7 +139,6 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_context *context_object;
 	struct object_surface *surface_object;
-	struct media_request_new media_request;
 	void *control_data;
 	unsigned int control_size;
 	unsigned int control_id;
@@ -156,12 +155,11 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 
 	request_fd = driver_data->request_fds[surface_object->input_buf_index];
 	if (request_fd < 0) {
-		rc = ioctl(driver_data->video_fd, VIDIOC_NEW_REQUEST, &media_request);
-		if (rc < 0)
+		request_fd = media_request_alloc(driver_data->media_fd);
+		if (request_fd < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 
-		driver_data->request_fds[surface_object->input_buf_index] = media_request.fd;
-		request_fd = media_request.fd;
+		driver_data->request_fds[surface_object->input_buf_index] = request_fd;
 	}
 
 	switch (config_object->profile) {

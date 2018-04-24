@@ -71,8 +71,10 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	struct v4l2_capability capability;
 	VAStatus status;
 	unsigned int i;
-	int fd = -1;
-	char *path;
+	int video_fd = -1;
+	int media_fd = -1;
+	char *video_path;
+	char *media_path;
 	int rc;
 
 	context->version_major = VA_MAJOR_VERSION;
@@ -141,12 +143,12 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	object_heap_init(&driver_data->buffer_heap, sizeof(struct object_buffer), BUFFER_ID_OFFSET);
 	object_heap_init(&driver_data->image_heap, sizeof(struct object_image), IMAGE_ID_OFFSET);
 
-	path = getenv("LIBVA_CEDRUS_DEV");
-	if (path == NULL)
-		path = "/dev/video0";
+	video_path = getenv("LIBVA_CEDRUS_VIDEO_PATH");
+	if (video_path == NULL)
+		video_path = "/dev/video0";
 
-	fd = open(PATH, O_RDWR | O_NONBLOCK);
-	if (fd < 0)
+	video_fd = open(video_path, O_RDWR | O_NONBLOCK);
+	if (video_fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	rc = ioctl(driver_data->video_fd, VIDIOC_QUERYCAP, &capability);
@@ -155,7 +157,16 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 	}
 
-	driver_data->video_fd = fd;
+	media_path = getenv("LIBVA_CEDRUS_MEDIA_PATH");
+	if (media_path == NULL)
+		media_path = "/dev/media0";
+
+	media_fd = open(video_path, O_RDWR | O_NONBLOCK);
+	if (media_fd < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	driver_data->video_fd = video_fd;
+	driver_data->media_fd = media_fd;
 
 	for (i = 0; i < INPUT_BUFFERS_NB; i++) {
 		driver_data->request_fds[i] = -1;
@@ -168,8 +179,11 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 error:
 	status = VA_STATUS_ERROR_OPERATION_FAILED;
 
-	if (fd >= 0)
-		close(fd);
+	if (video_fd >= 0)
+		close(video_fd);
+
+	if (media_fd >= 0)
+		close(media_fd);
 
 complete:
 	return status;
@@ -192,6 +206,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 			close(driver_data->request_fds[i]);
 
 	close(driver_data->video_fd);
+	close(driver_data->media_fd);
 
 	/* Cleanup leftover buffers. */
 
