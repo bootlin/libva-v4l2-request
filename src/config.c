@@ -33,6 +33,8 @@
 
 #include <linux/videodev2.h>
 
+#include "v4l2.h"
+
 VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 	VAEntrypoint entrypoint, VAConfigAttrib *attributes,
 	int attributes_count, VAConfigID *config_id)
@@ -100,28 +102,13 @@ VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	struct v4l2_fmtdesc format_description;
 	unsigned int index = 0;
-	int rc;
+	bool found;
 
-	memset(&format_description, 0, sizeof(format_description));
-	format_description.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	format_description.index = 0;
-
-	for (format_description.index = 0; index < SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES ; format_description.index++) {
-		rc = ioctl(driver_data->mem2mem_fd, VIDIOC_ENUM_FMT, &format_description);
-		if (rc < 0)
-			break;
-
-		switch (format_description.pixelformat) {
-			case V4L2_PIX_FMT_MPEG2_FRAME:
-				if (index >= (SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES - 2))
-					break;
-
-				profiles[index++] = VAProfileMPEG2Simple;
-				profiles[index++] = VAProfileMPEG2Main;
-				break;
-		}
+	found = v4l2_find_format(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, V4L2_PIX_FMT_MPEG2_FRAME);
+	if (found && index < (SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES - 2)) {
+		profiles[index++] = VAProfileMPEG2Simple;
+		profiles[index++] = VAProfileMPEG2Main;
 	}
 
 	*profiles_count = index;

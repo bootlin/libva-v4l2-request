@@ -36,19 +36,22 @@
 
 #include <linux/videodev2.h>
 
+#include "v4l2.h"
+
 VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	VAContextID context_id, VABufferType type, unsigned int size,
 	unsigned int count, void *data, VABufferID *buffer_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_buffer *buffer_object = NULL;
 	struct object_context *context_object;
-	struct object_buffer *buffer_object;
-	struct v4l2_plane plane[1];
-	struct v4l2_buffer buf;
 	void *buffer_data;
 	void *map_data;
 	unsigned int map_size;
+	unsigned int length;
+	unsigned int offset;
+	VAStatus status;
 	VABufferID id;
 	int rc;
 
@@ -59,40 +62,35 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 		case VASliceDataBufferType:
 		case VAImageBufferType:
 			break;
+
 		default:
-			return VA_STATUS_ERROR_UNSUPPORTED_BUFFERTYPE;
+			status = VA_STATUS_ERROR_UNSUPPORTED_BUFFERTYPE;
+			goto error;
 	}
 
 	id = object_heap_allocate(&driver_data->buffer_heap);
 	buffer_object = BUFFER(buffer_id);
-	if (buffer_object == NULL)
-		return VA_STATUS_ERROR_ALLOCATION_FAILED;
+	if (buffer_object == NULL) {
+		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+		goto error;
+	}
 
 	if(buffer_object->type == VASliceDataBufferType) {
 		context_object = CONTEXT(context_id);
 		if (context_object == NULL) {
-			object_heap_free(&driver_data->buffer_heap, (struct object_base *) buffer_object);
-			return VA_STATUS_ERROR_INVALID_CONTEXT;
+			status = VA_STATUS_ERROR_INVALID_CONTEXT;
+			goto error;
 		}
 
-		memset(plane, 0, sizeof(plane));
-
-		memset(&buf, 0, sizeof(buf));
-		buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = context_object->num_rendered_surfaces % INPUT_BUFFERS_NB;
-		buf.length = 1;
-		buf.m.planes = plane;
-
-		rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &buf);
+		rc = v4l2_request_buffer(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, context_object->num_rendered_surfaces % INPUT_BUFFERS_NB, &length, &offset);
 		if (rc < 0) {
-			object_heap_free(&driver_data->buffer_heap, (struct object_base *) buffer_object);
-			return VA_STATUS_ERROR_ALLOCATION_FAILED;
+			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+			goto error;
 		}
 
 		map_size = driver_data->slice_offset[buf.index] + size * count;
 		map_data = mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->mem2mem_fd, buf.m.planes[0].m.mem_offset);
+			driver_data->mem2mem_fd, offset);
 
 		buffer_data = map_data + driver_data->slice_offset[buf.index];
 		driver_data->slice_offset[buf.index] += size * count;
@@ -101,9 +99,6 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 		map_size = 0;
 		map_data = NULL;
 	}
-
-	if (buffer_object->data == NULL || buffer_object->map == MAP_FAILED)
-		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 	if (data)
 		memcpy(map_data, data, size * count);
@@ -120,6 +115,13 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	*buffer_id = id;
 
 	return VA_STATUS_SUCCESS;
+
+error:
+	if (buffer_object != NULL)
+		object_heap_free(&driver_data->buffer_heap, (struct object_base *) buffer_object);
+
+complete:
+	return status;
 }
 
 VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,

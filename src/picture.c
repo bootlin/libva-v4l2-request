@@ -41,6 +41,8 @@
 
 #include <linux/videodev2.h>
 
+#include "v4l2.h"
+
 VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 	VAContextID context_id, VASurfaceID surface_id)
 {
@@ -130,12 +132,10 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_context *context_object;
 	struct object_surface *surface_object;
-	struct v4l2_buffer out_buf, cap_buf;
-	struct v4l2_plane plane[1];
-	struct v4l2_plane planes[2];
-	struct v4l2_ext_control ctrl;
-	struct v4l2_ext_controls ctrls;
 	struct media_request_new media_request;
+	void *control_data;
+	unsigned int control_size;
+	unsigned int control_id;
 	int request_fd;
 	int rc;
 
@@ -157,63 +157,34 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		request_fd = media_request.fd;
 	}
 
-	memset(plane, 0, sizeof(struct v4l2_plane));
-	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
-	memset(&ctrl, 0, sizeof(struct v4l2_ext_control));
-	memset(&ctrls, 0, sizeof(struct v4l2_ext_controls));
-
-	memset(&out_buf, 0, sizeof(out_buf));
-	out_buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	out_buf.memory = V4L2_MEMORY_MMAP;
-	out_buf.index = surface_object->input_buf_index;
-	out_buf.length = 1;
-	out_buf.m.planes = plane;
-	out_buf.request_fd = request_fd;
-
 	switch (config_object->profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
 			context_object->mpeg2_frame_hdr.slice_pos = 0;
 			context_object->mpeg2_frame_hdr.slice_len = driver_data->slice_offset[surface_object->input_buf_index] * 8;
 
-			out_buf.m.planes[0].bytesused = driver_data->slice_offset[surface_object->input_buf_index];
-			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
-			ctrl.ptr = &context_object->mpeg2_frame_hdr;
-			ctrl.size = sizeof(context_object->mpeg2_frame_hdr);
+			control_id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
+			control_data = &context_object->mpeg2_frame_hdr;
+			control_size = sizeof(context_object->mpeg2_frame_hdr);
 			break;
 
 		default:
-			out_buf.m.planes[0].bytesused = 0;
-			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
-			ctrl.ptr = NULL;
-			ctrl.size = 0;
-			break;
+			return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
 
+	rc = v4l2_set_control(driver_data->mem2mem_fd, request_fd, control_id, control_data, control_size);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	rc = v4l2_queue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index, 0);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	rc = v4l2_queue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index, driver_data->slice_offset[surface_object->input_buf_index]);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
 	driver_data->slice_offset[surface_object->input_buf_index] = 0;
-
-	memset(&cap_buf, 0, sizeof(cap_buf));
-	cap_buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	cap_buf.memory = V4L2_MEMORY_MMAP;
-	cap_buf.index = surface_object->output_buf_index;
-	cap_buf.length = 2;
-	cap_buf.m.planes = planes;
-
-	ctrls.controls = &ctrl;
-	ctrls.count = 1;
-	ctrls.request_fd = request_fd;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_S_EXT_CTRLS, &ctrls);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &cap_buf);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &out_buf);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	context_object->render_surface_id = VA_INVALID_ID;
 

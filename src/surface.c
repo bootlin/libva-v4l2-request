@@ -38,47 +38,27 @@
 
 #include <X11/Xlib.h>
 
+#include "v4l2.h"
+
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	int height, int format, int surfaces_count, VASurfaceID *surfaces)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *surface_object;
+	unsigned int length[2];
+	unsigned int offset[2];
 	VASurfaceID id;
-	struct v4l2_buffer buf;
-	struct v4l2_plane planes[2];
-	struct v4l2_create_buffers create_bufs;
-	struct v4l2_format fmt;
 	int i;
-
-	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
 
 	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
 
-	memset(&fmt, 0, sizeof(fmt));
-	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	fmt.fmt.pix_mp.width = width;
-	fmt.fmt.pix_mp.height = height;
-	fmt.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SUNXI;
-	fmt.fmt.pix_mp.field = V4L2_FIELD_ANY;
-	fmt.fmt.pix_mp.num_planes = 2;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_S_FMT, &fmt);
+	rc = v4l2_set_format(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_PIX_FMT_SUNXI, width, height);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	memset(&create_bufs, 0, sizeof(create_bufs));
-	create_bufs.count = surfaces_count;
-	create_bufs.memory = V4L2_MEMORY_MMAP;
-	create_bufs.format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_G_FMT, &create_bufs.format);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_CREATE_BUFS, &create_bufs);
+	rc = v4l2_create_buffers(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surfaces_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
@@ -90,32 +70,25 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 
 		surfaces[i] = surfaceID;
 
-		memset(&buf, 0, sizeof(buf));
-		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = create_bufs.index + i;
-		buf.length = 2;
-		buf.m.planes = planes;
-
-		rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &buf);
+		rc = v4l2_request_buffer(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
 		if (rc < 0)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->luma_bufs[buf.index] = mmap(NULL, buf.m.planes[0].length, PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->mem2mem_fd, buf.m.planes[0].m.mem_offset);
+		driver_data->luma_bufs[index] = mmap(NULL, length[0], PROT_READ | PROT_WRITE, MAP_SHARED,
+			driver_data->mem2mem_fd, offset[0]);
 		if (driver_data->luma_bufs[buf.index] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->chroma_bufs[buf.index] = mmap(NULL, buf.m.planes[1].length, PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->mem2mem_fd, buf.m.planes[1].m.mem_offset);
-		if (driver_data->chroma_bufs[buf.index] == MAP_FAILED)
+		driver_data->chroma_bufs[index] = mmap(NULL, length[1], PROT_READ | PROT_WRITE, MAP_SHARED,
+			driver_data->mem2mem_fd, offset[1]);
+		if (driver_data->chroma_bufs[index] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 		surface_object->status = VASurfaceReady;
 		surface_object->width = width;
 		surface_object->height = height;
 		surface_object->input_buf_index = 0;
-		surface_object->output_buf_index = create_bufs.index + i;
+		surface_object->output_buf_index = i;
 
 		surfaces_ids[i] = id;
 	}
@@ -150,15 +123,9 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *surface_object;
-	struct v4l2_buffer buf;
-	struct v4l2_plane plane[1];
-	struct v4l2_plane planes[2];
         fd_set read_fds;
 	int request_fd;
 	int rc;
-
-	memset(plane, 0, sizeof(struct v4l2_plane));
-	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
 
 	surface_object = SURFACE(surface_id);
 	if (surface_object == NULL)
@@ -186,25 +153,11 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	memset(&buf, 0, sizeof(buf));
-	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	buf.memory = V4L2_MEMORY_MMAP;
-	buf.index = surface_object->input_buf_index;
-	buf.length = 1;
-	buf.m.planes = plane;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &buf);
+	rc = v4l2_dequeue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	memset(&buf, 0, sizeof(buf));
-	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	buf.memory = V4L2_MEMORY_MMAP;
-	buf.index = surface_object->output_buf_index;
-	buf.length = 2;
-	buf.m.planes = planes;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &buf);
+	rc = v4l2_dequeue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

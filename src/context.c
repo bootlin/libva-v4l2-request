@@ -37,6 +37,8 @@
 
 #include <linux/videodev2.h>
 
+#include "v4l2.h"
+
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VAConfigID config_id, int picture_width, int picture_height, int flag,
 	VASurfaceID *surfaces_ids, int surfaces_count,
@@ -49,9 +51,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VASurfaceID *ids = NULL;
 	VAContextID id;
 	VAStatus status;
-	struct v4l2_create_buffers create_buffers;
-	struct v4l2_format format;
-	enum v4l2_buf_type type;
+	unsigned int pixelformat;
 	unsigned int i;
 
 	config_object = CONFIG(config_id);
@@ -83,58 +83,37 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 		ids[i] = surfaces_ids[i];
 	}
 
-	memset(&format, 0, sizeof(format));
-	format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	format.fmt.pix_mp.width = picture_width;
-	format.fmt.pix_mp.height = picture_height;
-	format.fmt.pix_mp.plane_fmt[0].sizeimage = INPUT_BUFFER_MAX_SIZE * INPUT_BUFFERS_NB;
-	format.fmt.pix_mp.field = V4L2_FIELD_ANY;
-	format.fmt.pix_mp.num_planes = 1;
-
 	switch (config_object->profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			format.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_MPEG2_FRAME;
+			pixelformat = V4L2_PIX_FMT_MPEG2_FRAME;
 			break;
+
 		default:
-			status = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
-			goto error;
+			return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
 
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_S_FMT, &format);
+	rc = v4l2_set_format(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, pixelformat, picture_width, picture_height);
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
+	rc = v4l2_create_buffers(video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, INPUT_BUFFERS_NB);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
 	}
 
-	memset(&create_buffers, 0, sizeof(create_buffers));
-	create_buffers.count = INPUT_BUFFERS_NB;
-	create_buffers.memory = V4L2_MEMORY_MMAP;
-	create_buffers.format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_G_FMT, &create_buffers.format);
+	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, true);
 	if (rc < 0) {
-		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_CREATE_BUFS, &create_buffers);
+	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, true);
 	if (rc < 0) {
-		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
-		goto error;
-	}
-
-	type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMON, &type);
-	if (rc < 0) {
-		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
-		goto error;
-	}
-
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMON, &type);
-	if (rc < 0) {
-		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
@@ -163,7 +142,6 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_context *context_object;
-	enum v4l2_buf_type type;
 
 	context_object = (struct object_context *) object_heap_lookup(&driver_data->context_heap, context_id);
 	if (context_object == NULL)
@@ -171,15 +149,13 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 
 	object_heap_free(&driver_data->context_heap, (struct object_base *) context_object);
 
-	type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMOFF, &type);
+	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, false);
 	if (rc < 0)
-		return VA_STATUS_ERROR_UNKNOWN;
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_STREAMOFF, &type);
+	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, false);
 	if (rc < 0)
-		return VA_STATUS_ERROR_UNKNOWN;
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	return VA_STATUS_SUCCESS;
 }
