@@ -148,8 +148,11 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
 	request_fd = driver_data->request_fds[surface_object->input_buf_index];
-	if(request_fd < 0) {
-		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_NEW_REQUEST, &media_request)==0);
+	if (request_fd < 0) {
+		rc = ioctl(driver_data->mem2mem_fd, VIDIOC_NEW_REQUEST, &media_request);
+		if (rc < 0)
+			return VA_STATUS_ERROR_OPERATION_FAILED;
+
 		driver_data->request_fds[surface_object->input_buf_index] = media_request.fd;
 		request_fd = media_request.fd;
 	}
@@ -159,7 +162,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	memset(&ctrl, 0, sizeof(struct v4l2_ext_control));
 	memset(&ctrls, 0, sizeof(struct v4l2_ext_controls));
 
-	memset(&(out_buf), 0, sizeof(out_buf));
+	memset(&out_buf, 0, sizeof(out_buf));
 	out_buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	out_buf.memory = V4L2_MEMORY_MMAP;
 	out_buf.index = surface_object->input_buf_index;

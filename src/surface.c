@@ -43,89 +43,86 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	int i;
+	struct object_surface *surface_object;
+	VASurfaceID id;
 	struct v4l2_buffer buf;
 	struct v4l2_plane planes[2];
 	struct v4l2_create_buffers create_bufs;
 	struct v4l2_format fmt;
+	int i;
 
 	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
 
-	/* We only support one format */
-	if (VA_RT_FORMAT_YUV420 != format)
+	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
 
-	/* Set format for capture */
-	memset(&(fmt), 0, sizeof(fmt));
+	memset(&fmt, 0, sizeof(fmt));
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	fmt.fmt.pix_mp.width = width;
 	fmt.fmt.pix_mp.height = height;
 	fmt.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_SUNXI;
 	fmt.fmt.pix_mp.field = V4L2_FIELD_ANY;
 	fmt.fmt.pix_mp.num_planes = 2;
-	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_S_FMT, &fmt)==0);
 
-	memset (&create_bufs, 0, sizeof (struct v4l2_create_buffers));
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_S_FMT, &fmt);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	memset(&create_bufs, 0, sizeof(create_bufs));
 	create_bufs.count = surfaces_count;
 	create_bufs.memory = V4L2_MEMORY_MMAP;
 	create_bufs.format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_G_FMT, &create_bufs.format)==0);
-	assert(ioctl(driver_data->mem2mem_fd, VIDIOC_CREATE_BUFS, &create_bufs)==0);
-	driver_data->num_dst_bufs = create_bufs.count;
 
-	for (i = 0; i < create_bufs.count; i++)
-	{
-		VASurfaceID surfaceID = object_heap_allocate(&driver_data->surface_heap);
-		struct object_surface *obj_surface = SURFACE(surfaceID);
-		if (NULL == obj_surface)
-		{
-			vaStatus = VA_STATUS_ERROR_ALLOCATION_FAILED;
-			break;
-		}
-		obj_surface->surface_id = surfaceID;
+
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_G_FMT, &create_bufs.format);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_CREATE_BUFS, &create_bufs);
+	if (rc < 0)
+		return VA_STATUS_ERROR_ALLOCATION_FAILED;
+
+	for (i = 0; i < surfaces_count; i++) {
+		id = object_heap_allocate(&driver_data->surface_heap);
+		surface_object = (struct object_surface *) object_heap_lookup(&driver_data->surface_heap, id);
+		if (surface_object == NULL)
+			return VA_STATUS_ERROR_ALLOCATION_FAILED;
+
 		surfaces[i] = surfaceID;
 
-		memset(&(buf), 0, sizeof(buf));
+		memset(&buf, 0, sizeof(buf));
 		buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 		buf.memory = V4L2_MEMORY_MMAP;
-		buf.index = create_bufs.index + i; // FIXME that's just i isn't it?
+		buf.index = create_bufs.index + i;
 		buf.length = 2;
 		buf.m.planes = planes;
 
-		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &buf)==0);
+		rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYBUF, &buf);
+		if (rc < 0)
+			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->luma_bufs[buf.index] = mmap(NULL, buf.m.planes[0].length,
-				PROT_READ | PROT_WRITE, MAP_SHARED,
-				driver_data->mem2mem_fd, buf.m.planes[0].m.mem_offset);
-		assert(driver_data->luma_bufs[buf.index] != MAP_FAILED);
+		driver_data->luma_bufs[buf.index] = mmap(NULL, buf.m.planes[0].length, PROT_READ | PROT_WRITE, MAP_SHARED,
+			driver_data->mem2mem_fd, buf.m.planes[0].m.mem_offset);
+		if (driver_data->luma_bufs[buf.index] == MAP_FAILED)
+			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->chroma_bufs[buf.index] = mmap(NULL, buf.m.planes[1].length,
-				PROT_READ | PROT_WRITE, MAP_SHARED,
-				driver_data->mem2mem_fd, buf.m.planes[1].m.mem_offset);
-		assert(driver_data->chroma_bufs[buf.index] != MAP_FAILED);
+		driver_data->chroma_bufs[buf.index] = mmap(NULL, buf.m.planes[1].length, PROT_READ | PROT_WRITE, MAP_SHARED,
+			driver_data->mem2mem_fd, buf.m.planes[1].m.mem_offset);
+		if (driver_data->chroma_bufs[buf.index] == MAP_FAILED)
+			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		obj_surface->input_buf_index = 0;
-		obj_surface->output_buf_index = create_bufs.index + i; // FIXME that's just i isn't it?
+		surface_object->status = VASurfaceReady;
+		surface_object->width = width;
+		surface_object->height = height;
+		surface_object->input_buf_index = 0;
+		surface_object->output_buf_index = create_bufs.index + i;
 
-		obj_surface->width = width;
-		obj_surface->height = height;
-		obj_surface->status = VASurfaceReady;
+		surfaces_ids[i] = id;
 	}
 
-	/* Error recovery */
-	if (VA_STATUS_SUCCESS != vaStatus)
-	{
-		/* surfaces[i-1] was the last successful allocation */
-		for(; i--;)
-		{
-			struct object_surface *obj_surface = SURFACE(surfaces[i]);
-			surfaces[i] = VA_INVALID_SURFACE;
-			assert(obj_surface);
-			object_heap_free(&driver_data->surface_heap, (object_base_p) obj_surface);
-		}
-	}
-	return vaStatus;
+	driver_data->num_dst_bufs = create_bufs.count;
+
+	return VA_STATUS_SUCCESS;
 }
 
 VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
@@ -133,13 +130,17 @@ VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_surface *surface_object;
 	int i;
-	for(i = surfaces_count; i--;)
-	{
-		struct object_surface *obj_surface = SURFACE(surfaces_ids[i]);
-		assert(obj_surface);
-		object_heap_free(&driver_data->surface_heap, (object_base_p) obj_surface);
+
+	for (i = 0; i < surfaces_count; i++) {
+		surface_object = (struct object_surface *) object_heap_lookup(&driver_data->surface_heap, surfaces_ids[i]);
+		if (surface_object == NULL)
+			return VA_STATUS_ERROR_INVALID_SURFACE;
+
+		object_heap_free(&driver_data->surface_heap, (struct object_base *) surface_object);
 	}
+
 	return VA_STATUS_SUCCESS;
 }
 
@@ -148,7 +149,7 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	struct object_surface *obj_surface;
+	struct object_surface *surface_object;
 	struct v4l2_buffer buf;
 	struct v4l2_plane plane[1];
 	struct v4l2_plane planes[2];
@@ -159,54 +160,55 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	memset(plane, 0, sizeof(struct v4l2_plane));
 	memset(planes, 0, 2 * sizeof(struct v4l2_plane));
 
-	obj_surface = SURFACE(surface_id);
-	assert(obj_surface);
+	surface_object = SURFACE(surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	if(obj_surface->status == VASurfaceSkipped)
+	if (surface_object->status == VASurfaceSkipped)
 		return VA_STATUS_ERROR_UNKNOWN;
 
-	request_fd = driver_data->request_fds[obj_surface->input_buf_index];
-	if(request_fd < 0)
-		return  VA_STATUS_ERROR_UNKNOWN;
+	request_fd = driver_data->request_fds[surface_object->input_buf_index];
+	if (request_fd < 0)
+		return VA_STATUS_ERROR_UNKNOWN;
 
-	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_SUBMIT, NULL)==0);
+	rc = ioctl(request_fd, MEDIA_REQUEST_IOC_SUBMIT, NULL);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	FD_ZERO(&read_fds);
 	FD_SET(request_fd, &read_fds);
 
 	rc = select(request_fd + 1, &read_fds, NULL, NULL, NULL);
 	if(rc <= 0)
-		// FIXME: Properly dispose of the buffers here, also reinit request when it fails, also set surface status
 		return VA_STATUS_ERROR_UNKNOWN;
 
-	assert(ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL)==0);
+	rc = ioctl(request_fd, MEDIA_REQUEST_IOC_REINIT, NULL);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	memset(&(buf), 0, sizeof(buf));
+	memset(&buf, 0, sizeof(buf));
 	buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	buf.memory = V4L2_MEMORY_MMAP;
-	buf.index = obj_surface->input_buf_index;
+	buf.index = surface_object->input_buf_index;
 	buf.length = 1;
 	buf.m.planes = plane;
 
-	if(ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &buf)) {
-		sunxi_cedrus_msg("Error when dequeuing input: %s\n", strerror(errno));
-		return VA_STATUS_ERROR_UNKNOWN;
-	}
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &buf);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	memset(&(buf), 0, sizeof(buf));
+	memset(&buf, 0, sizeof(buf));
 	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	buf.memory = V4L2_MEMORY_MMAP;
-	buf.index = obj_surface->output_buf_index;
+	buf.index = surface_object->output_buf_index;
 	buf.length = 2;
 	buf.m.planes = planes;
 
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &buf);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	if(ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &buf)) {
-		sunxi_cedrus_msg("Error when dequeuing output: %s\n", strerror(errno));
-		return VA_STATUS_ERROR_UNKNOWN;
-	}
-
-	obj_surface->status = VASurfaceReady;
+	surface_object->status = VASurfaceReady;
 
 	return VA_STATUS_SUCCESS;
 }
@@ -216,15 +218,15 @@ VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	struct object_surface *obj_surface;
+	struct object_surface *surface_object;
 
-	obj_surface = SURFACE(surface_id);
-	assert(obj_surface);
+	surface_object = (struct object_surface *) object_heap_lookup(&driver_data->surface_heap, surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	*status = obj_surface->status;
+	*status = surface_object->status;
 
-	return vaStatus;
+	return VA_STATUS_SUCCESS;
 }
 
 VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
@@ -244,12 +246,11 @@ VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 	Colormap cm;
 	int colorratio = 65535 / 255;
 	int x, y;
-	struct object_surface *obj_surface;
+	struct object_surface *surface_object;
 
 	/* WARNING: This is for development purpose only!!! */
 
-	obj_surface = SURFACE(surface);
-	assert(obj_surface);
+	surface_object = SURFACE(surface);
 
 	display = XOpenDisplay(getenv("DISPLAY"));
 	if (display == NULL) {
@@ -267,7 +268,7 @@ VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 
 	for(x=dst_x; x < dst_x+dst_w; x++) {
 		for(y=dst_y; y < dst_y+dst_h; y++) {
-			char lum = driver_data->luma_bufs[obj_surface->output_buf_index][x+srcw*y];
+			char lum = driver_data->luma_bufs[surface_object->output_buf_index][x+srcw*y];
 			xcolor.red = xcolor.green = xcolor.blue = lum*colorratio;
 			XAllocColor(display, cm, &xcolor);
 			XSetForeground(display, gc, xcolor.pixel);
