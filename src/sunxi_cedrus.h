@@ -50,7 +50,7 @@ struct sunxi_cedrus_driver_data {
 	char *luma_bufs[VIDEO_MAX_FRAME];
 	char *chroma_bufs[VIDEO_MAX_FRAME];
 	unsigned int num_dst_bufs;
-	int mem2mem_fd;
+	int video_fd;
 	int request_fds[INPUT_BUFFERS_NB];
 	int slice_offset[INPUT_BUFFERS_NB];
 };

@@ -82,7 +82,7 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 			goto error;
 		}
 
-		rc = v4l2_request_buffer(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, context_object->num_rendered_surfaces % INPUT_BUFFERS_NB, &length, &offset);
+		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, context_object->num_rendered_surfaces % INPUT_BUFFERS_NB, &length, &offset);
 		if (rc < 0) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 			goto error;
@@ -90,7 +90,7 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 
 		map_size = driver_data->slice_offset[buf.index] + size * count;
 		map_data = mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->mem2mem_fd, offset);
+			driver_data->video_fd, offset);
 
 		buffer_data = map_data + driver_data->slice_offset[buf.index];
 		driver_data->slice_offset[buf.index] += size * count;

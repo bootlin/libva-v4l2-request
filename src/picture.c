@@ -156,7 +156,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 
 	request_fd = driver_data->request_fds[surface_object->input_buf_index];
 	if (request_fd < 0) {
-		rc = ioctl(driver_data->mem2mem_fd, VIDIOC_NEW_REQUEST, &media_request);
+		rc = ioctl(driver_data->video_fd, VIDIOC_NEW_REQUEST, &media_request);
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 
@@ -179,15 +179,15 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 			return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
 
-	rc = v4l2_set_control(driver_data->mem2mem_fd, request_fd, control_id, control_data, control_size);
+	rc = v4l2_set_control(driver_data->video_fd, request_fd, control_id, control_data, control_size);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index, 0);
+	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index, 0);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index, driver_data->slice_offset[surface_object->input_buf_index]);
+	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index, driver_data->slice_offset[surface_object->input_buf_index]);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

@@ -54,11 +54,11 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
 
-	rc = v4l2_set_format(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_PIX_FMT_SUNXI, width, height);
+	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_PIX_FMT_SUNXI, width, height);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_create_buffers(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surfaces_count);
+	rc = v4l2_create_buffers(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surfaces_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
@@ -70,17 +70,17 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 
 		surfaces[i] = surfaceID;
 
-		rc = v4l2_request_buffer(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
+		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
 		if (rc < 0)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 		driver_data->luma_bufs[index] = mmap(NULL, length[0], PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->mem2mem_fd, offset[0]);
+			driver_data->video_fd, offset[0]);
 		if (driver_data->luma_bufs[buf.index] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 		driver_data->chroma_bufs[index] = mmap(NULL, length[1], PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->mem2mem_fd, offset[1]);
+			driver_data->video_fd, offset[1]);
 		if (driver_data->chroma_bufs[index] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
@@ -153,11 +153,11 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_dequeue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index);
+	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_dequeue_buffer(driver_data->mem2mem_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index);
+	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

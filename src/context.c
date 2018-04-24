@@ -93,7 +93,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 			return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
 
-	rc = v4l2_set_format(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, pixelformat, picture_width, picture_height);
+	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, pixelformat, picture_width, picture_height);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
@@ -105,13 +105,13 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 		goto error;
 	}
 
-	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, true);
+	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, true);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, true);
+	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, true);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
@@ -149,11 +149,11 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 
 	object_heap_free(&driver_data->context_heap, (struct object_base *) context_object);
 
-	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, false);
+	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, false);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_set_stream(driver_data->mem2mem_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, false);
+	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, false);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

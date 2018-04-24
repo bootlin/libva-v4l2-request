@@ -149,13 +149,13 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	if (fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QUERYCAP, &capability);
+	rc = ioctl(driver_data->video_fd, VIDIOC_QUERYCAP, &capability);
 	if (rc < 0 || !(capability.capabilities & V4L2_CAP_VIDEO_M2M_MPLANE)) {
 		sunxi_cedrus_msg("%s does not support m2m mplanes\n", path);
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 	}
 
-	driver_data->mem2mem_fd = fd;
+	driver_data->video_fd = fd;
 
 	for (i = 0; i < INPUT_BUFFERS_NB; i++) {
 		driver_data->request_fds[i] = -1;
@@ -191,7 +191,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 		if (driver_data->request_fds[i] >= 0)
 			close(driver_data->request_fds[i]);
 
-	close(driver_data->mem2mem_fd);
+	close(driver_data->video_fd);
 
 	/* Cleanup leftover buffers. */
 
