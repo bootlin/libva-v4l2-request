@@ -202,7 +202,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 
 	image_object = (struct object_image *) object_heap_first(&driver_data->image_heap, &iterator);
 	while (image_object != NULL) {
-		DumpDestroyImage(context, (VAImageID) image_object->base.id);
+		SunxiCedrusDestroyImage(context, (VAImageID) image_object->base.id);
 		image_object = (struct object_image *) object_heap_next(&driver_data->image_heap, &iterator);
 	}
 
@@ -210,7 +210,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 
 	buffer_object = (struct object_buffer *) object_heap_first(&driver_data->buffer_heap, &iterator);
 	while (buffer_object != NULL) {
-		DumpDestroyBuffer(context, (VABufferID) buffer_object->base.id);
+		SunxiCedrusDestroyBuffer(context, (VABufferID) buffer_object->base.id);
 		buffer_object = (struct object_buffer *) object_heap_next(&driver_data->buffer_heap, &iterator);
 	}
 
@@ -218,7 +218,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 
 	surface_object = (struct object_surface *) object_heap_first(&driver_data->surface_heap, &iterator);
 	while (surface_object != NULL) {
-		DumpDestroySurfaces(context, (VASurfaceID *) &surface_object->base.id, 1);
+		SunxiCedrusDestroySurfaces(context, (VASurfaceID *) &surface_object->base.id, 1);
 		surface_object = (struct object_surface *) object_heap_next(&driver_data->surface_heap, &iterator);
 	}
 
@@ -226,7 +226,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 
 	context_object = (struct object_context *) object_heap_first(&driver_data->context_heap, &iterator);
 	while (context_object != NULL) {
-		DumpDestroyContext(context, (VAContextID) context_object->base.id);
+		SunxiCedrusDestroyContext(context, (VAContextID) context_object->base.id);
 		context_object = (struct object_context *) object_heap_next(&driver_data->context_heap, &iterator);
 	}
 
@@ -234,7 +234,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 
 	config_object = (struct object_config *) object_heap_first(&driver_data->config_heap, &iterator);
 	while (config_object != NULL) {
-		DumpDestroyConfig(context, (VAConfigID) config_object->base.id);
+		SunxiCedrusDestroyConfig(context, (VAConfigID) config_object->base.id);
 		config_object = (struct object_config *) object_heap_next(&driver_data->config_heap, &iterator);
 	}
 
