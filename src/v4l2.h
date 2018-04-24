@@ -25,6 +25,8 @@
 #ifndef _V4L2_H_
 #define _V4L2_H_
 
+#include <stdbool.h>
+
 #define DESTINATION_SIZE_MAX					(1024 * 1024)
 
 bool v4l2_find_format(int video_fd, unsigned int type,
