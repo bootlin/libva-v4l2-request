@@ -42,21 +42,21 @@ struct object_config {
 	int attributes_count;
 };
 
-VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
-	VAProfile *profiles, int *profiles_count);
-VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
-	VAProfile profile, VAEntrypoint *entrypoints, int *entrypoints_count);
-VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
-	VAProfile profile, VAEntrypoint entrypoint, VAConfigAttrib *attributes,
-	int attributes_count);
 VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 	VAEntrypoint entrypoint, VAConfigAttrib *attributes,
 	int attributes_count, VAConfigID *config_id);
 VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
 	VAConfigID config_id);
+VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
+	VAProfile *profiles, int *profiles_count);
+VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
+	VAProfile profile, VAEntrypoint *entrypoints, int *entrypoints_count);
 VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
 	VAConfigID config_id, VAProfile *profile, VAEntrypoint *entrypoint,
 	VAConfigAttrib *attributes, int *attributes_count);
+VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
+	VAProfile profile, VAEntrypoint entrypoint, VAConfigAttrib *attributes,
+	int attributes_count);
 VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
 	VADisplayAttribute *attributes, int *attributes_count);
 VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
