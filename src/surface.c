@@ -39,6 +39,7 @@
 #include <X11/Xlib.h>
 
 #include "v4l2.h"
+#include "utils.h"
 
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	int height, int format, int surfaces_count, VASurfaceID *surfaces)
@@ -204,11 +205,11 @@ VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 
 	display = XOpenDisplay(getenv("DISPLAY"));
 	if (display == NULL) {
-		sunxi_cedrus_msg("Cannot connect to X server\n");
+		sunxi_cedrus_log("Cannot connect to X server\n");
 		exit(1);
 	}
 
-	sunxi_cedrus_msg("warning: using vaPutSurface with sunxi-cedrus is not recommended\n");
+	sunxi_cedrus_log("warning: using vaPutSurface with sunxi-cedrus is not recommended\n");
 	screen = DefaultScreen(display);
 	gc =  XCreateGC(display, RootWindow(display, screen), 0, NULL);
 	XSync(display, False);

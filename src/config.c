@@ -34,6 +34,7 @@
 #include <linux/videodev2.h>
 
 #include "v4l2.h"
+#include "utils.h"
 
 VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 	VAEntrypoint entrypoint, VAConfigAttrib *attributes,

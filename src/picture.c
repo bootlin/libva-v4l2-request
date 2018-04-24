@@ -42,6 +42,7 @@
 #include <linux/videodev2.h>
 
 #include "v4l2.h"
+#include "utils.h"
 
 VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 	VAContextID context_id, VASurfaceID surface_id)
@@ -119,7 +120,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 					if (rc < 0)
 						return VA_STATUS_ERROR_OPERATION_FAILED;
 				} else {
-					sunxi_cedrus_msg("Unsupported buffer type: %d\n", buffer_object->type);
+					sunxi_cedrus_log("Unsupported buffer type: %d\n", buffer_object->type);
 				}
 
 				break;

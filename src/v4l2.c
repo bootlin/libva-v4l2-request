@@ -69,7 +69,7 @@ int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 
 	rc = ioctl(video_fd, VIDIOC_S_FMT, &format);
 	if (rc < 0) {
-		sunxi_cedrus_msg("Unable to set format for type %d: %s\n", type, strerror(errno));
+		sunxi_cedrus_log("Unable to set format for type %d: %s\n", type, strerror(errno));
 		return -1;
 	}
 
@@ -89,13 +89,13 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_G_FMT, &buffers.format);
 	if (rc < 0) {
-		sunxi_cedrus_msg("Unable to get format for type %d: %s\n", type, strerror(errno));
+		sunxi_cedrus_log("Unable to get format for type %d: %s\n", type, strerror(errno));
 		return -1;
 	}
 
 	rc = ioctl(video_fd, VIDIOC_CREATE_BUFS, &buffers);
 	if (rc < 0) {
-		sunxi_cedrus_msg("Unable to create buffer for type %d: %s\n", type, strerror(errno));
+		sunxi_cedrus_log("Unable to create buffer for type %d: %s\n", type, strerror(errno));
 		return -1;
 	}
 
@@ -241,7 +241,7 @@ int v4l2_set_stream(int video_fd, unsigned int type, bool enable)
 
 	rc = ioctl(video_fd, enable ? VIDIOC_STREAMON : VIDIOC_STREAMOFF, &buf_type);
 	if (rc < 0) {
-		sunxi_cedrus_msg("Unable to %sable stream: %s\n", enable ? "en" : "dis", strerror(errno));
+		sunxi_cedrus_log("Unable to %sable stream: %s\n", enable ? "en" : "dis", strerror(errno));
 		return -1;
 	}
 

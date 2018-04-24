@@ -36,6 +36,7 @@
 
 #include <linux/videodev2.h>
 
+#include "utils.h"
 #include "v4l2.h"
 
 VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,

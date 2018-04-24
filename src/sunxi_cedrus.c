@@ -36,6 +36,7 @@
 #include <va/va_backend.h>
 
 #include "sunxi_cedrus.h"
+#include "utils.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -48,17 +49,6 @@
 #include <sys/ioctl.h>
 
 #include <linux/videodev2.h>
-
-void sunxi_cedrus_msg(const char *msg, ...)
-{
-	va_list args;
-
-	/* We need to use stderr if we want to be heard */
-	fprintf(stderr, "sunxi_cedrus_drv_video: ");
-	va_start(args, msg);
-	vfprintf(stderr, msg, args);
-	va_end(args);
-}
 
 /* Set default visibility for the init function only. */
 VAStatus __attribute__((visibility("default")))
@@ -153,7 +143,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 
 	rc = ioctl(driver_data->video_fd, VIDIOC_QUERYCAP, &capability);
 	if (rc < 0 || !(capability.capabilities & V4L2_CAP_VIDEO_M2M_MPLANE)) {
-		sunxi_cedrus_msg("%s does not support m2m mplanes\n", path);
+		sunxi_cedrus_log("%s does not support m2m mplanes\n", path);
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 	}
 
