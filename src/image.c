@@ -37,38 +37,40 @@ VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_image *image_object;
+	VABufferID buffer_id;
+	VAImageID id;
 	int sizeY, sizeUV;
-	struct object_image *obj_img;
 
-	memset(image, 0, sizeof(VAImage));
+	id = object_heap_allocate(&driver_data->image_heap);
+	image_object = IMAGE(id);
+	if (image_object == NULL)
+		return VA_STATUS_ERROR_ALLOCATION_FAILED;
+
+	status = SunxiCedrusCreateBuffer(context, 0, VAImageBufferType, size, 1, NULL, &buffer_id);
+	if (status != VA_STATUS_SUCCESS) {
+		object_heap_free(&driver_data->image_heap, (struct object_base *) image_object);
+		return status;
+	}
+
+	image_object->buffer_id = buffer_id;
+
+	sizeY = width * height;
+	sizeUV = (width * (height + 1) / 2);
+
+	memset(image, 0, sizeof(*image));
 
 	image->format = *format;
-	image->buf = VA_INVALID_ID;
 	image->width = width;
 	image->height = height;
-
-	sizeY    = image->width * image->height;
-	sizeUV   = ((image->width+1) * (image->height+1)/2);
-
 	image->num_planes = 2;
-	image->pitches[0] = (image->width+31)&~31;
-	image->pitches[1] = (image->width+31)&~31;
+	image->pitches[0] = (width + 31) & ~31;
+	image->pitches[1] = (width + 31) & ~31;
 	image->offsets[0] = 0;
 	image->offsets[1] = sizeY;
 	image->data_size  = sizeY + sizeUV;
-
-	image->image_id = object_heap_allocate(&driver_data->image_heap);
-	if (image->image_id == VA_INVALID_ID)
-		return VA_STATUS_ERROR_ALLOCATION_FAILED;
-
-	obj_img = IMAGE(image->image_id);
-
-	if (SunxiCedrusCreateBuffer(context, 0, VAImageBufferType, image->data_size,
-	    1, NULL, &image->buf) != VA_STATUS_SUCCESS) {
-		// TODO: free image object
-		return VA_STATUS_ERROR_ALLOCATION_FAILED;
-	}
-	obj_img->buf = image->buf;
+	image->buf = buffer_id;
+	image->image_id = id;
 
 	return VA_STATUS_SUCCESS;
 }
@@ -77,13 +79,18 @@ VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	struct object_image *obj_img;
+	struct object_image *image_object;
+	VAStatus status;
 
-	obj_img = IMAGE(image);
-	assert(obj_img);
+	image_object = IMAGE(image_id);
+	if (image_object == NULL)
+		return VA_STATUS_ERROR_INVALID_IMAGE;
 
-	SunxiCedrusDestroyBuffer(context, obj_img->buf);
-	object_heap_free(&driver_data->image_heap, &obj_img->base);
+	status = DumpDestroyBuffer(context, image_object->buffer_id);
+	if (status != VA_STATUS_SUCCESS)
+		return status;
+
+	object_heap_free(&driver_data->image_heap, (struct object_base *) image_object);
 
 	return VA_STATUS_SUCCESS;
 }
@@ -93,28 +100,33 @@ VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	struct object_surface *obj_surface;
-	VAImageFormat fmt;
-	struct object_buffer *obj_buffer;
-	VAStatus ret;
+	struct object_surface *surface_object;
+	struct object_buffer *buffer_object;
+	VAImageFormat format;
+	VAStatus status;
 
-	obj_surface = SURFACE(surface);
-	fmt.fourcc = VA_FOURCC_NV12;
+	surface_object = SURFACE(surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	if (obj_surface->status == VASurfaceRendering)
-		SunxiCedrusSyncSurface(context, surface);
+	if (surface_object->status == VASurfaceRendering)
+		SunxiCedrusSyncSurface(context, surface_id);
 
-	ret = SunxiCedrusCreateImage(context, &fmt, obj_surface->width, obj_surface->height, image);
-	if(ret != VA_STATUS_SUCCESS)
-		return ret;
+	format.fourcc = VA_FOURCC_NV12;
 
-	obj_buffer = BUFFER(image->buf);
-	if (NULL == obj_buffer)
-		return VA_STATUS_ERROR_ALLOCATION_FAILED;
+	status = SunxiCedrusCreateImage(context, &format, surface_object->width, surface_object->height, image);
+	if (status != VA_STATUS_SUCCESS)
+		return status;
+
+	buffer_object = BUFFER(image->buf);
+	if (buffer_object == NULL)
+		return VA_STATUS_ERROR_INVALID_BUFFER;
 
 	/* TODO: Use an appropriate DRM plane instead */
-	tiled_to_planar(driver_data->luma_bufs[obj_surface->output_buf_index], obj_buffer->buffer_data, image->pitches[0], image->width, image->height);
-	tiled_to_planar(driver_data->chroma_bufs[obj_surface->output_buf_index], obj_buffer->buffer_data + image->width*image->height, image->pitches[1], image->width, image->height/2);
+	tiled_to_planar(driver_data->luma_bufs[surface_object->output_buf_index], buffer_object->data, image->pitches[0], image->width, image->height);
+	tiled_to_planar(driver_data->chroma_bufs[surface_object->output_buf_index], buffer_object->data + image->width*image->height, image->pitches[1], image->width, image->height/2);
+
+	surface_object->status = VASurfaceReady;
 
 	return VA_STATUS_SUCCESS;
 }
@@ -124,6 +136,7 @@ VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
 {
 	formats[0].fourcc = VA_FOURCC_NV12;
 	*formats_count = 1;
+
 	return VA_STATUS_SUCCESS;
 }
 
