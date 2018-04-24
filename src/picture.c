@@ -46,30 +46,27 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	struct object_context *obj_context;
-	struct object_surface *obj_surface;
+	struct object_context *context_object;
+	struct object_surface *surface_object;
+	VAStatus status;
 
-	obj_context = CONTEXT(context_id);
-	assert(obj_context);
+	context_object = CONTEXT(context_id);
+	if (context_object == NULL)
+		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	obj_surface = SURFACE(surface_id);
-	assert(obj_surface);
+	surface_object = SURFACE(surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	if (obj_surface->status == VASurfaceRendering) {
-		vaStatus = SunxiCedrusSyncSurface(context, surface_id);
-		if (vaStatus != VA_STATUS_SUCCESS)
-			return vaStatus;
-	}
+	if (surface_object->status == VASurfaceRendering)
+		SunxiCedrusSyncSurface(context, surface_id);
 
-	obj_surface->status = VASurfaceRendering;
-	obj_surface->request = (obj_context->num_rendered_surfaces)%INPUT_BUFFERS_NB+1;
-	obj_surface->input_buf_index = obj_context->num_rendered_surfaces%INPUT_BUFFERS_NB;
-	obj_context->num_rendered_surfaces ++;
+	surface_object->status = VASurfaceRendering;
+	surface_object->input_buf_index = context_object->num_rendered_surfaces % INPUT_BUFFERS_NB;
+	context_object->render_surface_id = surface_id;
+	context_object->num_rendered_surfaces++;
 
-	obj_context->render_surface_id = obj_surface->base.id;
-
-	return vaStatus;
+	return VA_STATUS_SUCCESS;
 }
 
 VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
@@ -77,50 +74,53 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	struct object_context *obj_context;
-	struct object_surface *obj_surface;
-	struct object_config *obj_config;
+	struct object_context *context_object;
+	struct object_config *config_object;
+	struct object_surface *surface_object;
+	VAStatus status;
 	int i;
 
-	obj_context = CONTEXT(context_id);
-	assert(obj_context);
+	context_object = CONTEXT(context_id);
+	if (context_object == NULL)
+		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	obj_config = CONFIG(obj_context->config_id);
-	if (NULL == obj_config)
-	{
-		vaStatus = VA_STATUS_ERROR_INVALID_CONFIG;
-		return vaStatus;
-	}
+	config_object = CONFIG(context_object->config_id);
+	if (config_object == NULL)
+		return VA_STATUS_ERROR_INVALID_CONFIG;
 
-	obj_surface = SURFACE(obj_context->render_surface_id);
-	assert(obj_surface);
+	surface_object = SURFACE(context_object->render_surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	/* verify that we got valid buffer references */
-	for(i = 0; i < buffers_count; i++)
-	{
-		struct object_buffer *obj_buffer = BUFFER(buffers[i]);
-		assert(obj_buffer);
-		if (NULL == obj_buffer)
-		{
-			vaStatus = VA_STATUS_ERROR_INVALID_BUFFER;
-			break;
-		}
+	for (i = 0; i < buffers_count; i++) {
+		buffer_object = BUFFER(buffers[i]);
+		if (buffer_object == NULL)
+			return VA_STATUS_ERROR_INVALID_BUFFER;
 
-		switch(obj_config->profile) {
+		switch (config_object->profile) {
 			case VAProfileMPEG2Simple:
 			case VAProfileMPEG2Main:
-				if(obj_buffer->type == VASliceDataBufferType)
-					vaStatus = sunxi_cedrus_render_mpeg2_slice_data(ctx, obj_context, obj_surface, obj_buffer);
-				else if(obj_buffer->type == VAPictureParameterBufferType)
-					vaStatus = sunxi_cedrus_render_mpeg2_picture_parameter(ctx, obj_context, obj_surface, obj_buffer);
+				if (buffer_object->type == VASliceDataBufferType) {
+					status = sunxi_cedrus_render_mpeg2_slice_data(context, context_object, surface_object, buffer_object);
+					if (status != VA_STATUS_SUCCESS)
+						return status;
+				} else if (buffer_object->type == VAPictureParameterBufferType) {
+					status = sunxi_cedrus_render_mpeg2_picture_parameter(context, context_object, surface_object, buffer_object);
+					if (status != VA_STATUS_SUCCESS)
+						return status;
+				} else {
+					sunxi_cedrus_msg("Unsupported buffer type: %d\n", buffer_object->type);
+				}
+
 				break;
+
 			default:
 				break;
+
 		}
 	}
 
-	return vaStatus;
+	return VA_STATUS_SUCCESS;
 }
 
 VAStatus SunxiCedrusEndPicture(VADriverContextP context,
@@ -128,36 +128,29 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	struct object_context *obj_context;
-	struct object_surface *obj_surface;
+	struct object_context *context_object;
+	struct object_surface *surface_object;
 	struct v4l2_buffer out_buf, cap_buf;
 	struct v4l2_plane plane[1];
 	struct v4l2_plane planes[2];
 	struct v4l2_ext_control ctrl;
 	struct v4l2_ext_controls ctrls;
 	struct media_request_new media_request;
-	struct object_config *obj_config;
 	int request_fd;
 	int rc;
 
-	obj_context = CONTEXT(context_id);
-	assert(obj_context);
+	context_object = CONTEXT(context_id);
+	if (context_object == NULL)
+		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	obj_surface = SURFACE(obj_context->render_surface_id);
-	assert(obj_surface);
+	surface_object = SURFACE(context_object->render_surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	obj_config = CONFIG(obj_context->config_id);
-	if (NULL == obj_config)
-	{
-		vaStatus = VA_STATUS_ERROR_INVALID_CONFIG;
-		return vaStatus;
-	}
-
-	request_fd = driver_data->request_fds[obj_surface->input_buf_index];
+	request_fd = driver_data->request_fds[surface_object->input_buf_index];
 	if(request_fd < 0) {
 		assert(ioctl(driver_data->mem2mem_fd, VIDIOC_NEW_REQUEST, &media_request)==0);
-		driver_data->request_fds[obj_surface->input_buf_index] = media_request.fd;
+		driver_data->request_fds[surface_object->input_buf_index] = media_request.fd;
 		request_fd = media_request.fd;
 	}
 
@@ -169,21 +162,23 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	memset(&(out_buf), 0, sizeof(out_buf));
 	out_buf.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	out_buf.memory = V4L2_MEMORY_MMAP;
-	out_buf.index = obj_surface->input_buf_index;
+	out_buf.index = surface_object->input_buf_index;
 	out_buf.length = 1;
 	out_buf.m.planes = plane;
+	out_buf.request_fd = request_fd;
 
-	switch(obj_config->profile) {
+	switch (config_object->profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			obj_context->mpeg2_frame_hdr.slice_pos = 0;
-			obj_context->mpeg2_frame_hdr.slice_len = driver_data->slice_offset[obj_surface->input_buf_index] * 8;
+			context_object->mpeg2_frame_hdr.slice_pos = 0;
+			context_object->mpeg2_frame_hdr.slice_len = driver_data->slice_offset[surface_object->input_buf_index] * 8;
 
-			out_buf.m.planes[0].bytesused = driver_data->slice_offset[obj_surface->input_buf_index];
+			out_buf.m.planes[0].bytesused = driver_data->slice_offset[surface_object->input_buf_index];
 			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
-			ctrl.ptr = &obj_context->mpeg2_frame_hdr;
-			ctrl.size = sizeof(obj_context->mpeg2_frame_hdr);
+			ctrl.ptr = &context_object->mpeg2_frame_hdr;
+			ctrl.size = sizeof(context_object->mpeg2_frame_hdr);
 			break;
+
 		default:
 			out_buf.m.planes[0].bytesused = 0;
 			ctrl.id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
@@ -192,12 +187,12 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 			break;
 	}
 
-	driver_data->slice_offset[obj_surface->input_buf_index] = 0;
+	driver_data->slice_offset[surface_object->input_buf_index] = 0;
 
-	memset(&(cap_buf), 0, sizeof(cap_buf));
+	memset(&cap_buf, 0, sizeof(cap_buf));
 	cap_buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	cap_buf.memory = V4L2_MEMORY_MMAP;
-	cap_buf.index = obj_surface->output_buf_index;
+	cap_buf.index = surface_object->output_buf_index;
 	cap_buf.length = 2;
 	cap_buf.m.planes = planes;
 
@@ -206,30 +201,18 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	ctrls.request_fd = request_fd;
 
 	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_S_EXT_CTRLS, &ctrls);
-	if (rc) {
-		printf("ioctl VIDIOC_S_EXT_CTRLS failed with %d/%d/%s\n", rc, errno, strerror(errno));
-		assert(0);
-	}
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	out_buf.request_fd = request_fd;
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &cap_buf);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	if(ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &cap_buf)) {
-		obj_surface->status = VASurfaceSkipped;
-		sunxi_cedrus_msg("Error when queuing output: %s\n", strerror(errno));
-		return VA_STATUS_ERROR_UNKNOWN;
-	}
+	rc = ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &out_buf);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	if(ioctl(driver_data->mem2mem_fd, VIDIOC_QBUF, &out_buf)) {
-		obj_surface->status = VASurfaceSkipped;
-		sunxi_cedrus_msg("Error when queuing input: %s\n", strerror(errno));
+	context_object->render_surface_id = VA_INVALID_ID;
 
-		ioctl(driver_data->mem2mem_fd, VIDIOC_DQBUF, &cap_buf);
-		return VA_STATUS_ERROR_UNKNOWN;
-	}
-
-
-	/* For now, assume that we are done with rendering right away */
-	obj_context->render_surface_id = -1;
-
-	return vaStatus;
+	return VA_STATUS_SUCCESS;
 }
