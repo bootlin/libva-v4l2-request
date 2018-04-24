@@ -79,7 +79,10 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
-	VAStatus status;
+	VAPictureParameterBufferMPEG2 *mpeg2_parameters;
+	void *data;
+	unsigned int size;
+	int rc;
 	int i;
 
 	context_object = CONTEXT(context_id);
@@ -103,13 +106,18 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 			case VAProfileMPEG2Simple:
 			case VAProfileMPEG2Main:
 				if (buffer_object->type == VASliceDataBufferType) {
-					status = sunxi_cedrus_render_mpeg2_slice_data(context, context_object, surface_object, buffer_object);
-					if (status != VA_STATUS_SUCCESS)
-						return status;
+					data = buffer_object->data;
+					size = buffer_object->size * buffer_object->count;
+
+					rc = mpeg2_fill_slice_data(context_object, surface_object, data, size);
+					if (rc < 0)
+						return VA_STATUS_ERROR_OPERATION_FAILED;
 				} else if (buffer_object->type == VAPictureParameterBufferType) {
-					status = sunxi_cedrus_render_mpeg2_picture_parameter(context, context_object, surface_object, buffer_object);
-					if (status != VA_STATUS_SUCCESS)
-						return status;
+					mpeg2_parameters = (VAPictureParameterBufferMPEG2 *) buffer->data;
+
+					rc = mpeg2_fill_picture_parameters(context_object, surface_object, mpeg2_parameters);
+					if (rc < 0)
+						return VA_STATUS_ERROR_OPERATION_FAILED;
 				} else {
 					sunxi_cedrus_msg("Unsupported buffer type: %d\n", buffer_object->type);
 				}
@@ -118,7 +126,6 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 
 			default:
 				break;
-
 		}
 	}
 

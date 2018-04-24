@@ -34,62 +34,54 @@
 
 #include <linux/videodev2.h>
 
-VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
-		struct object_context *obj_context, struct object_surface *obj_surface,
-		struct object_buffer *obj_buffer)
+int mpeg2_fill_picture_parameters(struct object_context *context_object,
+	struct object_surface *surface_object,
+	VAPictureParameterBufferMPEG2 *parameters)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
-	struct v4l2_buffer buf;
-	struct v4l2_plane plane[1];
+	struct v4l2_ctrl_mpeg2_frame_hdr *header = &context_object->mpeg2_frame_hdr;
+	struct object_surface *forward_reference_surface;
+	struct object_surface *backward_reference_surface;
 
+	header->type = MPEG2;
 
-	return vaStatus;
+	header->width = parameters->horizontal_size;
+	header->height = parameters->vertical_size;
+
+	header->picture_coding_type = parameters->picture_coding_type;
+	header->f_code[0][0] = (parameters->f_code >> 12) & 0x0f;
+	header->f_code[0][1] = (parameters->f_code >> 8) & 0x0f;
+	header->f_code[1][0] = (parameters->f_code >> 4) & 0x0f;
+	header->f_code[1][1] = (parameters->f_code >> 0) & 0x0f;
+
+	header->intra_dc_precision = parameters->picture_coding_extension.bits.intra_dc_precision;
+	header->picture_structure = parameters->picture_coding_extension.bits.picture_structure;
+	header->top_field_first = parameters->picture_coding_extension.bits.top_field_first;
+	header->frame_pred_frame_dct = parameters->picture_coding_extension.bits.frame_pred_frame_dct;
+	header->concealment_motion_vectors = parameters->picture_coding_extension.bits.concealment_motion_vectors;
+	header->q_scale_type = parameters->picture_coding_extension.bits.q_scale_type;
+	header->intra_vlc_format = parameters->picture_coding_extension.bits.intra_vlc_format;
+	header->alternate_scan = parameters->picture_coding_extension.bits.alternate_scan;
+
+	forward_reference_surface = SURFACE(parameters->forward_reference_picture);
+	if (forward_reference_surface != NULL)
+		header->forward_ref_index = forward_reference_surface->output_buf_index;
+	else
+		header->forward_ref_index = surface_object->output_buf_index;
+
+	backward_reference_surface = SURFACE(parameters->backward_reference_picture);
+	if (backward_reference_surface != NULL)
+		header->backward_ref_index = backward_reference_surface->output_buf_index;
+	else
+		header->backward_ref_index = surface_object->output_buf_index;
+
+	header->width = context_object->picture_width;
+	header->height = context_object->picture_height;
+
+	return 0;
 }
 
-VAStatus sunxi_cedrus_render_mpeg2_picture_parameter(VADriverContextP ctx,
-		struct object_context *obj_context, struct object_surface *obj_surface,
-		struct object_buffer *obj_buffer)
+int mpeg2_fill_slice_data(struct object_context *context_object,
+	struct object_surface *surface_object, void *data, unsigned int size)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) ctx->pDriverData;
-	VAStatus vaStatus = VA_STATUS_SUCCESS;
-
-	VAPictureParameterBufferMPEG2 *pic_param = (VAPictureParameterBufferMPEG2 *)obj_buffer->buffer_data;
-	obj_context->mpeg2_frame_hdr.type = MPEG2;
-
-	obj_context->mpeg2_frame_hdr.width = pic_param->horizontal_size;
-	obj_context->mpeg2_frame_hdr.height = pic_param->vertical_size;
-
-	obj_context->mpeg2_frame_hdr.picture_coding_type = pic_param->picture_coding_type;
-	obj_context->mpeg2_frame_hdr.f_code[0][0] = (pic_param->f_code >> 12) & 0xf;
-	obj_context->mpeg2_frame_hdr.f_code[0][1] = (pic_param->f_code >>  8) & 0xf;
-	obj_context->mpeg2_frame_hdr.f_code[1][0] = (pic_param->f_code >>  4) & 0xf;
-	obj_context->mpeg2_frame_hdr.f_code[1][1] = pic_param->f_code & 0xf;
-
-	obj_context->mpeg2_frame_hdr.intra_dc_precision = pic_param->picture_coding_extension.bits.intra_dc_precision;
-	obj_context->mpeg2_frame_hdr.picture_structure = pic_param->picture_coding_extension.bits.picture_structure;
-	obj_context->mpeg2_frame_hdr.top_field_first = pic_param->picture_coding_extension.bits.top_field_first;
-	obj_context->mpeg2_frame_hdr.frame_pred_frame_dct = pic_param->picture_coding_extension.bits.frame_pred_frame_dct;
-	obj_context->mpeg2_frame_hdr.concealment_motion_vectors = pic_param->picture_coding_extension.bits.concealment_motion_vectors;
-	obj_context->mpeg2_frame_hdr.q_scale_type = pic_param->picture_coding_extension.bits.q_scale_type;
-	obj_context->mpeg2_frame_hdr.intra_vlc_format = pic_param->picture_coding_extension.bits.intra_vlc_format;
-	obj_context->mpeg2_frame_hdr.alternate_scan = pic_param->picture_coding_extension.bits.alternate_scan;
-
-	struct object_surface *fwd_surface = SURFACE(pic_param->forward_reference_picture);
-	if(fwd_surface)
-		obj_context->mpeg2_frame_hdr.forward_index = fwd_surface->output_buf_index;
-	else
-		obj_context->mpeg2_frame_hdr.forward_index = obj_surface->output_buf_index;
-
-	struct object_surface *bwd_surface = SURFACE(pic_param->backward_reference_picture);
-	if(bwd_surface)
-		obj_context->mpeg2_frame_hdr.backward_index = bwd_surface->output_buf_index;
-	else
-		obj_context->mpeg2_frame_hdr.backward_index = obj_surface->output_buf_index;
-
-	return vaStatus;
+	return 0;
 }
-
-

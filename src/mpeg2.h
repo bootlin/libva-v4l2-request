@@ -33,12 +33,10 @@
 
 #include "surface.h"
 
-VAStatus sunxi_cedrus_render_mpeg2_slice_data(VADriverContextP ctx,
-		struct object_context *obj_context, struct object_surface *obj_surface,
-		struct object_buffer *obj_buffer);
-
-VAStatus sunxi_cedrus_render_mpeg2_picture_parameter(VADriverContextP ctx,
-		struct object_context *obj_context, struct object_surface *obj_surface,
-		struct object_buffer *obj_buffer);
+int mpeg2_fill_picture_parameters(struct object_context *context_object,
+	struct object_surface *surface_object,
+	VAPictureParameterBufferMPEG2 *parameters);
+int mpeg2_fill_slice_data(struct object_context *context_object,
+	struct object_surface *surface_object, void *data, unsigned int size);
 
 #endif
