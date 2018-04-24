@@ -192,13 +192,13 @@ VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
 }
 
 VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
-	VADisplayAttribute *attributes, int *attributes_count)
+	VADisplayAttribute *attributes, int attributes_count)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
 
 VAStatus SunxiCedrusSetDisplayAttributes(VADriverContextP context,
-	VADisplayAttribute *attributes, int *attributes_count)
+	VADisplayAttribute *attributes, int attributes_count)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
