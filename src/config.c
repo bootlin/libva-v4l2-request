@@ -46,7 +46,7 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 	switch (profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			if (entrypoint != VAEntrypointVLD && entrypoint != VAEntrypointMoComp)
+			if (entrypoint != VAEntrypointVLD)
 				return VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
 			break;
 
@@ -136,8 +136,7 @@ VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
 			entrypoints[0] = VAEntrypointVLD;
-			entrypoints[1] = VAEntrypointMoComp;
-			*entrypoints_count = 2;
+			*entrypoints_count = 1;
 			break;
 
 		default:
