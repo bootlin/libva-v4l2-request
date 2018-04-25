@@ -72,8 +72,6 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		memset(surface_object, 0, sizeof(*surface_object));
-
 		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
 		if (rc < 0)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
@@ -89,6 +87,9 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		surface_object->status = VASurfaceReady;
 		surface_object->width = width;
 		surface_object->height = height;
+		surface_object->source_index = 0;
+		surface_object->source_data = NULL;
+		surface_object->source_size = 0;
 		surface_object->destination_index = i;
 
 		for (j = 0; j < 2; j++) {
@@ -96,6 +97,8 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 			surface_object->destination_size[j] = length[j];
 		}
 
+		memset(&surface_object->mpeg2_header, 0, sizeof(surface_object->mpeg2_header));
+		surface_object->slices_size = 0;
 		surface_object->request_fd = -1;
 
 		surfaces_ids[i] = id;
