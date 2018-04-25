@@ -152,7 +152,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	if (media_path == NULL)
 		media_path = "/dev/media0";
 
-	media_fd = open(video_path, O_RDWR | O_NONBLOCK);
+	media_fd = open(media_path, O_RDWR | O_NONBLOCK);
 	if (media_fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
