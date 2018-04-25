@@ -145,7 +145,8 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	rc = ioctl(driver_data->video_fd, VIDIOC_QUERYCAP, &capability);
 	if (rc < 0 || !(capability.capabilities & V4L2_CAP_VIDEO_M2M_MPLANE)) {
 		sunxi_cedrus_log("Video device %s does not support m2m mplanes\n", video_path);
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
 	}
 
 	media_path = getenv("LIBVA_CEDRUS_MEDIA_PATH");
