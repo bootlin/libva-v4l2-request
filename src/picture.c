@@ -42,6 +42,7 @@
 #include <linux/videodev2.h>
 
 #include "v4l2.h"
+#include "media.h"
 #include "utils.h"
 
 VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
@@ -51,7 +52,6 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_context *context_object;
 	struct object_surface *surface_object;
-	VAStatus status;
 
 	context_object = CONTEXT(context_id);
 	if (context_object == NULL)
@@ -73,13 +73,14 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 }
 
 VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
-	VAContextID context_id, VABufferID *buffers, int buffers_count)
+	VAContextID context_id, VABufferID *buffers_ids, int buffers_count)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
+	struct object_buffer *buffer_object;
 	VAPictureParameterBufferMPEG2 *mpeg2_parameters;
 	void *data;
 	unsigned int size;
@@ -99,7 +100,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
 	for (i = 0; i < buffers_count; i++) {
-		buffer_object = BUFFER(buffers[i]);
+		buffer_object = BUFFER(buffers_ids[i]);
 		if (buffer_object == NULL)
 			return VA_STATUS_ERROR_INVALID_BUFFER;
 
@@ -114,7 +115,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 					if (rc < 0)
 						return VA_STATUS_ERROR_OPERATION_FAILED;
 				} else if (buffer_object->type == VAPictureParameterBufferType) {
-					mpeg2_parameters = (VAPictureParameterBufferMPEG2 *) buffer->data;
+					mpeg2_parameters = (VAPictureParameterBufferMPEG2 *) buffer_object->data;
 
 					rc = mpeg2_fill_picture_parameters(driver_data, context_object, surface_object, mpeg2_parameters);
 					if (rc < 0)
@@ -139,6 +140,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_context *context_object;
+	struct object_config *config_object;
 	struct object_surface *surface_object;
 	void *control_data;
 	unsigned int control_size;
@@ -149,6 +151,10 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	context_object = CONTEXT(context_id);
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
+
+	config_object = CONFIG(context_object->config_id);
+	if (config_object == NULL)
+		return VA_STATUS_ERROR_INVALID_CONFIG;
 
 	surface_object = SURFACE(context_object->render_surface_id);
 	if (surface_object == NULL)
