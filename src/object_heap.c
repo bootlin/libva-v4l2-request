@@ -213,6 +213,7 @@ static void object_heap_free_unlocked(object_heap_p heap, object_base_p obj)
 	ASSERT(obj->next_free == ALLOCATED);
 
 	obj->next_free = heap->next_free;
+	heap->next_free = obj->id & OBJECT_HEAP_ID_MASK;
 }
 
 void object_heap_free(object_heap_p heap, object_base_p obj)
