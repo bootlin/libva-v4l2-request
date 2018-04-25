@@ -44,7 +44,8 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VASurfaceID *surfaces_ids, int surfaces_count,
 	VAContextID *context_id)
 {
-	struct dump_driver_data *driver_data = (struct dump_driver_data *) context->pDriverData;
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
 	struct object_context *context_object = NULL;
@@ -53,6 +54,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VAStatus status;
 	unsigned int pixelformat;
 	unsigned int i;
+	int rc;
 
 	config_object = CONFIG(config_id);
 	if (config_object == NULL) {
@@ -99,7 +101,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 		goto error;
 	}
 
-	rc = v4l2_create_buffers(video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, INPUT_BUFFERS_NB);
+	rc = v4l2_create_buffers(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, INPUT_BUFFERS_NB);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
@@ -142,6 +144,7 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_context *context_object;
+	int rc;
 
 	context_object = (struct object_context *) object_heap_lookup(&driver_data->context_heap, context_id);
 	if (context_object == NULL)
