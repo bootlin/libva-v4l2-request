@@ -141,7 +141,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	if (video_fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = ioctl(driver_data->video_fd, VIDIOC_QUERYCAP, &capability);
+	rc = ioctl(video_fd, VIDIOC_QUERYCAP, &capability);
 	if (rc < 0 || !(capability.capabilities & V4L2_CAP_VIDEO_M2M_MPLANE)) {
 		sunxi_cedrus_log("Video device %s does not support m2m mplanes\n", video_path);
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
