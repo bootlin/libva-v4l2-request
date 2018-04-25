@@ -110,13 +110,13 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 					data = buffer_object->data;
 					size = buffer_object->size * buffer_object->count;
 
-					rc = mpeg2_fill_slice_data(context_object, surface_object, data, size);
+					rc = mpeg2_fill_slice_data(driver_data, context_object, surface_object, data, size);
 					if (rc < 0)
 						return VA_STATUS_ERROR_OPERATION_FAILED;
 				} else if (buffer_object->type == VAPictureParameterBufferType) {
 					mpeg2_parameters = (VAPictureParameterBufferMPEG2 *) buffer->data;
 
-					rc = mpeg2_fill_picture_parameters(context_object, surface_object, mpeg2_parameters);
+					rc = mpeg2_fill_picture_parameters(driver_data, context_object, surface_object, mpeg2_parameters);
 					if (rc < 0)
 						return VA_STATUS_ERROR_OPERATION_FAILED;
 				} else {
