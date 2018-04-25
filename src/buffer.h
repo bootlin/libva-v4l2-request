@@ -43,9 +43,6 @@ struct object_buffer {
 
 	void *data;
 	unsigned int size;
-
-	void *map;
-	unsigned int map_size;
 };
 
 VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,

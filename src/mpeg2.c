@@ -39,7 +39,7 @@ int mpeg2_fill_picture_parameters(struct sunxi_cedrus_driver_data *driver_data,
 	struct object_surface *surface_object,
 	VAPictureParameterBufferMPEG2 *parameters)
 {
-	struct v4l2_ctrl_mpeg2_frame_hdr *header = &context_object->mpeg2_frame_hdr;
+	struct v4l2_ctrl_mpeg2_frame_hdr *header = &surface_object->mpeg2_header;
 	struct object_surface *forward_reference_surface;
 	struct object_surface *backward_reference_surface;
 
@@ -65,15 +65,15 @@ int mpeg2_fill_picture_parameters(struct sunxi_cedrus_driver_data *driver_data,
 
 	forward_reference_surface = SURFACE(parameters->forward_reference_picture);
 	if (forward_reference_surface != NULL)
-		header->forward_ref_index = forward_reference_surface->output_buf_index;
+		header->forward_ref_index = forward_reference_surface->destination_index;
 	else
-		header->forward_ref_index = surface_object->output_buf_index;
+		header->forward_ref_index = surface_object->destination_index;
 
 	backward_reference_surface = SURFACE(parameters->backward_reference_picture);
 	if (backward_reference_surface != NULL)
-		header->backward_ref_index = backward_reference_surface->output_buf_index;
+		header->backward_ref_index = backward_reference_surface->destination_index;
 	else
-		header->backward_ref_index = surface_object->output_buf_index;
+		header->backward_ref_index = surface_object->destination_index;
 
 	header->width = context_object->picture_width;
 	header->height = context_object->picture_height;
@@ -85,5 +85,17 @@ int mpeg2_fill_slice_data(struct sunxi_cedrus_driver_data *driver_data,
 	struct object_context *context_object,
 	struct object_surface *surface_object, void *data, unsigned int size)
 {
+	unsigned char *p = (unsigned char *) surface_object->source_data +
+		surface_object->slices_size;
+
+	/*
+	 * Since there is no guarantee that the allocation order is the same as
+	 * the submission order (via RenderPicture), we can't use a V4L2 buffer
+	 * directly and have to copy from a regular buffer.
+	 * */
+	memcpy(p, data, size);
+
+	surface_object->slices_size += size;
+
 	return 0;
 }

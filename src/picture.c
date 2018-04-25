@@ -65,9 +65,7 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 		SunxiCedrusSyncSurface(context, surface_id);
 
 	surface_object->status = VASurfaceRendering;
-	surface_object->input_buf_index = context_object->num_rendered_surfaces % INPUT_BUFFERS_NB;
 	context_object->render_surface_id = surface_id;
-	context_object->num_rendered_surfaces++;
 
 	return VA_STATUS_SUCCESS;
 }
@@ -160,24 +158,24 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	request_fd = driver_data->request_fds[surface_object->input_buf_index];
+	request_fd = surface_object->request_fd;
 	if (request_fd < 0) {
 		request_fd = media_request_alloc(driver_data->media_fd);
 		if (request_fd < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 
-		driver_data->request_fds[surface_object->input_buf_index] = request_fd;
+		surface_object->request_fd = request_fd;
 	}
 
 	switch (config_object->profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			context_object->mpeg2_frame_hdr.slice_pos = 0;
-			context_object->mpeg2_frame_hdr.slice_len = driver_data->slice_offset[surface_object->input_buf_index] * 8;
+			surface_object->mpeg2_header.slice_pos = 0;
+			surface_object->mpeg2_header.slice_len = surface_object->slices_size * 8;
 
 			control_id = V4L2_CID_MPEG_VIDEO_MPEG2_FRAME_HDR;
-			control_data = &context_object->mpeg2_frame_hdr;
-			control_size = sizeof(context_object->mpeg2_frame_hdr);
+			control_data = &surface_object->mpeg2_header;
+			control_size = sizeof(surface_object->mpeg2_header);
 			break;
 
 		default:
@@ -188,15 +186,15 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index, 0);
+	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index, 0);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index, driver_data->slice_offset[surface_object->input_buf_index]);
+	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index, surface_object->slices_size);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	driver_data->slice_offset[surface_object->input_buf_index] = 0;
+	surface_object->slices_size = 0;
 
 	context_object->render_surface_id = VA_INVALID_ID;
 

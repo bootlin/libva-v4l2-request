@@ -30,9 +30,6 @@
 
 #include "object_heap.h"
 
-#define INPUT_BUFFER_MAX_SIZE		131072
-#define INPUT_BUFFERS_NB		6
-
 #define CONTEXT(id) ((struct object_context *) object_heap_lookup(&driver_data->context_heap, id))
 #define CONTEXT_ID_OFFSET		0x02000000
 
@@ -47,9 +44,6 @@ struct object_context {
 	int picture_width;
 	int picture_height;
 	int flags;
-
-	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_frame_hdr;
-	uint32_t num_rendered_surfaces;
 };
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,

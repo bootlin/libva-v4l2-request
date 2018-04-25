@@ -41,9 +41,18 @@ struct object_surface {
 	int width;
 	int height;
 
-	uint32_t request;
-	uint32_t input_buf_index;
-	uint32_t output_buf_index;
+	unsigned int source_index;
+	void *source_data;
+	unsigned int source_size;
+
+	unsigned int destination_index;
+	void *destination_data[2];
+	unsigned int destination_size[2];
+
+	struct v4l2_ctrl_mpeg2_frame_hdr mpeg2_header;
+	unsigned int slices_size;
+
+	int request_fd;
 };
 
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,

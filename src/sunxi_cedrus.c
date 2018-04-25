@@ -61,7 +61,6 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	struct VADriverVTable *vtable = context->vtable;
 	struct v4l2_capability capability;
 	VAStatus status;
-	unsigned int i;
 	int video_fd = -1;
 	int media_fd = -1;
 	char *video_path;
@@ -160,11 +159,6 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	driver_data->video_fd = video_fd;
 	driver_data->media_fd = media_fd;
 
-	for (i = 0; i < INPUT_BUFFERS_NB; i++) {
-		driver_data->request_fds[i] = -1;
-		driver_data->slice_offset[i] = 0;
-	}
-
 	status = VA_STATUS_SUCCESS;
 	goto complete;
 
@@ -191,11 +185,6 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	struct object_context *context_object;
 	struct object_config *config_object;
 	object_heap_iterator iterator;
-	unsigned int i;
-
-	for (i = 0; i < INPUT_BUFFERS_NB; i++)
-		if (driver_data->request_fds[i] >= 0)
-			close(driver_data->request_fds[i]);
 
 	close(driver_data->video_fd);
 	close(driver_data->media_fd);

@@ -50,9 +50,10 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	struct object_surface *surface_object;
 	unsigned int length[2];
 	unsigned int offset[2];
+	void *destination_data[2];
 	VASurfaceID id;
+	unsigned int i, j;
 	int rc;
-	int i;
 
 	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
@@ -71,32 +72,36 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
+		memset(surface_object, 0, sizeof(*surface_object));
+
 		surfaces_ids[i] = id;
 
 		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
 		if (rc < 0)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->luma_bufs[i] = mmap(NULL, length[0], PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->video_fd, offset[0]);
-		if (driver_data->luma_bufs[i] == MAP_FAILED)
+		destination_data[0] = mmap(NULL, length[0], PROT_READ | PROT_WRITE, MAP_SHARED, driver_data->video_fd, offset[0]);
+		if (destination_data[0] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->chroma_bufs[i] = mmap(NULL, length[1], PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->video_fd, offset[1]);
-		if (driver_data->chroma_bufs[i] == MAP_FAILED)
+		destination_data[1] = mmap(NULL, length[1], PROT_READ | PROT_WRITE, MAP_SHARED, driver_data->video_fd, offset[1]);
+		if (destination_data[1] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 		surface_object->status = VASurfaceReady;
 		surface_object->width = width;
 		surface_object->height = height;
-		surface_object->input_buf_index = 0;
-		surface_object->output_buf_index = i;
+		surface_object->destination_index = i;
+
+		for (j = 0; j < 2; j++) {
+			surface_object->destination_data[j] = destination_data[j];
+			surface_object->destination_size[j] = length[j];
+		}
+
+		surface_object->request_fd = -1;
 
 		surfaces_ids[i] = id;
 	}
-
-	driver_data->num_dst_bufs = surfaces_count;
 
 	return VA_STATUS_SUCCESS;
 }
@@ -107,12 +112,19 @@ VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *surface_object;
-	int i;
+	unsigned int i, j;
 
 	for (i = 0; i < surfaces_count; i++) {
 		surface_object = (struct object_surface *) object_heap_lookup(&driver_data->surface_heap, surfaces_ids[i]);
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_INVALID_SURFACE;
+
+		if (surface_object->source_data != NULL && surface_object->source_size > 0)
+			munmap(surface_object->source_data, surface_object->source_size);
+
+		for (j = 0; j < 2; j++)
+			if (surface_object->destination_data[j] != NULL && surface_object->destination_size[j] > 0)
+				munmap(surface_object->destination_data[j], surface_object->destination_size[j]);
 
 		object_heap_free(&driver_data->surface_heap, (struct object_base *) surface_object);
 	}
@@ -136,7 +148,7 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	if (surface_object->status == VASurfaceSkipped)
 		return VA_STATUS_ERROR_UNKNOWN;
 
-	request_fd = driver_data->request_fds[surface_object->input_buf_index];
+	request_fd = surface_object->request_fd;
 	if (request_fd < 0)
 		return VA_STATUS_ERROR_UNKNOWN;
 
@@ -152,11 +164,11 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->input_buf_index);
+	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->output_buf_index);
+	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
@@ -220,7 +232,7 @@ VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 
 	for(x=dst_x; x < dst_x+dst_width; x++) {
 		for(y=dst_y; y < dst_y+dst_height; y++) {
-			char lum = driver_data->luma_bufs[surface_object->output_buf_index][x+src_width*y];
+			char lum = ((char *) surface_object->destination_data[0])[x+src_width*y];
 			xcolor.red = xcolor.green = xcolor.blue = lum*colorratio;
 			XAllocColor(display, cm, &xcolor);
 			XSetForeground(display, gc, xcolor.pixel);

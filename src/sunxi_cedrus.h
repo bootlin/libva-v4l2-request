@@ -47,13 +47,8 @@ struct sunxi_cedrus_driver_data {
 	struct object_heap surface_heap;
 	struct object_heap buffer_heap;
 	struct object_heap image_heap;
-	char *luma_bufs[VIDEO_MAX_FRAME];
-	char *chroma_bufs[VIDEO_MAX_FRAME];
-	unsigned int num_dst_bufs;
 	int video_fd;
 	int media_fd;
-	int request_fds[INPUT_BUFFERS_NB];
-	int slice_offset[INPUT_BUFFERS_NB];
 };
 
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context);

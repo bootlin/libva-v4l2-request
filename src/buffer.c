@@ -46,15 +46,9 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_buffer *buffer_object = NULL;
-	struct object_context *context_object;
 	void *buffer_data;
-	void *map_data;
-	unsigned int map_size;
-	unsigned int length;
-	unsigned int offset;
 	VAStatus status;
 	VABufferID id;
-	int rc;
 
 	switch (type) {
 		case VAPictureParameterBufferType:
@@ -76,42 +70,20 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 		goto error;
 	}
 
-	if(buffer_object->type == VASliceDataBufferType) {
-		context_object = CONTEXT(context_id);
-		if (context_object == NULL) {
-			status = VA_STATUS_ERROR_INVALID_CONTEXT;
-			goto error;
-		}
-
-		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, context_object->num_rendered_surfaces % INPUT_BUFFERS_NB, &length, &offset);
-		if (rc < 0) {
-			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
-			goto error;
-		}
-
-		map_size = driver_data->slice_offset[context_object->num_rendered_surfaces % INPUT_BUFFERS_NB] + size * count;
-		map_data = mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED,
-			driver_data->video_fd, offset);
-
-		buffer_data = map_data + driver_data->slice_offset[context_object->num_rendered_surfaces % INPUT_BUFFERS_NB];
-		driver_data->slice_offset[context_object->num_rendered_surfaces % INPUT_BUFFERS_NB] += size * count;
-	} else {
-		buffer_data = malloc(size * count);
-		map_size = 0;
-		map_data = NULL;
+	buffer_data = malloc(size * count);
+	if (buffer_data == NULL) {
+		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+		goto error;
 	}
 
-	if (data)
-		memcpy(map_data, data, size * count);
+	if (data != NULL)
+		memcpy(buffer_data, data, size * count);
 
 	buffer_object->type = type;
 	buffer_object->initial_count = count;
 	buffer_object->count = count;
-
 	buffer_object->data = buffer_data;
-	buffer_object->map = map_data;
 	buffer_object->size = size;
-	buffer_object->map_size = map_size;
 
 	*buffer_id = id;
 
@@ -137,12 +109,8 @@ VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
 	if (buffer_object == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
-	if (buffer_object->data != NULL) {
-		if (buffer_object->type != VASliceDataBufferType)
-			free(buffer_object->data);
-		else if (buffer_object->map != NULL && buffer_object->map_size > 0)
-			munmap(buffer_object->map, buffer_object->map_size);
-	}
+	if (buffer_object->data != NULL)
+		free(buffer_object->data);
 
 	object_heap_free(&driver_data->buffer_heap, (struct object_base *) buffer_object);
 
