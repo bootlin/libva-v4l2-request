@@ -168,7 +168,7 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 	struct object_context *context_object;
 	int rc;
 
-	context_object = (struct object_context *) object_heap_lookup(&driver_data->context_heap, context_id);
+	context_object = CONTEXT(context_id);
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
 

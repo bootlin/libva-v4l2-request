@@ -68,13 +68,11 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 
 	for (i = 0; i < surfaces_count; i++) {
 		id = object_heap_allocate(&driver_data->surface_heap);
-		surface_object = (struct object_surface *) object_heap_lookup(&driver_data->surface_heap, id);
+		surface_object = SURFACE(id);
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 		memset(surface_object, 0, sizeof(*surface_object));
-
-		surfaces_ids[i] = id;
 
 		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
 		if (rc < 0)
@@ -115,7 +113,7 @@ VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 	unsigned int i, j;
 
 	for (i = 0; i < surfaces_count; i++) {
-		surface_object = (struct object_surface *) object_heap_lookup(&driver_data->surface_heap, surfaces_ids[i]);
+		surface_object = SURFACE(surfaces_ids[i]);
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_INVALID_SURFACE;
 
@@ -184,7 +182,7 @@ VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *surface_object;
 
-	surface_object = (struct object_surface *) object_heap_lookup(&driver_data->surface_heap, surface_id);
+	surface_object = SURFACE(surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
