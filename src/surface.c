@@ -153,7 +153,10 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 		goto error;
 	}
 
-	if (surface_object->status == VASurfaceSkipped) {
+	if (surface_object->status == VASurfaceReady) {
+		status = VA_STATUS_SUCCESS;
+		goto complete;
+	} else if (surface_object->status == VASurfaceSkipped) {
 		status = VA_STATUS_ERROR_UNKNOWN;
 		goto error;
 	}
