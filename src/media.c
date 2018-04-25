@@ -23,15 +23,19 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/ioctl.h>
 #include <sys/select.h>
 
 #include <linux/media.h>
 
-#include "sunxi_cedrus.h"
-#include "v4l2.h"
+#include "media.h"
+#include "utils.h"
 
 int media_request_alloc(int media_fd)
 {
+	struct media_request_alloc request_alloc;
 	int rc;
 
 	rc = ioctl(media_fd, MEDIA_IOC_REQUEST_ALLOC, &request_alloc);
@@ -73,6 +77,7 @@ int media_request_wait_completion(int request_fd)
 {
 	struct timeval tv = { 0, 300000 };
         fd_set except_fds;
+	int rc;
 
 	FD_ZERO(&except_fds);
 	FD_SET(request_fd, &except_fds);
