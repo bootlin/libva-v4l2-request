@@ -39,10 +39,11 @@
 #include <X11/Xlib.h>
 
 #include "v4l2.h"
+#include "media.h"
 #include "utils.h"
 
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
-	int height, int format, int surfaces_count, VASurfaceID *surfaces)
+	int height, int format, int surfaces_count, VASurfaceID *surfaces_ids)
 {
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
@@ -50,6 +51,7 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	unsigned int length[2];
 	unsigned int offset[2];
 	VASurfaceID id;
+	int rc;
 	int i;
 
 	if (format != VA_RT_FORMAT_YUV420)
@@ -69,20 +71,20 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		surfaces[i] = surfaceID;
+		surfaces_ids[i] = id;
 
 		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
 		if (rc < 0)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->luma_bufs[index] = mmap(NULL, length[0], PROT_READ | PROT_WRITE, MAP_SHARED,
+		driver_data->luma_bufs[i] = mmap(NULL, length[0], PROT_READ | PROT_WRITE, MAP_SHARED,
 			driver_data->video_fd, offset[0]);
-		if (driver_data->luma_bufs[buf.index] == MAP_FAILED)
+		if (driver_data->luma_bufs[i] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		driver_data->chroma_bufs[index] = mmap(NULL, length[1], PROT_READ | PROT_WRITE, MAP_SHARED,
+		driver_data->chroma_bufs[i] = mmap(NULL, length[1], PROT_READ | PROT_WRITE, MAP_SHARED,
 			driver_data->video_fd, offset[1]);
-		if (driver_data->chroma_bufs[index] == MAP_FAILED)
+		if (driver_data->chroma_bufs[i] == MAP_FAILED)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 		surface_object->status = VASurfaceReady;
@@ -94,7 +96,7 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		surfaces_ids[i] = id;
 	}
 
-	driver_data->num_dst_bufs = create_bufs.count;
+	driver_data->num_dst_bufs = surfaces_count;
 
 	return VA_STATUS_SUCCESS;
 }
@@ -124,7 +126,6 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *surface_object;
-        fd_set read_fds;
 	int request_fd;
 	int rc;
 
@@ -201,7 +202,7 @@ VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 
 	/* WARNING: This is for development purpose only!!! */
 
-	surface_object = SURFACE(surface);
+	surface_object = SURFACE(surface_id);
 
 	display = XOpenDisplay(getenv("DISPLAY"));
 	if (display == NULL) {
@@ -217,9 +218,9 @@ VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
 	cm = DefaultColormap(display, screen);
 	xcolor.flags = DoRed | DoGreen | DoBlue;
 
-	for(x=dst_x; x < dst_x+dst_w; x++) {
-		for(y=dst_y; y < dst_y+dst_h; y++) {
-			char lum = driver_data->luma_bufs[surface_object->output_buf_index][x+srcw*y];
+	for(x=dst_x; x < dst_x+dst_width; x++) {
+		for(y=dst_y; y < dst_y+dst_height; y++) {
+			char lum = driver_data->luma_bufs[surface_object->output_buf_index][x+src_width*y];
 			xcolor.red = xcolor.green = xcolor.blue = lum*colorratio;
 			XAllocColor(display, cm, &xcolor);
 			XSetForeground(display, gc, xcolor.pixel);

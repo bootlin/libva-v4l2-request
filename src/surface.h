@@ -47,7 +47,7 @@ struct object_surface {
 };
 
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
-	int height, int format, int surfaces_count, VASurfaceID *surfaces);
+	int height, int format, int surfaces_count, VASurfaceID *surfaces_ids);
 VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 	VASurfaceID *surfaces_ids, int surfaces_count);
 VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
