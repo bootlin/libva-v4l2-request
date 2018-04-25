@@ -57,7 +57,7 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
 
-	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_PIX_FMT_SUNXI, width, height);
+	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_PIX_FMT_MB32_NV12, width, height);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
