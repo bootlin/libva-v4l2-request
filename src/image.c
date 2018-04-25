@@ -29,6 +29,7 @@
 #include "buffer.h"
 
 #include <assert.h>
+#include <string.h>
 
 #include "tiled_yuv.h"
 
@@ -40,23 +41,24 @@ VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
 	struct object_image *image_object;
 	VABufferID buffer_id;
 	VAImageID id;
+	VAStatus status;
 	int sizeY, sizeUV;
+
+	sizeY = width * height;
+	sizeUV = (width * (height + 1) / 2);
 
 	id = object_heap_allocate(&driver_data->image_heap);
 	image_object = IMAGE(id);
 	if (image_object == NULL)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-	status = SunxiCedrusCreateBuffer(context, 0, VAImageBufferType, size, 1, NULL, &buffer_id);
+	status = SunxiCedrusCreateBuffer(context, 0, VAImageBufferType, sizeY + sizeUV, 1, NULL, &buffer_id);
 	if (status != VA_STATUS_SUCCESS) {
 		object_heap_free(&driver_data->image_heap, (struct object_base *) image_object);
 		return status;
 	}
 
 	image_object->buffer_id = buffer_id;
-
-	sizeY = width * height;
-	sizeUV = (width * (height + 1) / 2);
 
 	memset(image, 0, sizeof(*image));
 
@@ -86,7 +88,7 @@ VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id)
 	if (image_object == NULL)
 		return VA_STATUS_ERROR_INVALID_IMAGE;
 
-	status = DumpDestroyBuffer(context, image_object->buffer_id);
+	status = SunxiCedrusDestroyBuffer(context, image_object->buffer_id);
 	if (status != VA_STATUS_SUCCESS)
 		return status;
 
