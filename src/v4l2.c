@@ -23,11 +23,14 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/ioctl.h>
 
 #include <linux/videodev2.h>
 
-#include "sunxi_cedrus.h"
 #include "v4l2.h"
+#include "utils.h"
 
 bool v4l2_find_format(int video_fd, unsigned int type, unsigned int pixelformat)
 {
@@ -120,7 +123,7 @@ int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
 
 	rc = ioctl(video_fd, VIDIOC_QUERYBUF, &buffer);
 	if (rc < 0) {
-		fprintf(stderr, "Unable to query buffer: %s\n", strerror(errno));
+		sunxi_cedrus_log("Unable to query buffer: %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -170,9 +173,11 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_QBUF, &buffer);
 	if (rc < 0) {
-		fprintf(stderr, "Unable to queue buffer: %s\n", strerror(errno));
+		sunxi_cedrus_log("Unable to queue buffer: %s\n", strerror(errno));
 		return -1;
 	}
+
+	return 0;
 }
 
 int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
@@ -198,9 +203,11 @@ int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_DQBUF, &buffer);
 	if (rc < 0) {
-		fprintf(stderr, "Unable to dequeue buffer: %s\n", strerror(errno));
+		sunxi_cedrus_log("Unable to dequeue buffer: %s\n", strerror(errno));
 		return -1;
 	}
+
+	return 0;
 }
 
 int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
@@ -227,7 +234,7 @@ int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
 
 	rc = ioctl(video_fd, VIDIOC_S_EXT_CTRLS, &controls);
 	if (rc < 0) {
-		fprintf(stderr, "Unable to set control: %s\n", strerror(errno));
+		sunxi_cedrus_log("Unable to set control: %s\n", strerror(errno));
 		return -1;
 	}
 
