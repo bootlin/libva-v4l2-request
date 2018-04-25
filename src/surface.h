@@ -36,7 +36,6 @@
 struct object_surface {
 	struct object_base base;
 
-	VASurfaceID surface_id;
 	VAStatus status;
 	int width;
 	int height;
