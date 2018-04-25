@@ -70,7 +70,7 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	}
 
 	id = object_heap_allocate(&driver_data->buffer_heap);
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(id);
 	if (buffer_object == NULL) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
@@ -89,12 +89,12 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 			goto error;
 		}
 
-		map_size = driver_data->slice_offset[buf.index] + size * count;
+		map_size = driver_data->slice_offset[context_object->num_rendered_surfaces % INPUT_BUFFERS_NB] + size * count;
 		map_data = mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED,
 			driver_data->video_fd, offset);
 
-		buffer_data = map_data + driver_data->slice_offset[buf.index];
-		driver_data->slice_offset[buf.index] += size * count;
+		buffer_data = map_data + driver_data->slice_offset[context_object->num_rendered_surfaces % INPUT_BUFFERS_NB];
+		driver_data->slice_offset[context_object->num_rendered_surfaces % INPUT_BUFFERS_NB] += size * count;
 	} else {
 		buffer_data = malloc(size * count);
 		map_size = 0;
@@ -115,7 +115,8 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 
 	*buffer_id = id;
 
-	return VA_STATUS_SUCCESS;
+	status = VA_STATUS_SUCCESS;
+	goto complete;
 
 error:
 	if (buffer_object != NULL)
