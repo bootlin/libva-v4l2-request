@@ -150,6 +150,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 error:
 	if (source_data != MAP_FAILED)
 		munmap(source_data, length);
+
 	if (ids != NULL)
 		free(ids);
 
