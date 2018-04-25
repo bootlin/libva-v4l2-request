@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 
 #include <sys/mman.h>
@@ -122,6 +123,9 @@ VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 
 		if (surface_object->source_data != NULL && surface_object->source_size > 0)
 			munmap(surface_object->source_data, surface_object->source_size);
+
+		if (surface_object->request_fd >= 0)
+			close(surface_object->request_fd);
 
 		for (j = 0; j < 2; j++)
 			if (surface_object->destination_data[j] != NULL && surface_object->destination_size[j] > 0)
