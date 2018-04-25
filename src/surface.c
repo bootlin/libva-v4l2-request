@@ -143,45 +143,70 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *surface_object;
-	int request_fd;
+	VAStatus status;
+	int request_fd = -1;
 	int rc;
 
 	surface_object = SURFACE(surface_id);
-	if (surface_object == NULL)
-		return VA_STATUS_ERROR_INVALID_SURFACE;
+	if (surface_object == NULL) {
+		status = VA_STATUS_ERROR_INVALID_SURFACE;
+		goto error;
+	}
 
-	if (surface_object->status == VASurfaceSkipped)
-		return VA_STATUS_ERROR_UNKNOWN;
+	if (surface_object->status == VASurfaceSkipped) {
+		status = VA_STATUS_ERROR_UNKNOWN;
+		goto error;
+	}
 
 	request_fd = surface_object->request_fd;
-	if (request_fd < 0)
-		return VA_STATUS_ERROR_UNKNOWN;
+	if (request_fd < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
 
 	rc = media_request_queue(request_fd);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
 
 	rc = media_request_wait_completion(request_fd);
 	if (rc < 0) {
-		media_request_reinit(request_fd);
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
 	}
 
 	rc = media_request_reinit(request_fd);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
 
 	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
 
 	rc = v4l2_dequeue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
 
 	surface_object->status = VASurfaceReady;
 
-	return VA_STATUS_SUCCESS;
+	status = VA_STATUS_SUCCESS;
+	goto complete;
+
+error:
+	if (request_fd >= 0) {
+		close(request_fd);
+		surface_object->request_fd = -1;
+	}
+
+complete:
+	return status;
 }
 
 VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
