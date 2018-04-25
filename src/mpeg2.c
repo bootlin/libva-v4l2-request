@@ -45,8 +45,8 @@ int mpeg2_fill_picture_parameters(struct sunxi_cedrus_driver_data *driver_data,
 
 	header->type = MPEG2;
 
-	header->width = parameters->horizontal_size;
-	header->height = parameters->vertical_size;
+	header->width = context_object->picture_width;
+	header->height = context_object->picture_height;
 
 	header->picture_coding_type = parameters->picture_coding_type;
 	header->f_code[0][0] = (parameters->f_code >> 12) & 0x0f;
@@ -74,9 +74,6 @@ int mpeg2_fill_picture_parameters(struct sunxi_cedrus_driver_data *driver_data,
 		header->backward_ref_index = backward_reference_surface->destination_index;
 	else
 		header->backward_ref_index = surface_object->destination_index;
-
-	header->width = context_object->picture_width;
-	header->height = context_object->picture_height;
 
 	return 0;
 }
