@@ -47,7 +47,7 @@ struct object_context {
 };
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,
-	VAConfigID config_id, int picture_width, int picture_height, int flag,
+	VAConfigID config_id, int picture_width, int picture_height, int flags,
 	VASurfaceID *surfaces_ids, int surfaces_count,
 	VAContextID *context_id);
 VAStatus SunxiCedrusDestroyContext(VADriverContextP context,

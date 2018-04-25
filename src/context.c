@@ -41,7 +41,7 @@
 #include "v4l2.h"
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,
-	VAConfigID config_id, int picture_width, int picture_height, int flag,
+	VAConfigID config_id, int picture_width, int picture_height, int flags,
 	VASurfaceID *surfaces_ids, int surfaces_count,
 	VAContextID *context_id)
 {
@@ -140,7 +140,12 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	}
 
 	context_object->config_id = config_id;
+	context_object->render_surface_id = VA_INVALID_ID;
 	context_object->surfaces_ids = ids;
+	context_object->surfaces_count = surfaces_count;
+	context_object->picture_width = picture_width;
+	context_object->picture_height = picture_height;
+	context_object->flags = flags;
 
 	*context_id = id;
 
