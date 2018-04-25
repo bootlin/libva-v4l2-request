@@ -118,10 +118,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 					rc = mpeg2_fill_picture_parameters(driver_data, context_object, surface_object, mpeg2_parameters);
 					if (rc < 0)
 						return VA_STATUS_ERROR_OPERATION_FAILED;
-				} else {
-					sunxi_cedrus_log("Unsupported buffer type: %d\n", buffer_object->type);
 				}
-
 				break;
 
 			default:
