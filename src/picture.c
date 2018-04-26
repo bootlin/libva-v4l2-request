@@ -141,6 +141,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	unsigned int control_size;
 	unsigned int control_id;
 	int request_fd;
+	VAStatus status;
 	int rc;
 
 	context_object = CONTEXT(context_id);
@@ -192,6 +193,10 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	surface_object->slices_size = 0;
+
+	status = SunxiCedrusSyncSurface(context, context_object->render_surface_id);
+	if (status != VA_STATUS_SUCCESS)
+		return status;
 
 	context_object->render_surface_id = VA_INVALID_ID;
 
