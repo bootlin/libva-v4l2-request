@@ -153,12 +153,9 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 		goto error;
 	}
 
-	if (surface_object->status == VASurfaceReady) {
+	if (surface_object->status != VASurfaceRendering) {
 		status = VA_STATUS_SUCCESS;
 		goto complete;
-	} else if (surface_object->status == VASurfaceSkipped) {
-		status = VA_STATUS_ERROR_UNKNOWN;
-		goto error;
 	}
 
 	request_fd = surface_object->request_fd;
@@ -197,7 +194,7 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 		goto error;
 	}
 
-	surface_object->status = VASurfaceReady;
+	surface_object->status = VASurfaceDisplaying;
 
 	status = VA_STATUS_SUCCESS;
 	goto complete;

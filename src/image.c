@@ -111,8 +111,13 @@ VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
-	if (surface_object->status == VASurfaceRendering)
-		SunxiCedrusSyncSurface(context, surface_id);
+	if (surface_object->status == VASurfaceRendering) {
+		status = SunxiCedrusSyncSurface(context, surface_id);
+		if (status != VA_STATUS_SUCCESS)
+			return status;
+	} else if (surface_object->status == VASurfaceReady) {
+		return VA_STATUS_SUCCESS;
+	}
 
 	format.fourcc = VA_FOURCC_NV12;
 
