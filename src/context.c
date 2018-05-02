@@ -39,6 +39,7 @@
 #include <linux/videodev2.h>
 
 #include "v4l2.h"
+#include "utils.h"
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VAConfigID config_id, int picture_width, int picture_height, int flags,
