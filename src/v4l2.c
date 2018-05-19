@@ -228,7 +228,7 @@ int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
 	controls.count = 1;
 
 	if (request_fd >= 0) {
-		controls.which = V4L2_CTRL_WHICH_REQUEST;
+		controls.which = V4L2_CTRL_WHICH_REQUEST_VAL;
 		controls.request_fd = request_fd;
 	}
 
