@@ -106,7 +106,7 @@ VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
 	unsigned int index = 0;
 	bool found;
 
-	found = v4l2_find_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, V4L2_PIX_FMT_MPEG2_FRAME);
+	found = v4l2_find_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, V4L2_PIX_FMT_MPEG2_SLICE);
 	if (found && index < (SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES - 2)) {
 		profiles[index++] = VAProfileMPEG2Simple;
 		profiles[index++] = VAProfileMPEG2Main;

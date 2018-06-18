@@ -39,11 +39,9 @@ int mpeg2_fill_picture_parameters(struct sunxi_cedrus_driver_data *driver_data,
 	struct object_surface *surface_object,
 	VAPictureParameterBufferMPEG2 *parameters)
 {
-	struct v4l2_ctrl_mpeg2_frame_hdr *header = &surface_object->mpeg2_header;
+	struct v4l2_ctrl_mpeg2_slice_header *header = &surface_object->mpeg2_header;
 	struct object_surface *forward_reference_surface;
 	struct object_surface *backward_reference_surface;
-
-	header->type = MPEG2;
 
 	header->width = context_object->picture_width;
 	header->height = context_object->picture_height;
