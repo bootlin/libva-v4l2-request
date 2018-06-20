@@ -1,8 +1,8 @@
-AM_CPPFLAGS = -DPTHREADS $(X11_DEPS_CFLAGS) $(DRM_CFLAGS) $(LIBVA_DEPS_CFLAGS)
+AM_CPPFLAGS = -DPTHREADS $(DRM_CFLAGS) $(LIBVA_DEPS_CFLAGS)
 
 backend_cflags = -Wall -fvisibility=hidden
 backend_ldflags = -module -avoid-version -no-undefined -Wl,--no-undefined
-backend_libs = -lpthread -ldl $(DRM_LIBS) $(X11_DEPS_LIBS) $(LIBVA_DEPS_LIBS)
+backend_libs = -lpthread -ldl $(DRM_LIBS) $(LIBVA_DEPS_LIBS)
 
 backend_c = sunxi_cedrus.c object_heap.c config.c surface.c context.c buffer.c \
 	mpeg2.c picture.c subpicture.c image.c v4l2.c media.c utils.c

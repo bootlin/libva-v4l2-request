@@ -99,7 +99,6 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	vtable->vaEndPicture = SunxiCedrusEndPicture;
 	vtable->vaSyncSurface = SunxiCedrusSyncSurface;
 	vtable->vaQuerySurfaceStatus = SunxiCedrusQuerySurfaceStatus;
-	vtable->vaPutSurface = SunxiCedrusPutSurface;
 	vtable->vaQueryImageFormats = SunxiCedrusQueryImageFormats;
 	vtable->vaCreateImage = SunxiCedrusCreateImage;
 	vtable->vaDeriveImage = SunxiCedrusDeriveImage;

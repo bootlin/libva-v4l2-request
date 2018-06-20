@@ -62,7 +62,6 @@ AC_SUBST(LIBDRM_VERSION)
 
 dnl Check for VA-API
 PKG_CHECK_MODULES(LIBVA_DEPS,     [libva >= va_api_version])
-PKG_CHECK_MODULES(X11_DEPS, [x11])
 
 dnl Check for VA/DRM API
 PKG_CHECK_MODULES(LIBVA_DRM_DEPS, [libva-drm],

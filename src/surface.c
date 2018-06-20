@@ -37,8 +37,6 @@
 
 #include <linux/videodev2.h>
 
-#include <X11/Xlib.h>
-
 #include "v4l2.h"
 #include "media.h"
 #include "utils.h"
@@ -222,58 +220,6 @@ VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 
 	*status = surface_object->status;
 
-	return VA_STATUS_SUCCESS;
-}
-
-VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
-	void *draw, short src_x, short src_y, unsigned short src_width,
-	unsigned short src_height, short dst_x, short dst_y,
-	unsigned short dst_width, unsigned short dst_height,
-	VARectangle *cliprects, unsigned int cliprects_count,
-	unsigned int flags)
-{
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
-	GC gc;
-	Display *display;
-	const XID xid = (XID)(uintptr_t)draw;
-	XColor xcolor;
-	int screen;
-	Colormap cm;
-	int colorratio = 65535 / 255;
-	int x, y;
-	struct object_surface *surface_object;
-
-	/* WARNING: This is for development purpose only!!! */
-
-	surface_object = SURFACE(surface_id);
-
-	display = XOpenDisplay(getenv("DISPLAY"));
-	if (display == NULL) {
-		sunxi_cedrus_log("Cannot connect to X server\n");
-		exit(1);
-	}
-
-	sunxi_cedrus_log("warning: using vaPutSurface with sunxi-cedrus is not recommended\n");
-	screen = DefaultScreen(display);
-	gc =  XCreateGC(display, RootWindow(display, screen), 0, NULL);
-	XSync(display, False);
-
-	cm = DefaultColormap(display, screen);
-	xcolor.flags = DoRed | DoGreen | DoBlue;
-
-	for(x=dst_x; x < dst_x+dst_width; x++) {
-		for(y=dst_y; y < dst_y+dst_height; y++) {
-			char lum = ((char *) surface_object->destination_data[0])[x+src_width*y];
-			xcolor.red = xcolor.green = xcolor.blue = lum*colorratio;
-			XAllocColor(display, cm, &xcolor);
-			XSetForeground(display, gc, xcolor.pixel);
-			XDrawPoint(display, xid, gc, x, y);
-		}
-	}
-
-	XFlush(display);
-	XCloseDisplay(display);
 	return VA_STATUS_SUCCESS;
 }
 
