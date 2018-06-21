@@ -223,6 +223,16 @@ VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
+VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
+	void *draw, short src_x, short src_y, unsigned short src_width,
+	unsigned short src_height, short dst_x, short dst_y,
+	unsigned short dst_width, unsigned short dst_height,
+	VARectangle *cliprects, unsigned int cliprects_count,
+	unsigned int flags)
+{
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}
+
 VAStatus SunxiCedrusLockSurface(VADriverContextP context,
 	VASurfaceID surface_id, unsigned int *fourcc, unsigned int *luma_stride,
 	unsigned int *chroma_u_stride, unsigned int *chroma_v_stride,
