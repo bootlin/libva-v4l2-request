@@ -109,9 +109,6 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 			goto error;
 		}
 
-		if (surface_object->destination_index != i)
-			sunxi_cedrus_log("Mismatch between source index %d and destination index %d for surface %d\n", i, surface_object->destination_index, surfaces_ids[i]);
-
 		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, i, &length, &offset);
 		if (rc < 0) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
@@ -125,6 +122,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 		}
 
 		surface_object->source_index = i;
+		surface_object->destination_index = i;
 		surface_object->source_data = source_data;
 		surface_object->source_size = length;
 

@@ -89,7 +89,7 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		surface_object->source_index = 0;
 		surface_object->source_data = NULL;
 		surface_object->source_size = 0;
-		surface_object->destination_index = i;
+		surface_object->destination_index = 0;
 
 		for (j = 0; j < 2; j++) {
 			surface_object->destination_data[j] = destination_data[j];
