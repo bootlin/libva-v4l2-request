@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007 Intel Corporation. All Rights Reserved.
+ * Copyright (C) 2007 Intel Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the
@@ -27,11 +27,20 @@
 
 #include <pthread.h>
 
-#define OBJECT_HEAP_OFFSET_MASK 0x7F000000
-#define OBJECT_HEAP_ID_MASK     0x00FFFFFF
+/*
+ * Values
+ */
 
-typedef struct object_base *object_base_p;
-typedef struct object_heap *object_heap_p;
+#define OBJECT_HEAP_OFFSET_MASK					0x7F000000
+#define OBJECT_HEAP_ID_MASK					0x00FFFFFF
+
+#define OBJECT_HEAP_LAST					-1
+#define OBJECT_HEAP_ALLOCATED					-2
+
+/*
+ * Structures
+ */
+
 
 struct object_base {
 	int id;
@@ -49,45 +58,16 @@ struct object_heap {
 	int num_buckets;
 };
 
-typedef int object_heap_iterator;
-
 /*
- * Return 0 on success, -1 on error
+ * Functions
  */
-int object_heap_init(object_heap_p heap, int object_size, int id_offset);
 
-/*
- * Allocates an object
- * Returns the object ID on success, returns -1 on error
- */
-int object_heap_allocate(object_heap_p heap);
-
-/*
- * Lookup an allocated object by object ID
- * Returns a pointer to the object on success, returns NULL on error
- */
-object_base_p object_heap_lookup(object_heap_p heap, int id);
-
-/*
- * Iterate over all objects in the heap.
- * Returns a pointer to the first object on the heap, returns NULL if heap is empty.
- */
-object_base_p object_heap_first(object_heap_p heap, object_heap_iterator *iter);
-
-/*
- * Iterate over all objects in the heap.
- * Returns a pointer to the next object on the heap, returns NULL if heap is empty.
- */
-object_base_p object_heap_next(object_heap_p heap, object_heap_iterator *iter);
-
-/*
- * Frees an object
- */
-void object_heap_free(object_heap_p heap, object_base_p obj);
-
-/*
- * Destroys a heap, the heap must be empty.
- */
-void object_heap_destroy(object_heap_p heap);
+int object_heap_init(struct object_heap *heap, int object_size, int id_offset);
+int object_heap_allocate(struct object_heap *heap);
+struct object_base *object_heap_lookup(struct object_heap *heap, int id);
+struct object_base *object_heap_first(struct object_heap *heap, int *iterator);
+struct object_base *object_heap_next(struct object_heap *heap, int *iterator);
+void object_heap_free(struct object_heap *heap, struct object_base *object);
+void object_heap_destroy(struct object_heap *heap);
 
 #endif
