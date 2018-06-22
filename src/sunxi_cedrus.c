@@ -184,7 +184,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	struct object_surface *surface_object;
 	struct object_context *context_object;
 	struct object_config *config_object;
-	object_heap_iterator iterator;
+	int iterator;
 
 	close(driver_data->video_fd);
 	close(driver_data->media_fd);
