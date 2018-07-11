@@ -27,8 +27,6 @@
 
 #include <stdbool.h>
 
-#define ALIGN(x, y)	((x + (y - 1)) & ~(y - 1))
-
 struct video_format {
 	char *description;
 	unsigned int v4l2_format;
