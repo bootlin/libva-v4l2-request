@@ -129,7 +129,7 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		surface_object->destination_planes_count = destination_planes_count;
 		surface_object->destination_buffers_count = video_format->v4l2_buffers_count;
 
-		memset(&surface_object->mpeg2_slice_params, 0, sizeof(surface_object->mpeg2_slice_params));
+		memset(&surface_object->params, 0, sizeof(surface_object->params));
 		surface_object->slices_size = 0;
 
 		surface_object->request_fd = -1;

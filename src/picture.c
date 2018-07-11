@@ -45,6 +45,60 @@
 #include "media.h"
 #include "utils.h"
 
+static VAStatus codec_store_buffer(struct sunxi_cedrus_driver_data *driver_data,
+	VAProfile profile, struct object_surface *surface_object,
+	struct object_buffer *buffer_object)
+{
+	switch (buffer_object->type) {
+	case VASliceDataBufferType:
+		/*
+		 * Since there is no guarantee that the allocation
+		 * order is the same as the submission order (via
+		 * RenderPicture), we can't use a V4L2 buffer directly
+		 * and have to copy from a regular buffer.
+		 */
+		memcpy(surface_object->source_data + surface_object->slices_size, buffer_object->data, buffer_object->size * buffer_object->count);
+		surface_object->slices_size += buffer_object->size * buffer_object->count;
+		break;
+
+	case VAPictureParameterBufferType:
+		switch (profile) {
+		case VAProfileMPEG2Simple:
+		case VAProfileMPEG2Main:
+			memcpy(&surface_object->params.mpeg2.picture, buffer_object->data, sizeof(surface_object->params.mpeg2.picture));
+			break;
+		default:
+			break;
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	return VA_STATUS_SUCCESS;
+}
+
+static VAStatus codec_set_controls(struct sunxi_cedrus_driver_data *driver_data,
+	VAProfile profile, struct object_surface *surface_object)
+{
+	int rc;
+
+	switch (profile) {
+	case VAProfileMPEG2Simple:
+	case VAProfileMPEG2Main:
+		rc = mpeg2_set_controls(driver_data, surface_object);
+		if (rc < 0)
+			return VA_STATUS_ERROR_OPERATION_FAILED;
+		break;
+
+	default:
+		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
+	}
+
+	return VA_STATUS_SUCCESS;
+}
+
 VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 	VAContextID context_id, VASurfaceID surface_id)
 {
@@ -79,9 +133,6 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 	struct object_config *config_object;
 	struct object_surface *surface_object;
 	struct object_buffer *buffer_object;
-	VAPictureParameterBufferMPEG2 *mpeg2_parameters;
-	void *data;
-	unsigned int size;
 	int rc;
 	int i;
 
@@ -102,28 +153,9 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 		if (buffer_object == NULL)
 			return VA_STATUS_ERROR_INVALID_BUFFER;
 
-		switch (config_object->profile) {
-		case VAProfileMPEG2Simple:
-		case VAProfileMPEG2Main:
-			if (buffer_object->type == VASliceDataBufferType) {
-				data = buffer_object->data;
-				size = buffer_object->size * buffer_object->count;
-
-				rc = mpeg2_fill_slice_data(driver_data, context_object, surface_object, data, size);
-				if (rc < 0)
-					return VA_STATUS_ERROR_OPERATION_FAILED;
-			} else if (buffer_object->type == VAPictureParameterBufferType) {
-				mpeg2_parameters = (VAPictureParameterBufferMPEG2 *) buffer_object->data;
-
-				rc = mpeg2_fill_picture_parameters(driver_data, context_object, surface_object, mpeg2_parameters);
-				if (rc < 0)
-					return VA_STATUS_ERROR_OPERATION_FAILED;
-			}
-			break;
-
-		default:
-			break;
-		}
+		rc = codec_store_buffer(driver_data, config_object->profile, surface_object, buffer_object);
+		if (rc != VA_STATUS_SUCCESS)
+			return rc;
 	}
 
 	return VA_STATUS_SUCCESS;
@@ -137,9 +169,6 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
-	void *control_data;
-	unsigned int control_size;
-	unsigned int control_id;
 	int request_fd;
 	VAStatus status;
 	int rc;
@@ -165,24 +194,9 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		surface_object->request_fd = request_fd;
 	}
 
-	switch (config_object->profile) {
-	case VAProfileMPEG2Simple:
-	case VAProfileMPEG2Main:
-		surface_object->mpeg2_slice_params.slice_pos = 0;
-		surface_object->mpeg2_slice_params.slice_len = surface_object->slices_size * 8;
-
-		control_id = V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS;
-		control_data = &surface_object->mpeg2_slice_params;
-		control_size = sizeof(surface_object->mpeg2_slice_params);
-		break;
-
-	default:
-		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
-	}
-
-	rc = v4l2_set_control(driver_data->video_fd, request_fd, control_id, control_data, control_size);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	rc = codec_set_controls(driver_data, config_object->profile, surface_object);
+	if (rc != VA_STATUS_SUCCESS)
+		return rc;
 
 	rc = v4l2_queue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index, 0, surface_object->destination_buffers_count);
 	if (rc < 0)

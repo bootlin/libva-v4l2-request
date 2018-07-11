@@ -57,8 +57,13 @@ struct object_surface {
 	unsigned int destination_planes_count;
 	unsigned int destination_buffers_count;
 
-	struct v4l2_ctrl_mpeg2_slice_params mpeg2_slice_params;
 	unsigned int slices_size;
+
+	union {
+		struct {
+			VAPictureParameterBufferMPEG2 picture;
+		} mpeg2;
+	} params;
 
 	int request_fd;
 };

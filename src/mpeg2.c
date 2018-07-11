@@ -34,63 +34,55 @@
 
 #include <linux/videodev2.h>
 
-int mpeg2_fill_picture_parameters(struct sunxi_cedrus_driver_data *driver_data,
-	struct object_context *context_object,
-	struct object_surface *surface_object,
-	VAPictureParameterBufferMPEG2 *parameters)
+#include "v4l2.h"
+
+int mpeg2_set_controls(struct sunxi_cedrus_driver_data *driver_data,
+	struct object_surface *surface_object)
 {
-	struct v4l2_ctrl_mpeg2_slice_params *slice_params = &surface_object->mpeg2_slice_params;
+	VAPictureParameterBufferMPEG2 *parameters = &surface_object->params.mpeg2.picture;
+	struct v4l2_ctrl_mpeg2_slice_params slice_params;
 	struct object_surface *forward_reference_surface;
 	struct object_surface *backward_reference_surface;
+	int rc;
 
-	slice_params->width = context_object->picture_width;
-	slice_params->height = context_object->picture_height;
+	memset(&slice_params, 0, sizeof(slice_params));
 
-	slice_params->slice_type = parameters->picture_coding_type;
-	slice_params->f_code[0][0] = (parameters->f_code >> 12) & 0x0f;
-	slice_params->f_code[0][1] = (parameters->f_code >> 8) & 0x0f;
-	slice_params->f_code[1][0] = (parameters->f_code >> 4) & 0x0f;
-	slice_params->f_code[1][1] = (parameters->f_code >> 0) & 0x0f;
+	slice_params.width = surface_object->width;
+	slice_params.height = surface_object->height;
 
-	slice_params->intra_dc_precision = parameters->picture_coding_extension.bits.intra_dc_precision;
-	slice_params->picture_structure = parameters->picture_coding_extension.bits.picture_structure;
-	slice_params->top_field_first = parameters->picture_coding_extension.bits.top_field_first;
-	slice_params->frame_pred_frame_dct = parameters->picture_coding_extension.bits.frame_pred_frame_dct;
-	slice_params->concealment_motion_vectors = parameters->picture_coding_extension.bits.concealment_motion_vectors;
-	slice_params->q_scale_type = parameters->picture_coding_extension.bits.q_scale_type;
-	slice_params->intra_vlc_format = parameters->picture_coding_extension.bits.intra_vlc_format;
-	slice_params->alternate_scan = parameters->picture_coding_extension.bits.alternate_scan;
+	slice_params.slice_pos = 0;
+	slice_params.slice_len = surface_object->slices_size * 8;
+
+	slice_params.slice_type = parameters->picture_coding_type;
+	slice_params.f_code[0][0] = (parameters->f_code >> 12) & 0x0f;
+	slice_params.f_code[0][1] = (parameters->f_code >> 8) & 0x0f;
+	slice_params.f_code[1][0] = (parameters->f_code >> 4) & 0x0f;
+	slice_params.f_code[1][1] = (parameters->f_code >> 0) & 0x0f;
+
+	slice_params.intra_dc_precision = parameters->picture_coding_extension.bits.intra_dc_precision;
+	slice_params.picture_structure = parameters->picture_coding_extension.bits.picture_structure;
+	slice_params.top_field_first = parameters->picture_coding_extension.bits.top_field_first;
+	slice_params.frame_pred_frame_dct = parameters->picture_coding_extension.bits.frame_pred_frame_dct;
+	slice_params.concealment_motion_vectors = parameters->picture_coding_extension.bits.concealment_motion_vectors;
+	slice_params.q_scale_type = parameters->picture_coding_extension.bits.q_scale_type;
+	slice_params.intra_vlc_format = parameters->picture_coding_extension.bits.intra_vlc_format;
+	slice_params.alternate_scan = parameters->picture_coding_extension.bits.alternate_scan;
 
 	forward_reference_surface = SURFACE(parameters->forward_reference_picture);
 	if (forward_reference_surface != NULL)
-		slice_params->forward_ref_index = forward_reference_surface->destination_index;
+		slice_params.forward_ref_index = forward_reference_surface->destination_index;
 	else
-		slice_params->forward_ref_index = surface_object->destination_index;
+		slice_params.forward_ref_index = surface_object->destination_index;
 
 	backward_reference_surface = SURFACE(parameters->backward_reference_picture);
 	if (backward_reference_surface != NULL)
-		slice_params->backward_ref_index = backward_reference_surface->destination_index;
+		slice_params.backward_ref_index = backward_reference_surface->destination_index;
 	else
-		slice_params->backward_ref_index = surface_object->destination_index;
+		slice_params.backward_ref_index = surface_object->destination_index;
 
-	return 0;
-}
-
-int mpeg2_fill_slice_data(struct sunxi_cedrus_driver_data *driver_data,
-	struct object_context *context_object,
-	struct object_surface *surface_object, void *data, unsigned int size)
-{
-	unsigned char *p = (unsigned char *) surface_object->source_data +
-		surface_object->slices_size;
-
-	/*
-	 * Since there is no guarantee that the allocation order is the same as
-	 * the submission order (via RenderPicture), we can't use a V4L2 buffer
-	 * directly and have to copy from a regular buffer.
-	 * */
-	memcpy(p, data, size);
-
-	surface_object->slices_size += size;
+	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd, V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS, &slice_params, sizeof(slice_params));
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	return 0;
 }
