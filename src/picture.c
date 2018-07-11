@@ -31,6 +31,7 @@
 #include "config.h"
 
 #include "mpeg2.h"
+#include "h264.h"
 
 #include <assert.h>
 #include <string.h>
@@ -67,6 +68,43 @@ static VAStatus codec_store_buffer(struct sunxi_cedrus_driver_data *driver_data,
 		case VAProfileMPEG2Main:
 			memcpy(&surface_object->params.mpeg2.picture, buffer_object->data, sizeof(surface_object->params.mpeg2.picture));
 			break;
+		case VAProfileH264Main:
+		case VAProfileH264High:
+		case VAProfileH264ConstrainedBaseline:
+		case VAProfileH264MultiviewHigh:
+		case VAProfileH264StereoHigh:
+			memcpy(&surface_object->params.h264.picture, buffer_object->data, sizeof(surface_object->params.h264.picture));
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case VASliceParameterBufferType:
+		switch (profile) {
+		case VAProfileH264Main:
+		case VAProfileH264High:
+		case VAProfileH264ConstrainedBaseline:
+		case VAProfileH264MultiviewHigh:
+		case VAProfileH264StereoHigh:
+			memcpy(&surface_object->params.h264.slice, buffer_object->data, sizeof(surface_object->params.h264.slice));
+			break;
+
+		default:
+			break;
+		}
+		break;
+
+	case VAIQMatrixBufferType:
+		switch (profile) {
+		case VAProfileH264Main:
+		case VAProfileH264High:
+		case VAProfileH264ConstrainedBaseline:
+		case VAProfileH264MultiviewHigh:
+		case VAProfileH264StereoHigh:
+			memcpy(&surface_object->params.h264.matrix, buffer_object->data,  sizeof(surface_object->params.h264.matrix));
+			break;
+
 		default:
 			break;
 		}
@@ -88,6 +126,16 @@ static VAStatus codec_set_controls(struct sunxi_cedrus_driver_data *driver_data,
 	case VAProfileMPEG2Simple:
 	case VAProfileMPEG2Main:
 		rc = mpeg2_set_controls(driver_data, surface_object);
+		if (rc < 0)
+			return VA_STATUS_ERROR_OPERATION_FAILED;
+		break;
+
+	case VAProfileH264Main:
+	case VAProfileH264High:
+	case VAProfileH264ConstrainedBaseline:
+	case VAProfileH264MultiviewHigh:
+	case VAProfileH264StereoHigh:
+		rc = h264_set_controls(driver_data, surface_object);
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
