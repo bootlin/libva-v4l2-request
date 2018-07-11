@@ -27,20 +27,24 @@
 
 #include <stdbool.h>
 
-#define DESTINATION_SIZE_MAX					(1024 * 1024)
+#define SOURCE_SIZE_MAX						(1024 * 1024)
 
 bool v4l2_find_format(int video_fd, unsigned int type,
 	unsigned int pixelformat);
 int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 	unsigned int width, unsigned int height);
+int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
+	unsigned int *height, unsigned int *bytesperline, unsigned int *sizes,
+	unsigned int *planes_count);
 int v4l2_create_buffers(int video_fd, unsigned int type,
 	unsigned int buffers_count);
 int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
-	unsigned int *length, unsigned int *offset);
+	unsigned int *lengths, unsigned int *offsets,
+	unsigned int buffers_count);
 int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
-	unsigned int index, unsigned int size);
+	unsigned int index, unsigned int size, unsigned int buffers_count);
 int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
-	unsigned int index);
+	unsigned int index, unsigned int buffers_count);
 int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
 	unsigned int size);
 int v4l2_set_stream(int video_fd, unsigned int type, bool enable);

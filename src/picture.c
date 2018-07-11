@@ -168,12 +168,12 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	switch (config_object->profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			surface_object->mpeg2_header.slice_pos = 0;
-			surface_object->mpeg2_header.slice_len = surface_object->slices_size * 8;
+			surface_object->mpeg2_slice_params.slice_pos = 0;
+			surface_object->mpeg2_slice_params.slice_len = surface_object->slices_size * 8;
 
-			control_id = V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_HEADER;
-			control_data = &surface_object->mpeg2_header;
-			control_size = sizeof(surface_object->mpeg2_header);
+			control_id = V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS;
+			control_data = &surface_object->mpeg2_slice_params;
+			control_size = sizeof(surface_object->mpeg2_slice_params);
 			break;
 
 		default:
@@ -184,11 +184,11 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index, 0);
+	rc = v4l2_queue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index, 0, surface_object->destination_buffers_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index, surface_object->slices_size);
+	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index, surface_object->slices_size, 1);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

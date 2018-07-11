@@ -65,16 +65,58 @@ int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 	format.type = type;
 	format.fmt.pix_mp.width = width;
 	format.fmt.pix_mp.height = height;
-	format.fmt.pix_mp.plane_fmt[0].sizeimage = type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE ? DESTINATION_SIZE_MAX : 0;
+	format.fmt.pix_mp.plane_fmt[0].sizeimage = type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE ? SOURCE_SIZE_MAX : 0;
 	format.fmt.pix_mp.pixelformat = pixelformat;
-	format.fmt.pix_mp.field = V4L2_FIELD_ANY;
-	format.fmt.pix_mp.num_planes = type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ? 2 : 1;
 
 	rc = ioctl(video_fd, VIDIOC_S_FMT, &format);
 	if (rc < 0) {
 		sunxi_cedrus_log("Unable to set format for type %d: %s\n", type, strerror(errno));
 		return -1;
 	}
+
+	return 0;
+}
+
+int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
+	unsigned int *height, unsigned int *bytesperline, unsigned int *sizes,
+	unsigned int *planes_count)
+{
+	struct v4l2_format format;
+	unsigned int count;
+	unsigned int i;
+	int rc;
+
+	memset(&format, 0, sizeof(format));
+	format.type = type;
+
+	rc = ioctl(video_fd, VIDIOC_G_FMT, &format);
+	if (rc < 0) {
+		sunxi_cedrus_log("Unable to get format for type %d: %s\n", type, strerror(errno));
+		return -1;
+	}
+
+	count = format.fmt.pix_mp.num_planes;
+
+	if (width != NULL)
+		*width = format.fmt.pix_mp.width;
+
+	if (height != NULL)
+		*height = format.fmt.pix_mp.height;
+
+	if (planes_count != NULL)
+		if (*planes_count > 0 && *planes_count < count)
+			count = *planes_count;
+
+	if (bytesperline != NULL)
+		for (i = 0; i < count; i++)
+			bytesperline[i] = format.fmt.pix_mp.plane_fmt[i].bytesperline;
+
+	if (sizes != NULL)
+		for (i = 0; i < count; i++)
+			sizes[i] = format.fmt.pix_mp.plane_fmt[i].sizeimage;
+
+	if (planes_count != NULL)
+		*planes_count = count;
 
 	return 0;
 }
@@ -106,10 +148,12 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 }
 
 int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
-	unsigned int *length, unsigned int *offset)
+	unsigned int *lengths, unsigned int *offsets,
+	unsigned int buffers_count)
 {
-	struct v4l2_plane planes[2];
+	struct v4l2_plane planes[buffers_count];
 	struct v4l2_buffer buffer;
+	unsigned int i;
 	int rc;
 
 	memset(planes, 0, sizeof(planes));
@@ -118,7 +162,7 @@ int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
 	buffer.type = type;
 	buffer.memory = V4L2_MEMORY_MMAP;
 	buffer.index = index;
-	buffer.length = type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ? 2 : 1;
+	buffer.length = buffers_count;
 	buffer.m.planes = planes;
 
 	rc = ioctl(video_fd, VIDIOC_QUERYBUF, &buffer);
@@ -127,32 +171,23 @@ int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
 		return -1;
 	}
 
-	if (length != NULL) {
-		if (type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
-			length[0] = buffer.m.planes[0].length;
-			length[1] = buffer.m.planes[1].length;
-		} else {
-			*length = buffer.m.planes[0].length;
-		}
-	}
+	if (lengths != NULL)
+		for (i = 0; i < buffer.length; i++)
+			lengths[i] = buffer.m.planes[i].length;
 
-	if (offset != NULL) {
-		if (type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) {
-			offset[0] = buffer.m.planes[0].m.mem_offset;
-			offset[1] = buffer.m.planes[1].m.mem_offset;
-		} else {
-			*offset = buffer.m.planes[0].m.mem_offset;
-		}
-	}
+	if (offsets != NULL)
+		for (i = 0; i < buffer.length; i++)
+			offsets[i] = buffer.m.planes[i].m.mem_offset;
 
 	return 0;
 }
 
 int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
-	unsigned int index, unsigned int size)
+	unsigned int index, unsigned int size, unsigned int buffers_count)
 {
-	struct v4l2_plane planes[2];
+	struct v4l2_plane planes[buffers_count];
 	struct v4l2_buffer buffer;
+	unsigned int i;
 	int rc;
 
 	memset(planes, 0, sizeof(planes));
@@ -161,10 +196,11 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 	buffer.type = type;
 	buffer.memory = V4L2_MEMORY_MMAP;
 	buffer.index = index;
-	buffer.length = type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ? 2 : 1;
+	buffer.length = buffers_count;
 	buffer.m.planes = planes;
 
-	buffer.m.planes[0].bytesused = size;
+	for (i = 0; i < buffers_count; i++)
+		buffer.m.planes[i].bytesused = size;
 
 	if (request_fd >= 0) {
 		buffer.flags = V4L2_BUF_FLAG_REQUEST_FD;
@@ -181,9 +217,9 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 }
 
 int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
-	unsigned int index)
+	unsigned int index, unsigned int buffers_count)
 {
-	struct v4l2_plane planes[2];
+	struct v4l2_plane planes[buffers_count];
 	struct v4l2_buffer buffer;
 	int rc;
 
@@ -193,7 +229,7 @@ int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 	buffer.type = type;
 	buffer.memory = V4L2_MEMORY_MMAP;
 	buffer.index = index;
-	buffer.length = type == V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE ? 2 : 1;
+	buffer.length = buffers_count;
 	buffer.m.planes = planes;
 
 	if (request_fd >= 0) {

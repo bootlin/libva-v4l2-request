@@ -26,6 +26,8 @@
 #ifndef _SURFACE_H_
 #define _SURFACE_H_
 
+#include <linux/videodev2.h>
+
 #include <va/va_backend.h>
 
 #include "object_heap.h"
@@ -45,10 +47,17 @@ struct object_surface {
 	unsigned int source_size;
 
 	unsigned int destination_index;
-	void *destination_data[2];
-	unsigned int destination_size[2];
+	void *destination_map[VIDEO_MAX_PLANES];
+	unsigned int destination_map_lengths[VIDEO_MAX_PLANES];
+	unsigned int destination_map_offsets[VIDEO_MAX_PLANES];
+	void *destination_data[VIDEO_MAX_PLANES];
+	unsigned int destination_sizes[VIDEO_MAX_PLANES];
+	unsigned int destination_offsets[VIDEO_MAX_PLANES];
+	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
+	unsigned int destination_planes_count;
+	unsigned int destination_buffers_count;
 
-	struct v4l2_ctrl_mpeg2_slice_header mpeg2_header;
+	struct v4l2_ctrl_mpeg2_slice_params mpeg2_slice_params;
 	unsigned int slices_size;
 
 	int request_fd;

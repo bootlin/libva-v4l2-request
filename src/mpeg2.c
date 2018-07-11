@@ -39,39 +39,39 @@ int mpeg2_fill_picture_parameters(struct sunxi_cedrus_driver_data *driver_data,
 	struct object_surface *surface_object,
 	VAPictureParameterBufferMPEG2 *parameters)
 {
-	struct v4l2_ctrl_mpeg2_slice_header *header = &surface_object->mpeg2_header;
+	struct v4l2_ctrl_mpeg2_slice_params *slice_params = &surface_object->mpeg2_slice_params;
 	struct object_surface *forward_reference_surface;
 	struct object_surface *backward_reference_surface;
 
-	header->width = context_object->picture_width;
-	header->height = context_object->picture_height;
+	slice_params->width = context_object->picture_width;
+	slice_params->height = context_object->picture_height;
 
-	header->picture_coding_type = parameters->picture_coding_type;
-	header->f_code[0][0] = (parameters->f_code >> 12) & 0x0f;
-	header->f_code[0][1] = (parameters->f_code >> 8) & 0x0f;
-	header->f_code[1][0] = (parameters->f_code >> 4) & 0x0f;
-	header->f_code[1][1] = (parameters->f_code >> 0) & 0x0f;
+	slice_params->slice_type = parameters->picture_coding_type;
+	slice_params->f_code[0][0] = (parameters->f_code >> 12) & 0x0f;
+	slice_params->f_code[0][1] = (parameters->f_code >> 8) & 0x0f;
+	slice_params->f_code[1][0] = (parameters->f_code >> 4) & 0x0f;
+	slice_params->f_code[1][1] = (parameters->f_code >> 0) & 0x0f;
 
-	header->intra_dc_precision = parameters->picture_coding_extension.bits.intra_dc_precision;
-	header->picture_structure = parameters->picture_coding_extension.bits.picture_structure;
-	header->top_field_first = parameters->picture_coding_extension.bits.top_field_first;
-	header->frame_pred_frame_dct = parameters->picture_coding_extension.bits.frame_pred_frame_dct;
-	header->concealment_motion_vectors = parameters->picture_coding_extension.bits.concealment_motion_vectors;
-	header->q_scale_type = parameters->picture_coding_extension.bits.q_scale_type;
-	header->intra_vlc_format = parameters->picture_coding_extension.bits.intra_vlc_format;
-	header->alternate_scan = parameters->picture_coding_extension.bits.alternate_scan;
+	slice_params->intra_dc_precision = parameters->picture_coding_extension.bits.intra_dc_precision;
+	slice_params->picture_structure = parameters->picture_coding_extension.bits.picture_structure;
+	slice_params->top_field_first = parameters->picture_coding_extension.bits.top_field_first;
+	slice_params->frame_pred_frame_dct = parameters->picture_coding_extension.bits.frame_pred_frame_dct;
+	slice_params->concealment_motion_vectors = parameters->picture_coding_extension.bits.concealment_motion_vectors;
+	slice_params->q_scale_type = parameters->picture_coding_extension.bits.q_scale_type;
+	slice_params->intra_vlc_format = parameters->picture_coding_extension.bits.intra_vlc_format;
+	slice_params->alternate_scan = parameters->picture_coding_extension.bits.alternate_scan;
 
 	forward_reference_surface = SURFACE(parameters->forward_reference_picture);
 	if (forward_reference_surface != NULL)
-		header->forward_ref_index = forward_reference_surface->destination_index;
+		slice_params->forward_ref_index = forward_reference_surface->destination_index;
 	else
-		header->forward_ref_index = surface_object->destination_index;
+		slice_params->forward_ref_index = surface_object->destination_index;
 
 	backward_reference_surface = SURFACE(parameters->backward_reference_picture);
 	if (backward_reference_surface != NULL)
-		header->backward_ref_index = backward_reference_surface->destination_index;
+		slice_params->backward_ref_index = backward_reference_surface->destination_index;
 	else
-		header->backward_ref_index = surface_object->destination_index;
+		slice_params->backward_ref_index = surface_object->destination_index;
 
 	return 0;
 }

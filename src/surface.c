@@ -38,6 +38,7 @@
 #include <linux/videodev2.h>
 
 #include "v4l2.h"
+#include "video.h"
 #include "media.h"
 #include "utils.h"
 
@@ -47,17 +48,33 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	struct sunxi_cedrus_driver_data *driver_data =
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_surface *surface_object;
-	unsigned int length[2];
-	unsigned int offset[2];
-	void *destination_data[2];
-	VASurfaceID id;
+	struct video_format *video_format;
+	unsigned int destination_sizes[VIDEO_MAX_PLANES];
+	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
+	unsigned int destination_planes_count;
 	unsigned int i, j;
+	VASurfaceID id;
+	bool found;
 	int rc;
 
 	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
 
-	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_PIX_FMT_MB32_NV12, width, height);
+	driver_data->tiled_format = true;
+
+	found = v4l2_find_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, V4L2_PIX_FMT_NV12);
+	if (found)
+		driver_data->tiled_format = false;
+
+	video_format = video_format_find(driver_data->tiled_format);
+	if (video_format == NULL)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, video_format->v4l2_format, width, height);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	rc = v4l2_get_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, NULL, NULL, destination_bytesperlines, destination_sizes, &destination_planes_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
@@ -71,33 +88,50 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, length, offset);
+		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i, surface_object->destination_map_lengths, surface_object->destination_map_offsets, video_format->v4l2_buffers_count);
 		if (rc < 0)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		destination_data[0] = mmap(NULL, length[0], PROT_READ | PROT_WRITE, MAP_SHARED, driver_data->video_fd, offset[0]);
-		if (destination_data[0] == MAP_FAILED)
-			return VA_STATUS_ERROR_ALLOCATION_FAILED;
+		for (j = 0; j < video_format->v4l2_buffers_count; j++) {
+			surface_object->destination_map[j] = mmap(NULL, surface_object->destination_map_lengths[j], PROT_READ | PROT_WRITE, MAP_SHARED, driver_data->video_fd, surface_object->destination_map_offsets[j]);
+			if (surface_object->destination_map[j] == MAP_FAILED)
+				return VA_STATUS_ERROR_ALLOCATION_FAILED;
+		}
 
-		destination_data[1] = mmap(NULL, length[1], PROT_READ | PROT_WRITE, MAP_SHARED, driver_data->video_fd, offset[1]);
-		if (destination_data[1] == MAP_FAILED)
+		if (video_format->v4l2_buffers_count == 1) {
+			for (j = 0; j < destination_planes_count; j++) {
+				surface_object->destination_offsets[j] = j > 0 ? destination_sizes[j-1] : 0;
+				surface_object->destination_data[j] = (void *) ((unsigned char *) surface_object->destination_map[0] + surface_object->destination_offsets[j]);
+				surface_object->destination_sizes[j] = destination_sizes[j];
+				surface_object->destination_bytesperlines[j] = destination_bytesperlines[j];
+			}
+		} else if (video_format->v4l2_buffers_count == destination_planes_count) {
+			for (j = 0; j < destination_planes_count; j++) {
+				surface_object->destination_offsets[j] = 0;
+				surface_object->destination_data[j] = surface_object->destination_map[j];
+				surface_object->destination_sizes[j] = destination_sizes[j];
+				surface_object->destination_bytesperlines[j] = destination_bytesperlines[j];
+			}
+		} else {
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
+		}
 
 		surface_object->status = VASurfaceReady;
 		surface_object->width = width;
 		surface_object->height = height;
+
 		surface_object->source_index = 0;
 		surface_object->source_data = NULL;
 		surface_object->source_size = 0;
+
 		surface_object->destination_index = 0;
 
-		for (j = 0; j < 2; j++) {
-			surface_object->destination_data[j] = destination_data[j];
-			surface_object->destination_size[j] = length[j];
-		}
+		surface_object->destination_planes_count = destination_planes_count;
+		surface_object->destination_buffers_count = video_format->v4l2_buffers_count;
 
-		memset(&surface_object->mpeg2_header, 0, sizeof(surface_object->mpeg2_header));
+		memset(&surface_object->mpeg2_slice_params, 0, sizeof(surface_object->mpeg2_slice_params));
 		surface_object->slices_size = 0;
+
 		surface_object->request_fd = -1;
 
 		surfaces_ids[i] = id;
@@ -125,9 +159,12 @@ VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 		if (surface_object->request_fd >= 0)
 			close(surface_object->request_fd);
 
-		for (j = 0; j < 2; j++)
-			if (surface_object->destination_data[j] != NULL && surface_object->destination_size[j] > 0)
-				munmap(surface_object->destination_data[j], surface_object->destination_size[j]);
+		for (j = 0; j < surface_object->destination_buffers_count; j++)
+			if (surface_object->destination_map[j] != NULL && surface_object->destination_map_lengths[j] > 0)
+				munmap(surface_object->destination_map[j], surface_object->destination_map_lengths[j]);
+
+		if (surface_object->request_fd > 0)
+			close(surface_object->request_fd);
 
 		object_heap_free(&driver_data->surface_heap, (struct object_base *) surface_object);
 	}
@@ -180,13 +217,13 @@ VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 		goto error;
 	}
 
-	rc = v4l2_dequeue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index);
+	rc = v4l2_dequeue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index, 1);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = v4l2_dequeue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index);
+	rc = v4l2_dequeue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index, surface_object->destination_buffers_count);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
