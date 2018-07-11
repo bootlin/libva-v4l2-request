@@ -75,14 +75,14 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	}
 
 	switch (config_object->profile) {
-		case VAProfileMPEG2Simple:
-		case VAProfileMPEG2Main:
-			pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
-			break;
+	case VAProfileMPEG2Simple:
+	case VAProfileMPEG2Main:
+		pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
+		break;
 
-		default:
-			status = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
-			goto error;
+	default:
+		status = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
+		goto error;
 	}
 
 	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, pixelformat, picture_width, picture_height);

@@ -51,16 +51,16 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	VABufferID id;
 
 	switch (type) {
-		case VAPictureParameterBufferType:
-		case VAIQMatrixBufferType:
-		case VASliceParameterBufferType:
-		case VASliceDataBufferType:
-		case VAImageBufferType:
-			break;
+	case VAPictureParameterBufferType:
+	case VAIQMatrixBufferType:
+	case VASliceParameterBufferType:
+	case VASliceDataBufferType:
+	case VAImageBufferType:
+		break;
 
-		default:
-			status = VA_STATUS_ERROR_UNSUPPORTED_BUFFERTYPE;
-			goto error;
+	default:
+		status = VA_STATUS_ERROR_UNSUPPORTED_BUFFERTYPE;
+		goto error;
 	}
 
 	id = object_heap_allocate(&driver_data->buffer_heap);

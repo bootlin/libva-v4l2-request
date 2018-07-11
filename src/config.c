@@ -47,14 +47,14 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 	int i, index;
 
 	switch (profile) {
-		case VAProfileMPEG2Simple:
-		case VAProfileMPEG2Main:
-			if (entrypoint != VAEntrypointVLD)
-				return VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
-			break;
+	case VAProfileMPEG2Simple:
+	case VAProfileMPEG2Main:
+		if (entrypoint != VAEntrypointVLD)
+			return VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
+		break;
 
-		default:
-			return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
+	default:
+		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
 
 	if (attributes_count > SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES)
@@ -121,15 +121,15 @@ VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
 	VAProfile profile, VAEntrypoint *entrypoints, int *entrypoints_count)
 {
 	switch (profile) {
-		case VAProfileMPEG2Simple:
-		case VAProfileMPEG2Main:
-			entrypoints[0] = VAEntrypointVLD;
-			*entrypoints_count = 1;
-			break;
+	case VAProfileMPEG2Simple:
+	case VAProfileMPEG2Main:
+		entrypoints[0] = VAEntrypointVLD;
+		*entrypoints_count = 1;
+		break;
 
-		default:
-			*entrypoints_count = 0;
-			break;
+	default:
+		*entrypoints_count = 0;
+		break;
 	}
 
 	return VA_STATUS_SUCCESS;
@@ -173,12 +173,12 @@ VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
 
 	for (i = 0; i < attributes_count; i++) {
 		switch (attributes[i].type) {
-			case VAConfigAttribRTFormat:
-				attributes[i].value = VA_RT_FORMAT_YUV420;
-				break;
-			default:
-				attributes[i].value = VA_ATTRIB_NOT_SUPPORTED;
-				break;
+		case VAConfigAttribRTFormat:
+			attributes[i].value = VA_RT_FORMAT_YUV420;
+			break;
+		default:
+			attributes[i].value = VA_ATTRIB_NOT_SUPPORTED;
+			break;
 		}
 	}
 

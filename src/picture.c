@@ -103,26 +103,26 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 			return VA_STATUS_ERROR_INVALID_BUFFER;
 
 		switch (config_object->profile) {
-			case VAProfileMPEG2Simple:
-			case VAProfileMPEG2Main:
-				if (buffer_object->type == VASliceDataBufferType) {
-					data = buffer_object->data;
-					size = buffer_object->size * buffer_object->count;
+		case VAProfileMPEG2Simple:
+		case VAProfileMPEG2Main:
+			if (buffer_object->type == VASliceDataBufferType) {
+				data = buffer_object->data;
+				size = buffer_object->size * buffer_object->count;
 
-					rc = mpeg2_fill_slice_data(driver_data, context_object, surface_object, data, size);
-					if (rc < 0)
-						return VA_STATUS_ERROR_OPERATION_FAILED;
-				} else if (buffer_object->type == VAPictureParameterBufferType) {
-					mpeg2_parameters = (VAPictureParameterBufferMPEG2 *) buffer_object->data;
+				rc = mpeg2_fill_slice_data(driver_data, context_object, surface_object, data, size);
+				if (rc < 0)
+					return VA_STATUS_ERROR_OPERATION_FAILED;
+			} else if (buffer_object->type == VAPictureParameterBufferType) {
+				mpeg2_parameters = (VAPictureParameterBufferMPEG2 *) buffer_object->data;
 
-					rc = mpeg2_fill_picture_parameters(driver_data, context_object, surface_object, mpeg2_parameters);
-					if (rc < 0)
-						return VA_STATUS_ERROR_OPERATION_FAILED;
-				}
-				break;
+				rc = mpeg2_fill_picture_parameters(driver_data, context_object, surface_object, mpeg2_parameters);
+				if (rc < 0)
+					return VA_STATUS_ERROR_OPERATION_FAILED;
+			}
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 
@@ -166,18 +166,18 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	}
 
 	switch (config_object->profile) {
-		case VAProfileMPEG2Simple:
-		case VAProfileMPEG2Main:
-			surface_object->mpeg2_slice_params.slice_pos = 0;
-			surface_object->mpeg2_slice_params.slice_len = surface_object->slices_size * 8;
+	case VAProfileMPEG2Simple:
+	case VAProfileMPEG2Main:
+		surface_object->mpeg2_slice_params.slice_pos = 0;
+		surface_object->mpeg2_slice_params.slice_len = surface_object->slices_size * 8;
 
-			control_id = V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS;
-			control_data = &surface_object->mpeg2_slice_params;
-			control_size = sizeof(surface_object->mpeg2_slice_params);
-			break;
+		control_id = V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS;
+		control_data = &surface_object->mpeg2_slice_params;
+		control_size = sizeof(surface_object->mpeg2_slice_params);
+		break;
 
-		default:
-			return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
+	default:
+		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
 
 	rc = v4l2_set_control(driver_data->video_fd, request_fd, control_id, control_data, control_size);
