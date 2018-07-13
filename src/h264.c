@@ -71,7 +71,8 @@ static void h264_va_picture_to_v4l2(struct sunxi_cedrus_driver_data *driver_data
 	for (i = 0; i < VAPicture->num_ref_frames; i++) {
 		struct v4l2_h264_dpb_entry *dpb = &decode->dpb[i];
 		VAPictureH264 *pic = &VAPicture->ReferenceFrames[i];
-		struct object_surface *surface_object = SURFACE(pic->picture_id);
+		struct object_surface *surface_object = SURFACE(driver_data,
+								pic->picture_id);
 
 		if (surface_object)
 			dpb->buf_index = surface_object->destination_index;
