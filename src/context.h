@@ -30,7 +30,7 @@
 
 #include "object_heap.h"
 
-#define CONTEXT(id) ((struct object_context *) object_heap_lookup(&driver_data->context_heap, id))
+#define CONTEXT(data, id) ((struct object_context *) object_heap_lookup(&(data)->context_heap, id))
 #define CONTEXT_ID_OFFSET		0x02000000
 
 struct object_context {

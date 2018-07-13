@@ -68,13 +68,13 @@ int mpeg2_set_controls(struct sunxi_cedrus_driver_data *driver_data,
 	slice_params.intra_vlc_format = parameters->picture_coding_extension.bits.intra_vlc_format;
 	slice_params.alternate_scan = parameters->picture_coding_extension.bits.alternate_scan;
 
-	forward_reference_surface = SURFACE(parameters->forward_reference_picture);
+	forward_reference_surface = SURFACE(driver_data, parameters->forward_reference_picture);
 	if (forward_reference_surface != NULL)
 		slice_params.forward_ref_index = forward_reference_surface->destination_index;
 	else
 		slice_params.forward_ref_index = surface_object->destination_index;
 
-	backward_reference_surface = SURFACE(parameters->backward_reference_picture);
+	backward_reference_surface = SURFACE(driver_data, parameters->backward_reference_picture);
 	if (backward_reference_surface != NULL)
 		slice_params.backward_ref_index = backward_reference_surface->destination_index;
 	else

@@ -123,7 +123,7 @@ VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 	VAImageFormat format;
 	VAStatus status;
 
-	surface_object = SURFACE(surface_id);
+	surface_object = SURFACE(driver_data, surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 

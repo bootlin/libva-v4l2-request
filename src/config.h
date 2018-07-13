@@ -30,7 +30,7 @@
 
 #include "object_heap.h"
 
-#define CONFIG(id)  ((struct object_config *)  object_heap_lookup(&driver_data->config_heap,  id))
+#define CONFIG(data, id)  ((struct object_config *)  object_heap_lookup(&(data)->config_heap,  id))
 #define CONFIG_ID_OFFSET		0x01000000
 
 struct object_config {

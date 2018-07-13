@@ -155,11 +155,11 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 	struct object_context *context_object;
 	struct object_surface *surface_object;
 
-	context_object = CONTEXT(context_id);
+	context_object = CONTEXT(driver_data, context_id);
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	surface_object = SURFACE(surface_id);
+	surface_object = SURFACE(driver_data, surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
@@ -184,15 +184,15 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 	int rc;
 	int i;
 
-	context_object = CONTEXT(context_id);
+	context_object = CONTEXT(driver_data, context_id);
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	config_object = CONFIG(context_object->config_id);
+	config_object = CONFIG(driver_data, context_object->config_id);
 	if (config_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONFIG;
 
-	surface_object = SURFACE(context_object->render_surface_id);
+	surface_object = SURFACE(driver_data, context_object->render_surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
@@ -221,15 +221,15 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	VAStatus status;
 	int rc;
 
-	context_object = CONTEXT(context_id);
+	context_object = CONTEXT(driver_data, context_id);
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	config_object = CONFIG(context_object->config_id);
+	config_object = CONFIG(driver_data, context_object->config_id);
 	if (config_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONFIG;
 
-	surface_object = SURFACE(context_object->render_surface_id);
+	surface_object = SURFACE(driver_data, context_object->render_surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 

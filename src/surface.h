@@ -32,7 +32,7 @@
 
 #include "object_heap.h"
 
-#define SURFACE(id) ((struct object_surface *) object_heap_lookup(&driver_data->surface_heap, id))
+#define SURFACE(data, id) ((struct object_surface *) object_heap_lookup(&(data)->surface_heap, id))
 #define SURFACE_ID_OFFSET		0x04000000
 
 struct object_surface {

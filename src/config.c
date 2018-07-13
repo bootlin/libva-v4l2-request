@@ -66,7 +66,7 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 		attributes_count = SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES;
 
 	id = object_heap_allocate(&driver_data->config_heap);
-	config_object = CONFIG(id);
+	config_object = CONFIG(driver_data, id);
 	if (config_object == NULL)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
@@ -94,7 +94,7 @@ VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_config *config_object;
 
-	config_object = CONFIG(config_id);
+	config_object = CONFIG(driver_data, config_id);
 	if (config_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONFIG;
 
@@ -163,7 +163,7 @@ VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
 	struct object_config *config_object;
 	int i;
 
-	config_object = CONFIG(config_id);
+	config_object = CONFIG(driver_data, config_id);
 	if (config_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONFIG;
 
