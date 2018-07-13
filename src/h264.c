@@ -204,7 +204,7 @@ static void h264_va_slice_to_v4l2(struct sunxi_cedrus_driver_data *driver_data,
 	}
 
 	if (VASlice->direct_spatial_mv_pred_flag)
-		slice->flags |= V4L2_SLICE_FLAG_DIRECT_SPATIAL_MV_PRED;
+		slice->flags |= V4L2_H264_SLICE_FLAG_DIRECT_SPATIAL_MV_PRED;
 
 	slice->pred_weight_table.chroma_log2_weight_denom =
 		VASlice->chroma_log2_weight_denom;
@@ -249,13 +249,13 @@ int h264_set_controls(struct sunxi_cedrus_driver_data *driver_data,
 			      &surface_object->params.h264.picture, &slice);
 
 	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd,
-			      V4L2_CID_MPEG_VIDEO_H264_DECODE_PARAM,
+			      V4L2_CID_MPEG_VIDEO_H264_DECODE_PARAMS,
 			      &decode, sizeof(decode));
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd,
-			      V4L2_CID_MPEG_VIDEO_H264_SLICE_PARAM,
+			      V4L2_CID_MPEG_VIDEO_H264_SLICE_PARAMS,
 			      &slice, sizeof(slice));
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
