@@ -31,7 +31,7 @@
 #include "object_heap.h"
 #include "sunxi_cedrus.h"
 
-#define BUFFER(id)  ((struct object_buffer *)  object_heap_lookup(&driver_data->buffer_heap,  id))
+#define BUFFER(data, id)  ((struct object_buffer *)  object_heap_lookup(&(data)->buffer_heap,  id))
 #define BUFFER_ID_OFFSET		0x08000000
 
 struct object_buffer {

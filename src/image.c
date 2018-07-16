@@ -141,7 +141,7 @@ VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 	if (status != VA_STATUS_SUCCESS)
 		return status;
 
-	buffer_object = BUFFER(image->buf);
+	buffer_object = BUFFER(driver_data, image->buf);
 	if (buffer_object == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 

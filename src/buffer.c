@@ -64,7 +64,7 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	}
 
 	id = object_heap_allocate(&driver_data->buffer_heap);
-	buffer_object = BUFFER(id);
+	buffer_object = BUFFER(driver_data, id);
 	if (buffer_object == NULL) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
@@ -105,7 +105,7 @@ VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_buffer *buffer_object;
 
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(driver_data, buffer_id);
 	if (buffer_object == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
@@ -124,7 +124,7 @@ VAStatus SunxiCedrusMapBuffer(VADriverContextP context, VABufferID buffer_id,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_buffer *buffer_object;
 
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(driver_data, buffer_id);
 	if (buffer_object == NULL || buffer_object->data == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
@@ -140,7 +140,7 @@ VAStatus SunxiCedrusUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_buffer *buffer_object;
 
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(driver_data, buffer_id);
 	if (buffer_object == NULL || buffer_object->data == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
@@ -156,7 +156,7 @@ VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_buffer *buffer_object;
 
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(driver_data, buffer_id);
 	if (buffer_object == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
@@ -175,7 +175,7 @@ VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,
 		(struct sunxi_cedrus_driver_data *) context->pDriverData;
 	struct object_buffer *buffer_object;
 
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(driver_data, buffer_id);
 	if (buffer_object == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 

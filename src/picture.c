@@ -197,7 +197,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
 	for (i = 0; i < buffers_count; i++) {
-		buffer_object = BUFFER(buffers_ids[i]);
+		buffer_object = BUFFER(driver_data, buffers_ids[i]);
 		if (buffer_object == NULL)
 			return VA_STATUS_ERROR_INVALID_BUFFER;
 
