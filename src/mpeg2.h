@@ -26,14 +26,10 @@
 #ifndef _MPEG2_H_
 #define _MPEG2_H_
 
-#include <va/va_backend.h>
-
-#include "context.h"
-#include "buffer.h"
-
-#include "surface.h"
+struct object_surface;
+struct sunxi_cedrus_driver_data;
 
 int mpeg2_set_controls(struct sunxi_cedrus_driver_data *driver_data,
-	struct object_surface *surface_object);
+		       struct object_surface *surface_object);
 
 #endif

@@ -23,8 +23,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "context.h"
 #include "sunxi_cedrus.h"
 #include "mpeg2.h"
+#include "surface.h"
 
 #include <assert.h>
 #include <string.h>
