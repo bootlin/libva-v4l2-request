@@ -34,6 +34,11 @@
 #include "video.h"
 #include "utils.h"
 
+static inline unsigned int video_v4l2_format(bool tiled_format)
+{
+	return tiled_format ? V4L2_PIX_FMT_MB32_NV12 : V4L2_PIX_FMT_NV12;
+}
+
 static struct video_format formats[] = {
 	{
 		.description		= "NV12 YUV",

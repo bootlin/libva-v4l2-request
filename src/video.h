@@ -37,11 +37,6 @@ struct video_format {
 	unsigned int bpp;
 };
 
-inline unsigned int video_v4l2_format(bool tiled_format)
-{
-	return tiled_format ? V4L2_PIX_FMT_MB32_NV12 : V4L2_PIX_FMT_NV12;
-}
-
 struct video_format *video_format_find(bool tiled_format);
 
 #endif
