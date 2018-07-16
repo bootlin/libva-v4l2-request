@@ -48,7 +48,7 @@ struct object_buffer {
 VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 	VAContextID context_id, VABufferType type, unsigned int size,
 	unsigned int count, void *data, VABufferID *buffer_id);
-void sunxi_cedrus_destroy_buffer(struct sunxi_cedrus_driver_data *driver_data,
+void sunxi_cedrus_destroy_buffer(struct cedrus_data *driver_data,
 	struct object_buffer *obj_buffer);
 VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
 	VABufferID buffer_id);

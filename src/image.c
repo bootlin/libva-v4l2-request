@@ -38,8 +38,8 @@
 VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
 	int width, int height, VAImage *image)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
 	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
 	unsigned int destination_planes_count;
@@ -94,8 +94,8 @@ VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
 
 VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_image *image_object;
 	VAStatus status;
 
@@ -115,8 +115,8 @@ VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id)
 VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
 	VASurfaceID surface_id, VAImage *image)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_surface *surface_object;
 	struct object_buffer *buffer_object;
 	unsigned int i;

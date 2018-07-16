@@ -43,7 +43,7 @@
 #define SUNXI_CEDRUS_MAX_SUBPIC_FORMATS		4
 #define SUNXI_CEDRUS_MAX_DISPLAY_ATTRIBUTES	4
 
-struct sunxi_cedrus_driver_data {
+struct cedrus_data {
 	struct object_heap config_heap;
 	struct object_heap context_heap;
 	struct object_heap surface_heap;

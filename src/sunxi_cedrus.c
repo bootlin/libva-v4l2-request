@@ -57,7 +57,7 @@ VAStatus __attribute__((visibility("default")))
 
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
-	struct sunxi_cedrus_driver_data *driver_data;
+	struct cedrus_data *driver_data;
 	struct VADriverVTable *vtable = context->vtable;
 	struct v4l2_capability capability;
 	VAStatus status;
@@ -177,8 +177,8 @@ complete:
 
 VAStatus SunxiCedrusTerminate(VADriverContextP context)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_buffer *buffer_object;
 	struct object_image *image_object;
 	struct object_surface *surface_object;

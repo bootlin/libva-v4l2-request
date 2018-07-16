@@ -46,8 +46,8 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 	VASurfaceID *surfaces_ids, int surfaces_count,
 	VAContextID *context_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
 	struct object_context *context_object = NULL;
@@ -185,8 +185,8 @@ complete:
 VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 	VAContextID context_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_context *context_object;
 	int rc;
 

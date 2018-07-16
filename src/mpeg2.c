@@ -38,7 +38,7 @@
 
 #include "v4l2.h"
 
-int mpeg2_set_controls(struct sunxi_cedrus_driver_data *driver_data,
+int mpeg2_set_controls(struct cedrus_data *driver_data,
 	struct object_surface *surface_object)
 {
 	VAPictureParameterBufferMPEG2 *parameters = &surface_object->params.mpeg2.picture;

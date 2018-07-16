@@ -28,9 +28,9 @@
 #define _H264_H_
 
 struct object_surface;
-struct sunxi_cedrus_driver_data;
+struct cedrus_data;
 
-int h264_set_controls(struct sunxi_cedrus_driver_data *data,
+int h264_set_controls(struct cedrus_data *data,
 		      struct object_surface *surface);
 
 #endif

@@ -56,7 +56,7 @@ static int h264_lookup_ref_pic(VAPictureParameterBufferH264 *VAPicture,
 	return 0;
 }
 
-static void h264_va_picture_to_v4l2(struct sunxi_cedrus_driver_data *driver_data,
+static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
 	VAPictureParameterBufferH264 *VAPicture,
 	struct v4l2_ctrl_h264_decode_param *decode,
 	struct v4l2_ctrl_h264_pps *pps,
@@ -145,7 +145,7 @@ static void h264_va_picture_to_v4l2(struct sunxi_cedrus_driver_data *driver_data
 		sps->flags |= V4L2_H264_SPS_FLAG_DELTA_PIC_ORDER_ALWAYS_ZERO;
 }
 
-static void h264_va_matrix_to_v4l2(struct sunxi_cedrus_driver_data *driver_data,
+static void h264_va_matrix_to_v4l2(struct cedrus_data *driver_data,
 	VAIQMatrixBufferH264 *VAMatrix,
 	struct v4l2_ctrl_h264_scaling_matrix *v4l2_matrix)
 {
@@ -163,7 +163,7 @@ static void h264_va_matrix_to_v4l2(struct sunxi_cedrus_driver_data *driver_data,
 	       sizeof(v4l2_matrix->scaling_list_8x8[3]));
 }
 
-static void h264_va_slice_to_v4l2(struct sunxi_cedrus_driver_data *driver_data,
+static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
 	VASliceParameterBufferH264 *VASlice,
 	VAPictureParameterBufferH264 *VAPicture,
 	struct v4l2_ctrl_h264_slice_param *slice)
@@ -232,7 +232,7 @@ static void h264_va_slice_to_v4l2(struct sunxi_cedrus_driver_data *driver_data,
 	       sizeof(factors->luma_offset));
 }
 
-int h264_set_controls(struct sunxi_cedrus_driver_data *driver_data,
+int h264_set_controls(struct cedrus_data *driver_data,
 		      struct object_surface *surface)
 {
 	struct v4l2_ctrl_h264_scaling_matrix matrix = { 0 };

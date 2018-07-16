@@ -45,8 +45,8 @@
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	int height, int format, int surfaces_count, VASurfaceID *surfaces_ids)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_surface *surface_object;
 	struct video_format *video_format;
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
@@ -143,8 +143,8 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 	VASurfaceID *surfaces_ids, int surfaces_count)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_surface *surface_object;
 	unsigned int i, j;
 
@@ -175,8 +175,8 @@ VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
 	VASurfaceID surface_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_surface *surface_object;
 	VAStatus status;
 	int request_fd = -1;
@@ -247,8 +247,8 @@ complete:
 VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 	VASurfaceID surface_id, VASurfaceStatus *status)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_surface *surface_object;
 
 	surface_object = SURFACE(driver_data, surface_id);

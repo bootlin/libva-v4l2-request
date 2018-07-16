@@ -46,7 +46,7 @@
 #include "media.h"
 #include "utils.h"
 
-static VAStatus codec_store_buffer(struct sunxi_cedrus_driver_data *driver_data,
+static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
 	VAProfile profile, struct object_surface *surface_object,
 	struct object_buffer *buffer_object)
 {
@@ -117,7 +117,7 @@ static VAStatus codec_store_buffer(struct sunxi_cedrus_driver_data *driver_data,
 	return VA_STATUS_SUCCESS;
 }
 
-static VAStatus codec_set_controls(struct sunxi_cedrus_driver_data *driver_data,
+static VAStatus codec_set_controls(struct cedrus_data *driver_data,
 	VAProfile profile, struct object_surface *surface_object)
 {
 	int rc;
@@ -150,8 +150,8 @@ static VAStatus codec_set_controls(struct sunxi_cedrus_driver_data *driver_data,
 VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 	VAContextID context_id, VASurfaceID surface_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_context *context_object;
 	struct object_surface *surface_object;
 
@@ -175,8 +175,8 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 	VAContextID context_id, VABufferID *buffers_ids, int buffers_count)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
@@ -212,8 +212,8 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	VAContextID context_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;

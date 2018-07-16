@@ -40,8 +40,8 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 	VAEntrypoint entrypoint, VAConfigAttrib *attributes,
 	int attributes_count, VAConfigID *config_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_config *config_object;
 	VAConfigID id;
 	int i, index;
@@ -90,8 +90,8 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
 	VAConfigID config_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_config *config_object;
 
 	config_object = CONFIG(driver_data, config_id);
@@ -106,8 +106,8 @@ VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
 VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
 	VAProfile *profiles, int *profiles_count)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	unsigned int index = 0;
 	bool found;
 
@@ -158,8 +158,8 @@ VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
 	VAConfigID config_id, VAProfile *profile, VAEntrypoint *entrypoint,
 	VAConfigAttrib *attributes, int *attributes_count)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct cedrus_data *driver_data =
+		(struct cedrus_data *) context->pDriverData;
 	struct object_config *config_object;
 	int i;
 

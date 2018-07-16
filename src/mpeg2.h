@@ -27,9 +27,9 @@
 #define _MPEG2_H_
 
 struct object_surface;
-struct sunxi_cedrus_driver_data;
+struct cedrus_data;
 
-int mpeg2_set_controls(struct sunxi_cedrus_driver_data *driver_data,
+int mpeg2_set_controls(struct cedrus_data *driver_data,
 		       struct object_surface *surface_object);
 
 #endif
