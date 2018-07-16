@@ -27,9 +27,28 @@
 #ifndef _H264_H_
 #define _H264_H_
 
+#include <stdbool.h>
+
+#include <va/va.h>
+
 struct object_context;
 struct object_surface;
 struct cedrus_data;
+
+#define H264_DPB_SIZE 16
+
+struct h264_dpb_entry {
+	VAPictureH264 pic;
+	unsigned int age;
+	bool used;
+	bool valid;
+	bool reserved;
+};
+
+struct h264_dpb {
+	struct h264_dpb_entry entries[H264_DPB_SIZE];
+	unsigned int age;
+};
 
 int h264_set_controls(struct cedrus_data *data,
 		      struct object_context *context,

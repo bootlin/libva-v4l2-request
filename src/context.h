@@ -29,6 +29,7 @@
 #include <va/va_backend.h>
 
 #include "object_heap.h"
+#include "h264.h"
 
 #define CONTEXT(data, id)                                                      \
 	((struct object_context *)object_heap_lookup(&(data)->context_heap, id))
@@ -45,6 +46,9 @@ struct object_context {
 	int picture_width;
 	int picture_height;
 	int flags;
+
+	/* H264 only */
+	struct h264_dpb dpb;
 };
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,

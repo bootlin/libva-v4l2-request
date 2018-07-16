@@ -25,6 +25,7 @@
  */
 
 #include <assert.h>
+#include <limits.h>
 #include <string.h>
 
 #include <sys/ioctl.h>
@@ -41,19 +42,167 @@ enum h264_slice_type {
 	H264_SLICE_B    = 1,
 };
 
-static int h264_lookup_ref_pic(VAPictureParameterBufferH264 *VAPicture,
-			       unsigned int frame_num)
+static bool is_picture_null(VAPictureH264 *pic)
+{
+	return pic->picture_id == VA_INVALID_SURFACE;
+}
+
+static struct h264_dpb_entry *
+dpb_find_invalid_entry(struct object_context *context)
+{
+	unsigned int i;
+
+	for (i = 0; i < H264_DPB_SIZE; i++) {
+		struct h264_dpb_entry *entry = &context->dpb.entries[i];
+
+		if (!entry->valid && !entry->reserved)
+			return entry;
+	}
+
+	return NULL;
+}
+
+static struct h264_dpb_entry *
+dpb_find_oldest_unused_entry(struct object_context *context)
+{
+	unsigned int min_age = UINT_MAX;
+	unsigned int i;
+	struct h264_dpb_entry *match = NULL;
+
+	for (i = 0; i < H264_DPB_SIZE; i++) {
+		struct h264_dpb_entry *entry = &context->dpb.entries[i];
+
+		if (!entry->used && (entry->age < min_age)) {
+			min_age = entry->age;
+			match = entry;
+		}
+	}
+
+	return match;
+}
+
+static struct h264_dpb_entry *dpb_find_entry(struct object_context *context)
+{
+	struct h264_dpb_entry *entry;
+
+	entry = dpb_find_invalid_entry(context);
+	if (!entry)
+		entry = dpb_find_oldest_unused_entry(context);
+
+	return entry;
+}
+
+static struct h264_dpb_entry *dpb_lookup(struct object_context *context,
+					 VAPictureH264 *pic, unsigned int *idx)
+{
+	unsigned int i;
+
+	for (i = 0; i < H264_DPB_SIZE; i++) {
+		struct h264_dpb_entry *entry = &context->dpb.entries[i];
+
+		if (!entry->valid)
+			continue;
+
+		if (entry->pic.picture_id == pic->picture_id) {
+			if (idx)
+				*idx = i;
+
+			return entry;
+		}
+	}
+
+	return NULL;
+}
+
+static void dpb_clear_entry(struct h264_dpb_entry *entry, bool reserved)
+{
+	memset(entry, 0, sizeof(*entry));
+
+	if (reserved)
+		entry->reserved = true;
+}
+
+static void dpb_insert(struct object_context *context, VAPictureH264 *pic,
+		       struct h264_dpb_entry *entry)
+{
+	if (is_picture_null(pic))
+		return;
+
+	if (dpb_lookup(context, pic, NULL))
+		return;
+
+	if (!entry)
+		entry = dpb_find_entry(context);
+
+	memcpy(&entry->pic, pic, sizeof(entry->pic));
+	entry->age = context->dpb.age;
+	entry->valid = true;
+	entry->reserved = false;
+
+	if (!(pic->flags & VA_PICTURE_H264_INVALID))
+		entry->used = true;
+}
+
+static void dpb_update(struct object_context *context,
+		       VAPictureParameterBufferH264 *parameters)
+{
+	unsigned int i;
+
+	context->dpb.age++;
+
+	for (i = 0; i < H264_DPB_SIZE; i++) {
+		struct h264_dpb_entry *entry = &context->dpb.entries[i];
+
+		entry->used = false;
+	}
+
+	for (i = 0; i < parameters->num_ref_frames; i++) {
+		VAPictureH264 *pic = &parameters->ReferenceFrames[i];
+		struct h264_dpb_entry *entry;
+
+		if (is_picture_null(pic))
+			continue;
+
+		entry = dpb_lookup(context, pic, NULL);
+		if (entry) {
+			entry->age = context->dpb.age;
+			entry->used = true;
+		} else {
+			dpb_insert(context, pic, NULL);
+		}
+	}
+}
+
+static void h264_fill_dpb(struct cedrus_data *data,
+			  struct object_context *context,
+			  struct v4l2_ctrl_h264_decode_param *decode)
 {
 	int i;
 
-	for (i = 0; i < VAPicture->num_ref_frames; i++) {
-		VAPictureH264 *pic = &VAPicture->ReferenceFrames[i];
+	for (i = 0; i < H264_DPB_SIZE; i++) {
+		struct v4l2_h264_dpb_entry *dpb = &decode->dpb[i];
+		struct h264_dpb_entry *entry = &context->dpb.entries[i];
+		struct object_surface *surface =
+			SURFACE(data, entry->pic.picture_id);
 
-		if (frame_num == pic->frame_idx)
-			return i;
+		if (!entry->valid)
+			continue;
+
+		if (surface)
+			dpb->buf_index = surface->destination_index;
+
+		dpb->frame_num = entry->pic.frame_idx;
+		dpb->top_field_order_cnt = entry->pic.TopFieldOrderCnt;
+		dpb->bottom_field_order_cnt = entry->pic.BottomFieldOrderCnt;
+
+		dpb->flags = V4L2_H264_DPB_ENTRY_FLAG_VALID;
+
+		if (entry->used)
+			dpb->flags |= V4L2_H264_DPB_ENTRY_FLAG_ACTIVE;
+
+		if (entry->pic.flags & VA_PICTURE_H264_LONG_TERM_REFERENCE)
+			dpb->flags |= V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM;
 	}
-
-	return 0;
 }
 
 static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
@@ -63,31 +212,11 @@ static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
 				    struct v4l2_ctrl_h264_pps *pps,
 				    struct v4l2_ctrl_h264_sps *sps)
 {
-	int i;
+	h264_fill_dpb(driver_data, context, decode);
 
 	decode->num_slices = VAPicture->num_ref_frames;
 	decode->top_field_order_cnt = VAPicture->CurrPic.TopFieldOrderCnt;
 	decode->bottom_field_order_cnt = VAPicture->CurrPic.BottomFieldOrderCnt;
-
-	for (i = 0; i < VAPicture->num_ref_frames; i++) {
-		struct v4l2_h264_dpb_entry *dpb = &decode->dpb[i];
-		VAPictureH264 *pic = &VAPicture->ReferenceFrames[i];
-		struct object_surface *surface_object =
-			SURFACE(driver_data, pic->picture_id);
-
-		if (surface_object)
-			dpb->buf_index = surface_object->destination_index;
-
-		dpb->frame_num = pic->frame_idx;
-		dpb->top_field_order_cnt = pic->TopFieldOrderCnt;
-		dpb->bottom_field_order_cnt = pic->BottomFieldOrderCnt;
-
-		if (pic->flags & VA_PICTURE_H264_LONG_TERM_REFERENCE)
-			dpb->flags |= V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM;
-
-		if (!(pic->flags & VA_PICTURE_H264_INVALID))
-			dpb->flags |= V4L2_H264_DPB_ENTRY_FLAG_ACTIVE;
-	}
 
 	pps->weighted_bipred_idc =
 		VAPicture->pic_fields.bits.weighted_bipred_idc;
@@ -172,7 +301,6 @@ static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
 				  struct v4l2_ctrl_h264_slice_param *slice)
 {
 	struct v4l2_h264_weight_factors *factors;
-	int i;
 
 	slice->size = VASlice->slice_data_size;
 	slice->header_bit_size = VASlice->slice_data_bit_offset;
@@ -187,21 +315,41 @@ static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
 
 	if (((VASlice->slice_type % 5) == H264_SLICE_P) ||
 	    ((VASlice->slice_type % 5) == H264_SLICE_B)) {
+		unsigned int i;
+
 		slice->num_ref_idx_l0_active_minus1 =
 			VASlice->num_ref_idx_l0_active_minus1;
 
-		for (i = 0; i < VASlice->num_ref_idx_l0_active_minus1 + 1; i++)
-			slice->ref_pic_list0[i] = h264_lookup_ref_pic(
-				VAPicture, VASlice->RefPicList0[i].frame_idx);
+		for (i = 0; i < VASlice->num_ref_idx_l0_active_minus1 + 1; i++) {
+			VAPictureH264 *pic = &VASlice->RefPicList0[i];
+			struct h264_dpb_entry *entry;
+			unsigned int idx;
+
+			entry = dpb_lookup(context, pic, &idx);
+			if (!entry)
+				continue;
+
+			slice->ref_pic_list0[i] = idx;
+		}
 	}
 
 	if ((VASlice->slice_type % 5) == H264_SLICE_B) {
+		unsigned int i;
+
 		slice->num_ref_idx_l1_active_minus1 =
 			VASlice->num_ref_idx_l1_active_minus1;
 
-		for (i = 0; i < VASlice->num_ref_idx_l1_active_minus1 + 1; i++)
-			slice->ref_pic_list1[i] = h264_lookup_ref_pic(
-				VAPicture, VASlice->RefPicList1[i].frame_idx);
+		for (i = 0; i < VASlice->num_ref_idx_l1_active_minus1 + 1; i++) {
+			VAPictureH264 *pic = &VASlice->RefPicList1[i];
+			struct h264_dpb_entry *entry;
+			unsigned int idx;
+
+			entry = dpb_lookup(context, pic, &idx);
+			if (!entry)
+				continue;
+
+			slice->ref_pic_list1[i] = idx;
+		}
 	}
 
 	if (VASlice->direct_spatial_mv_pred_flag)
@@ -242,7 +390,17 @@ int h264_set_controls(struct cedrus_data *driver_data,
 	struct v4l2_ctrl_h264_slice_param slice = { 0 };
 	struct v4l2_ctrl_h264_pps pps = { 0 };
 	struct v4l2_ctrl_h264_sps sps = { 0 };
+	struct h264_dpb_entry *output;
 	int rc;
+
+	output = dpb_lookup(context, &surface->params.h264.picture.CurrPic,
+			    NULL);
+	if (!output)
+		output = dpb_find_entry(context);
+
+	dpb_clear_entry(output, true);
+
+	dpb_update(context, &surface->params.h264.picture);
 
 	h264_va_picture_to_v4l2(driver_data, context,
 				&surface->params.h264.picture,
@@ -280,6 +438,8 @@ int h264_set_controls(struct cedrus_data *driver_data,
 			      sizeof(matrix));
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	dpb_insert(context, &surface->params.h264.picture.CurrPic, output);
 
 	return VA_STATUS_SUCCESS;
 }

@@ -74,6 +74,7 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
 	}
+	memset(&context_object->dpb, 0, sizeof(context_object->dpb));
 
 	switch (config_object->profile) {
 	case VAProfileMPEG2Simple:
