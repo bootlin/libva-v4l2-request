@@ -131,6 +131,7 @@ static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
 }
 
 static VAStatus codec_set_controls(struct cedrus_data *driver_data,
+				   struct object_context *context,
 				   VAProfile profile,
 				   struct object_surface *surface_object)
 {
@@ -139,7 +140,7 @@ static VAStatus codec_set_controls(struct cedrus_data *driver_data,
 	switch (profile) {
 	case VAProfileMPEG2Simple:
 	case VAProfileMPEG2Main:
-		rc = mpeg2_set_controls(driver_data, surface_object);
+		rc = mpeg2_set_controls(driver_data, context, surface_object);
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
@@ -149,7 +150,7 @@ static VAStatus codec_set_controls(struct cedrus_data *driver_data,
 	case VAProfileH264ConstrainedBaseline:
 	case VAProfileH264MultiviewHigh:
 	case VAProfileH264StereoHigh:
-		rc = h264_set_controls(driver_data, surface_object);
+		rc = h264_set_controls(driver_data, context, surface_object);
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
@@ -259,8 +260,8 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context, VAContextID context_id)
 		surface_object->request_fd = request_fd;
 	}
 
-	rc = codec_set_controls(driver_data, config_object->profile,
-				surface_object);
+	rc = codec_set_controls(driver_data, context_object,
+				config_object->profile, surface_object);
 	if (rc != VA_STATUS_SUCCESS)
 		return rc;
 

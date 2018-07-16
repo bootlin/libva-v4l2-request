@@ -231,6 +231,7 @@ static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
 }
 
 int h264_set_controls(struct cedrus_data *driver_data,
+		      struct object_context *context,
 		      struct object_surface *surface)
 {
 	struct v4l2_ctrl_h264_scaling_matrix matrix = { 0 };

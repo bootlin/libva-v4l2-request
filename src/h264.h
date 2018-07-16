@@ -27,9 +27,12 @@
 #ifndef _H264_H_
 #define _H264_H_
 
+struct object_context;
 struct object_surface;
 struct cedrus_data;
 
-int h264_set_controls(struct cedrus_data *data, struct object_surface *surface);
+int h264_set_controls(struct cedrus_data *data,
+		      struct object_context *context,
+		      struct object_surface *surface);
 
 #endif
