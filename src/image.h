@@ -30,9 +30,8 @@
 
 #include "object_heap.h"
 
-#define IMAGE(id)                                                              \
-	((struct object_image *)object_heap_lookup(&driver_data->image_heap,   \
-						   id))
+#define IMAGE(data, id)							\
+	((struct object_image *)object_heap_lookup(&(data)->image_heap, id))
 #define IMAGE_ID_OFFSET			0x10000000
 
 struct object_image {

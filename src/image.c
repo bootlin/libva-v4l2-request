@@ -63,7 +63,7 @@ VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 		size += destination_sizes[i];
 
 	id = object_heap_allocate(&driver_data->image_heap);
-	image_object = IMAGE(id);
+	image_object = IMAGE(driver_data, id);
 	if (image_object == NULL)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
@@ -102,7 +102,7 @@ VAStatus RequestDestroyImage(VADriverContextP context, VAImageID image_id)
 	struct object_image *image_object;
 	VAStatus status;
 
-	image_object = IMAGE(image_id);
+	image_object = IMAGE(driver_data, image_id);
 	if (image_object == NULL)
 		return VA_STATUS_ERROR_INVALID_IMAGE;
 
