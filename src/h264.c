@@ -57,6 +57,7 @@ static int h264_lookup_ref_pic(VAPictureParameterBufferH264 *VAPicture,
 }
 
 static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
+				    struct object_context *context,
 				    VAPictureParameterBufferH264 *VAPicture,
 				    struct v4l2_ctrl_h264_decode_param *decode,
 				    struct v4l2_ctrl_h264_pps *pps,
@@ -146,6 +147,7 @@ static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
 }
 
 static void h264_va_matrix_to_v4l2(struct cedrus_data *driver_data,
+				   struct object_context *context,
 				   VAIQMatrixBufferH264 *VAMatrix,
 				   struct v4l2_ctrl_h264_scaling_matrix *v4l2_matrix)
 {
@@ -164,6 +166,7 @@ static void h264_va_matrix_to_v4l2(struct cedrus_data *driver_data,
 }
 
 static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
+				  struct object_context *context,
 				  VASliceParameterBufferH264 *VASlice,
 				  VAPictureParameterBufferH264 *VAPicture,
 				  struct v4l2_ctrl_h264_slice_param *slice)
@@ -241,11 +244,13 @@ int h264_set_controls(struct cedrus_data *driver_data,
 	struct v4l2_ctrl_h264_sps sps = { 0 };
 	int rc;
 
-	h264_va_picture_to_v4l2(driver_data, &surface->params.h264.picture,
+	h264_va_picture_to_v4l2(driver_data, context,
+				&surface->params.h264.picture,
 				&decode, &pps, &sps);
-	h264_va_matrix_to_v4l2(driver_data, &surface->params.h264.matrix,
-			       &matrix);
-	h264_va_slice_to_v4l2(driver_data, &surface->params.h264.slice,
+	h264_va_matrix_to_v4l2(driver_data, context,
+			       &surface->params.h264.matrix, &matrix);
+	h264_va_slice_to_v4l2(driver_data, context,
+			      &surface->params.h264.slice,
 			      &surface->params.h264.picture, &slice);
 
 	rc = v4l2_set_control(driver_data->video_fd, surface->request_fd,
