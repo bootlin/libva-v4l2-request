@@ -30,7 +30,7 @@
 struct object_surface;
 struct sunxi_cedrus_driver_data;
 
-int h264_fill_controls(struct sunxi_cedrus_driver_data *driver,
-		       struct object_surface *surface);
+int h264_set_controls(struct sunxi_cedrus_driver_data *data,
+		      struct object_surface *surface);
 
 #endif
