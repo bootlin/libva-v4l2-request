@@ -41,7 +41,6 @@
  * Structures
  */
 
-
 struct object_base {
 	int id;
 	int next_free;

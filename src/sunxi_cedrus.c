@@ -24,12 +24,12 @@
  */
 
 #include "buffer.h"
+#include "config.h"
 #include "context.h"
 #include "image.h"
 #include "picture.h"
 #include "subpicture.h"
 #include "surface.h"
-#include "config.h"
 
 #include "autoconfig.h"
 
@@ -39,13 +39,13 @@
 #include "utils.h"
 
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#include <fcntl.h>
+#include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
-#include <stdarg.h>
-#include <fcntl.h>
 
 #include <sys/ioctl.h>
 
@@ -53,7 +53,7 @@
 
 /* Set default visibility for the init function only. */
 VAStatus __attribute__((visibility("default")))
-	VA_DRIVER_INIT_FUNC(VADriverContextP context);
+VA_DRIVER_INIT_FUNC(VADriverContextP context);
 
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
@@ -112,7 +112,8 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	vtable->vaDestroySubpicture = SunxiCedrusDestroySubpicture;
 	vtable->vaSetSubpictureImage = SunxiCedrusSetSubpictureImage;
 	vtable->vaSetSubpictureChromakey = SunxiCedrusSetSubpictureChromakey;
-	vtable->vaSetSubpictureGlobalAlpha = SunxiCedrusSetSubpictureGlobalAlpha;
+	vtable->vaSetSubpictureGlobalAlpha =
+		SunxiCedrusSetSubpictureGlobalAlpha;
 	vtable->vaAssociateSubpicture = SunxiCedrusAssociateSubpicture;
 	vtable->vaDeassociateSubpicture = SunxiCedrusDeassociateSubpicture;
 	vtable->vaQueryDisplayAttributes = SunxiCedrusQueryDisplayAttributes;
@@ -125,13 +126,18 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	driver_data = malloc(sizeof(*driver_data));
 	memset(driver_data, 0, sizeof(*driver_data));
 
-	context->pDriverData = (void *) driver_data;
+	context->pDriverData = (void *)driver_data;
 
-	object_heap_init(&driver_data->config_heap, sizeof(struct object_config), CONFIG_ID_OFFSET);
-	object_heap_init(&driver_data->context_heap, sizeof(struct object_context), CONTEXT_ID_OFFSET);
-	object_heap_init(&driver_data->surface_heap, sizeof(struct object_surface), SURFACE_ID_OFFSET);
-	object_heap_init(&driver_data->buffer_heap, sizeof(struct object_buffer), BUFFER_ID_OFFSET);
-	object_heap_init(&driver_data->image_heap, sizeof(struct object_image), IMAGE_ID_OFFSET);
+	object_heap_init(&driver_data->config_heap,
+			 sizeof(struct object_config), CONFIG_ID_OFFSET);
+	object_heap_init(&driver_data->context_heap,
+			 sizeof(struct object_context), CONTEXT_ID_OFFSET);
+	object_heap_init(&driver_data->surface_heap,
+			 sizeof(struct object_surface), SURFACE_ID_OFFSET);
+	object_heap_init(&driver_data->buffer_heap,
+			 sizeof(struct object_buffer), BUFFER_ID_OFFSET);
+	object_heap_init(&driver_data->image_heap, sizeof(struct object_image),
+			 IMAGE_ID_OFFSET);
 
 	video_path = getenv("LIBVA_CEDRUS_VIDEO_PATH");
 	if (video_path == NULL)
@@ -143,7 +149,8 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 
 	rc = ioctl(video_fd, VIDIOC_QUERYCAP, &capability);
 	if (rc < 0 || !(capability.capabilities & V4L2_CAP_VIDEO_M2M_MPLANE)) {
-		sunxi_cedrus_log("Video device %s does not support m2m mplanes\n", video_path);
+		sunxi_cedrus_log("Video device %s does not support m2m mplanes\n",
+				 video_path);
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
@@ -178,7 +185,7 @@ complete:
 VAStatus SunxiCedrusTerminate(VADriverContextP context)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 	struct object_image *image_object;
 	struct object_surface *surface_object;
@@ -191,42 +198,58 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 
 	/* Cleanup leftover buffers. */
 
-	image_object = (struct object_image *) object_heap_first(&driver_data->image_heap, &iterator);
+	image_object = (struct object_image *)
+		object_heap_first(&driver_data->image_heap, &iterator);
 	while (image_object != NULL) {
-		SunxiCedrusDestroyImage(context, (VAImageID) image_object->base.id);
-		image_object = (struct object_image *) object_heap_next(&driver_data->image_heap, &iterator);
+		SunxiCedrusDestroyImage(context,
+					(VAImageID)image_object->base.id);
+		image_object = (struct object_image *)
+			object_heap_next(&driver_data->image_heap, &iterator);
 	}
 
 	object_heap_destroy(&driver_data->image_heap);
 
-	buffer_object = (struct object_buffer *) object_heap_first(&driver_data->buffer_heap, &iterator);
+	buffer_object = (struct object_buffer *)
+		object_heap_first(&driver_data->buffer_heap, &iterator);
 	while (buffer_object != NULL) {
-		SunxiCedrusDestroyBuffer(context, (VABufferID) buffer_object->base.id);
-		buffer_object = (struct object_buffer *) object_heap_next(&driver_data->buffer_heap, &iterator);
+		SunxiCedrusDestroyBuffer(context,
+					 (VABufferID)buffer_object->base.id);
+		buffer_object = (struct object_buffer *)
+			object_heap_next(&driver_data->buffer_heap, &iterator);
 	}
 
 	object_heap_destroy(&driver_data->buffer_heap);
 
-	surface_object = (struct object_surface *) object_heap_first(&driver_data->surface_heap, &iterator);
+	surface_object = (struct object_surface *)
+		object_heap_first(&driver_data->surface_heap, &iterator);
 	while (surface_object != NULL) {
-		SunxiCedrusDestroySurfaces(context, (VASurfaceID *) &surface_object->base.id, 1);
-		surface_object = (struct object_surface *) object_heap_next(&driver_data->surface_heap, &iterator);
+		SunxiCedrusDestroySurfaces(context,
+					   (VASurfaceID *)&surface_object->base.id,
+					   1);
+		surface_object = (struct object_surface *)
+			object_heap_next(&driver_data->surface_heap, &iterator);
 	}
 
 	object_heap_destroy(&driver_data->surface_heap);
 
-	context_object = (struct object_context *) object_heap_first(&driver_data->context_heap, &iterator);
+	context_object = (struct object_context *)
+		object_heap_first(&driver_data->context_heap, &iterator);
 	while (context_object != NULL) {
-		SunxiCedrusDestroyContext(context, (VAContextID) context_object->base.id);
-		context_object = (struct object_context *) object_heap_next(&driver_data->context_heap, &iterator);
+		SunxiCedrusDestroyContext(context,
+					  (VAContextID)context_object->base.id);
+		context_object = (struct object_context *)
+			object_heap_next(&driver_data->context_heap, &iterator);
 	}
 
 	object_heap_destroy(&driver_data->context_heap);
 
-	config_object = (struct object_config *) object_heap_first(&driver_data->config_heap, &iterator);
+	config_object = (struct object_config *)
+		object_heap_first(&driver_data->config_heap, &iterator);
 	while (config_object != NULL) {
-		SunxiCedrusDestroyConfig(context, (VAConfigID) config_object->base.id);
-		config_object = (struct object_config *) object_heap_next(&driver_data->config_heap, &iterator);
+		SunxiCedrusDestroyConfig(context,
+					 (VAConfigID)config_object->base.id);
+		config_object = (struct object_config *)
+			object_heap_next(&driver_data->config_heap, &iterator);
 	}
 
 	object_heap_destroy(&driver_data->config_heap);

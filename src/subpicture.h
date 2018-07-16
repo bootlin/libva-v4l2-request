@@ -29,29 +29,42 @@
 #include <va/va_backend.h>
 
 VAStatus SunxiCedrusCreateSubpicture(VADriverContextP context,
-	VAImageID image_id, VASubpictureID *subpicture_id);
+				     VAImageID image_id,
+				     VASubpictureID *subpicture_id);
 VAStatus SunxiCedrusDestroySubpicture(VADriverContextP context,
-	VASubpictureID subpicture_id);
+				      VASubpictureID subpicture_id);
 VAStatus SunxiCedrusQuerySubpictureFormats(VADriverContextP context,
-	VAImageFormat *formats, unsigned int *flags,
-	unsigned int *formats_count);
+					   VAImageFormat *formats,
+					   unsigned int *flags,
+					   unsigned int *formats_count);
 VAStatus SunxiCedrusSetSubpictureImage(VADriverContextP context,
-	VASubpictureID subpicture_id, VAImageID image_id);
+				       VASubpictureID subpicture_id,
+				       VAImageID image_id);
 VAStatus SunxiCedrusSetSubpicturePalette(VADriverContextP context,
-	VASubpictureID subpicture_id, unsigned char *palette);
+					 VASubpictureID subpicture_id,
+					 unsigned char *palette);
 VAStatus SunxiCedrusSetSubpictureChromakey(VADriverContextP context,
-	VASubpictureID subpicture_id, unsigned int chromakey_min,
-	unsigned int chromakey_max, unsigned int chromakey_mask);
+					   VASubpictureID subpicture_id,
+					   unsigned int chromakey_min,
+					   unsigned int chromakey_max,
+					   unsigned int chromakey_mask);
 VAStatus SunxiCedrusSetSubpictureGlobalAlpha(VADriverContextP context,
-	VASubpictureID subpicture_id, float global_alpha);
+					     VASubpictureID subpicture_id,
+					     float global_alpha);
 VAStatus SunxiCedrusAssociateSubpicture(VADriverContextP context,
-	VASubpictureID subpicture_id, VASurfaceID *surfaces_ids,
-	int surfaces_count, short src_x, short src_y, unsigned short src_width,
-	unsigned short src_height, short dst_x, short dst_y,
-	unsigned short dst_width, unsigned short dst_height,
-	unsigned int flags);
+					VASubpictureID subpicture_id,
+					VASurfaceID *surfaces_ids,
+					int surfaces_count,
+					short src_x, short src_y,
+					unsigned short src_width,
+					unsigned short src_height,
+					short dst_x, short dst_y,
+					unsigned short dst_width,
+					unsigned short dst_height,
+					unsigned int flags);
 VAStatus SunxiCedrusDeassociateSubpicture(VADriverContextP context,
-	VASubpictureID subpicture_id, VASurfaceID *surfaces_ids,
-	int surfaces_count);
+					  VASubpictureID subpicture_id,
+					  VASurfaceID *surfaces_ids,
+					  int surfaces_count);
 
 #endif

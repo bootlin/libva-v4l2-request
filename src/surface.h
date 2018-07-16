@@ -32,7 +32,8 @@
 
 #include "object_heap.h"
 
-#define SURFACE(data, id) ((struct object_surface *) object_heap_lookup(&(data)->surface_heap, id))
+#define SURFACE(data, id)                                                      \
+	((struct object_surface *)object_heap_lookup(&(data)->surface_heap, id))
 #define SURFACE_ID_OFFSET		0x04000000
 
 struct object_surface {
@@ -74,26 +75,35 @@ struct object_surface {
 };
 
 VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
-	int height, int format, int surfaces_count, VASurfaceID *surfaces_ids);
+				   int height, int format, int surfaces_count,
+				   VASurfaceID *surfaces_ids);
 VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
-	VASurfaceID *surfaces_ids, int surfaces_count);
+				    VASurfaceID *surfaces_ids,
+				    int surfaces_count);
 VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
-	VASurfaceID surface_id);
+				VASurfaceID surface_id);
 VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
-	VASurfaceID surface_id, VASurfaceStatus *status);
+				       VASurfaceID surface_id,
+				       VASurfaceStatus *status);
 VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
-	void *draw, short src_x, short src_y, unsigned short src_width,
-	unsigned short src_height, short dst_x, short dst_y,
-	unsigned short dst_width, unsigned short dst_height,
-	VARectangle *cliprects, unsigned int cliprects_count,
-	unsigned int flags);
+			       void *draw, short src_x, short src_y,
+			       unsigned short src_width,
+			       unsigned short src_height, short dst_x,
+			       short dst_y, unsigned short dst_width,
+			       unsigned short dst_height,
+			       VARectangle *cliprects,
+			       unsigned int cliprects_count,
+			       unsigned int flags);
 VAStatus SunxiCedrusLockSurface(VADriverContextP context,
-	VASurfaceID surface_id, unsigned int *fourcc, unsigned int *luma_stride,
-	unsigned int *chroma_u_stride, unsigned int *chroma_v_stride,
-	unsigned int *luma_offset, unsigned int *chroma_u_offset,
-	unsigned int *chroma_v_offset, unsigned int *buffer_name,
-	void **buffer);
+				VASurfaceID surface_id, unsigned int *fourcc,
+				unsigned int *luma_stride,
+				unsigned int *chroma_u_stride,
+				unsigned int *chroma_v_stride,
+				unsigned int *luma_offset,
+				unsigned int *chroma_u_offset,
+				unsigned int *chroma_v_offset,
+				unsigned int *buffer_name, void **buffer);
 VAStatus SunxiCedrusUnlockSurface(VADriverContextP context,
-	VASurfaceID surface_id);
+				  VASurfaceID surface_id);
 
 #endif

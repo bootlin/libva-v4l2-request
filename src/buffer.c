@@ -23,16 +23,16 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sunxi_cedrus.h"
 #include "buffer.h"
 #include "context.h"
+#include "sunxi_cedrus.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
-#include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 
 #include <linux/videodev2.h>
 
@@ -40,11 +40,12 @@
 #include "v4l2.h"
 
 VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
-	VAContextID context_id, VABufferType type, unsigned int size,
-	unsigned int count, void *data, VABufferID *buffer_id)
+				 VAContextID context_id, VABufferType type,
+				 unsigned int size, unsigned int count,
+				 void *data, VABufferID *buffer_id)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_buffer *buffer_object = NULL;
 	void *buffer_data;
 	VAStatus status;
@@ -92,17 +93,18 @@ VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
 
 error:
 	if (buffer_object != NULL)
-		object_heap_free(&driver_data->buffer_heap, (struct object_base *) buffer_object);
+		object_heap_free(&driver_data->buffer_heap,
+				 (struct object_base *)buffer_object);
 
 complete:
 	return status;
 }
 
 VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
-	VABufferID buffer_id)
+				  VABufferID buffer_id)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -112,16 +114,17 @@ VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
 	if (buffer_object->data != NULL)
 		free(buffer_object->data);
 
-	object_heap_free(&driver_data->buffer_heap, (struct object_base *) buffer_object);
+	object_heap_free(&driver_data->buffer_heap,
+			 (struct object_base *)buffer_object);
 
 	return VA_STATUS_SUCCESS;
 }
 
 VAStatus SunxiCedrusMapBuffer(VADriverContextP context, VABufferID buffer_id,
-	void **data_map)
+			      void **data_map)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -137,7 +140,7 @@ VAStatus SunxiCedrusMapBuffer(VADriverContextP context, VABufferID buffer_id,
 VAStatus SunxiCedrusUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -150,10 +153,11 @@ VAStatus SunxiCedrusUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 }
 
 VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
-	VABufferID buffer_id, unsigned int count)
+					 VABufferID buffer_id,
+					 unsigned int count)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -169,10 +173,11 @@ VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
 }
 
 VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,
-	VABufferType *type, unsigned int *size, unsigned int *count)
+			       VABufferType *type, unsigned int *size,
+			       unsigned int *count)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);

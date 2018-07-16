@@ -23,15 +23,15 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sunxi_cedrus.h"
 #include "picture.h"
 #include "buffer.h"
-#include "context.h"
-#include "surface.h"
 #include "config.h"
+#include "context.h"
+#include "sunxi_cedrus.h"
+#include "surface.h"
 
-#include "mpeg2.h"
 #include "h264.h"
+#include "mpeg2.h"
 
 #include <assert.h>
 #include <string.h>
@@ -42,13 +42,14 @@
 
 #include <linux/videodev2.h>
 
-#include "v4l2.h"
 #include "media.h"
 #include "utils.h"
+#include "v4l2.h"
 
 static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
-	VAProfile profile, struct object_surface *surface_object,
-	struct object_buffer *buffer_object)
+				   VAProfile profile,
+				   struct object_surface *surface_object,
+				   struct object_buffer *buffer_object)
 {
 	switch (buffer_object->type) {
 	case VASliceDataBufferType:
@@ -58,22 +59,30 @@ static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
 		 * RenderPicture), we can't use a V4L2 buffer directly
 		 * and have to copy from a regular buffer.
 		 */
-		memcpy(surface_object->source_data + surface_object->slices_size, buffer_object->data, buffer_object->size * buffer_object->count);
-		surface_object->slices_size += buffer_object->size * buffer_object->count;
+		memcpy(surface_object->source_data +
+			       surface_object->slices_size,
+		       buffer_object->data,
+		       buffer_object->size * buffer_object->count);
+		surface_object->slices_size +=
+			buffer_object->size * buffer_object->count;
 		break;
 
 	case VAPictureParameterBufferType:
 		switch (profile) {
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
-			memcpy(&surface_object->params.mpeg2.picture, buffer_object->data, sizeof(surface_object->params.mpeg2.picture));
+			memcpy(&surface_object->params.mpeg2.picture,
+			       buffer_object->data,
+			       sizeof(surface_object->params.mpeg2.picture));
 			break;
 		case VAProfileH264Main:
 		case VAProfileH264High:
 		case VAProfileH264ConstrainedBaseline:
 		case VAProfileH264MultiviewHigh:
 		case VAProfileH264StereoHigh:
-			memcpy(&surface_object->params.h264.picture, buffer_object->data, sizeof(surface_object->params.h264.picture));
+			memcpy(&surface_object->params.h264.picture,
+			       buffer_object->data,
+			       sizeof(surface_object->params.h264.picture));
 			break;
 		default:
 			break;
@@ -87,7 +96,9 @@ static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
 		case VAProfileH264ConstrainedBaseline:
 		case VAProfileH264MultiviewHigh:
 		case VAProfileH264StereoHigh:
-			memcpy(&surface_object->params.h264.slice, buffer_object->data, sizeof(surface_object->params.h264.slice));
+			memcpy(&surface_object->params.h264.slice,
+			       buffer_object->data,
+			       sizeof(surface_object->params.h264.slice));
 			break;
 
 		default:
@@ -102,7 +113,9 @@ static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
 		case VAProfileH264ConstrainedBaseline:
 		case VAProfileH264MultiviewHigh:
 		case VAProfileH264StereoHigh:
-			memcpy(&surface_object->params.h264.matrix, buffer_object->data,  sizeof(surface_object->params.h264.matrix));
+			memcpy(&surface_object->params.h264.matrix,
+			       buffer_object->data,
+			       sizeof(surface_object->params.h264.matrix));
 			break;
 
 		default:
@@ -118,7 +131,8 @@ static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
 }
 
 static VAStatus codec_set_controls(struct cedrus_data *driver_data,
-	VAProfile profile, struct object_surface *surface_object)
+				   VAProfile profile,
+				   struct object_surface *surface_object)
 {
 	int rc;
 
@@ -148,10 +162,10 @@ static VAStatus codec_set_controls(struct cedrus_data *driver_data,
 }
 
 VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
-	VAContextID context_id, VASurfaceID surface_id)
+				 VAContextID context_id, VASurfaceID surface_id)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_context *context_object;
 	struct object_surface *surface_object;
 
@@ -173,10 +187,11 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 }
 
 VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
-	VAContextID context_id, VABufferID *buffers_ids, int buffers_count)
+				  VAContextID context_id,
+				  VABufferID *buffers_ids, int buffers_count)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
@@ -192,7 +207,8 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 	if (config_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONFIG;
 
-	surface_object = SURFACE(driver_data, context_object->render_surface_id);
+	surface_object =
+		SURFACE(driver_data, context_object->render_surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
@@ -201,7 +217,8 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 		if (buffer_object == NULL)
 			return VA_STATUS_ERROR_INVALID_BUFFER;
 
-		rc = codec_store_buffer(driver_data, config_object->profile, surface_object, buffer_object);
+		rc = codec_store_buffer(driver_data, config_object->profile,
+					surface_object, buffer_object);
 		if (rc != VA_STATUS_SUCCESS)
 			return rc;
 	}
@@ -209,11 +226,10 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusEndPicture(VADriverContextP context,
-	VAContextID context_id)
+VAStatus SunxiCedrusEndPicture(VADriverContextP context, VAContextID context_id)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
@@ -229,7 +245,8 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 	if (config_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONFIG;
 
-	surface_object = SURFACE(driver_data, context_object->render_surface_id);
+	surface_object =
+		SURFACE(driver_data, context_object->render_surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
@@ -242,21 +259,29 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context,
 		surface_object->request_fd = request_fd;
 	}
 
-	rc = codec_set_controls(driver_data, config_object->profile, surface_object);
+	rc = codec_set_controls(driver_data, config_object->profile,
+				surface_object);
 	if (rc != VA_STATUS_SUCCESS)
 		return rc;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, -1, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, surface_object->destination_index, 0, surface_object->destination_buffers_count);
+	rc = v4l2_queue_buffer(driver_data->video_fd, -1,
+			       V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
+			       surface_object->destination_index, 0,
+			       surface_object->destination_buffers_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surface_object->source_index, surface_object->slices_size, 1);
+	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd,
+			       V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
+			       surface_object->source_index,
+			       surface_object->slices_size, 1);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	surface_object->slices_size = 0;
 
-	status = SunxiCedrusSyncSurface(context, context_object->render_surface_id);
+	status = SunxiCedrusSyncSurface(context,
+					context_object->render_surface_id);
 	if (status != VA_STATUS_SUCCESS)
 		return status;
 

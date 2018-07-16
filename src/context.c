@@ -23,9 +23,9 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "sunxi_cedrus.h"
 #include "context.h"
 #include "config.h"
+#include "sunxi_cedrus.h"
 #include "surface.h"
 
 #include <stdlib.h>
@@ -38,16 +38,17 @@
 
 #include <linux/videodev2.h>
 
-#include "v4l2.h"
 #include "utils.h"
+#include "v4l2.h"
 
 VAStatus SunxiCedrusCreateContext(VADriverContextP context,
-	VAConfigID config_id, int picture_width, int picture_height, int flags,
-	VASurfaceID *surfaces_ids, int surfaces_count,
-	VAContextID *context_id)
+				  VAConfigID config_id, int picture_width,
+				  int picture_height, int flags,
+				  VASurfaceID *surfaces_ids, int surfaces_count,
+				  VAContextID *context_id)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
 	struct object_context *context_object = NULL;
@@ -93,13 +94,17 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 		goto error;
 	}
 
-	rc = v4l2_set_format(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, pixelformat, picture_width, picture_height);
+	rc = v4l2_set_format(driver_data->video_fd,
+			     V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, pixelformat,
+			     picture_width, picture_height);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = v4l2_create_buffers(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, surfaces_count);
+	rc = v4l2_create_buffers(driver_data->video_fd,
+				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
+				 surfaces_count);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
@@ -125,13 +130,16 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 			goto error;
 		}
 
-		rc = v4l2_request_buffer(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, i, &length, &offset, 1);
+		rc = v4l2_request_buffer(driver_data->video_fd,
+					 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, i,
+					 &length, &offset, 1);
 		if (rc < 0) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 			goto error;
 		}
 
-		source_data = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, driver_data->video_fd, offset);
+		source_data = mmap(NULL, length, PROT_READ | PROT_WRITE,
+				   MAP_SHARED, driver_data->video_fd, offset);
 		if (source_data == MAP_FAILED) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 			goto error;
@@ -143,13 +151,15 @@ VAStatus SunxiCedrusCreateContext(VADriverContextP context,
 		surface_object->source_size = length;
 	}
 
-	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, true);
+	rc = v4l2_set_stream(driver_data->video_fd,
+			     V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, true);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, true);
+	rc = v4l2_set_stream(driver_data->video_fd,
+			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, true);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
@@ -176,17 +186,18 @@ error:
 		free(ids);
 
 	if (context_object != NULL)
-		object_heap_free(&driver_data->context_heap, (struct object_base *) context_object);
+		object_heap_free(&driver_data->context_heap,
+				 (struct object_base *)context_object);
 
 complete:
 	return status;
 }
 
 VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
-	VAContextID context_id)
+				   VAContextID context_id)
 {
 	struct cedrus_data *driver_data =
-		(struct cedrus_data *) context->pDriverData;
+		(struct cedrus_data *)context->pDriverData;
 	struct object_context *context_object;
 	int rc;
 
@@ -194,13 +205,16 @@ VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	object_heap_free(&driver_data->context_heap, (struct object_base *) context_object);
+	object_heap_free(&driver_data->context_heap,
+			 (struct object_base *)context_object);
 
-	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, false);
+	rc = v4l2_set_stream(driver_data->video_fd,
+			     V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, false);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_set_stream(driver_data->video_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, false);
+	rc = v4l2_set_stream(driver_data->video_fd,
+			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, false);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

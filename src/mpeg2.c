@@ -23,25 +23,26 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "mpeg2.h"
 #include "context.h"
 #include "sunxi_cedrus.h"
-#include "mpeg2.h"
 #include "surface.h"
 
 #include <assert.h>
 #include <string.h>
 
-#include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 
 #include <linux/videodev2.h>
 
 #include "v4l2.h"
 
 int mpeg2_set_controls(struct cedrus_data *driver_data,
-	struct object_surface *surface_object)
+		       struct object_surface *surface_object)
 {
-	VAPictureParameterBufferMPEG2 *parameters = &surface_object->params.mpeg2.picture;
+	VAPictureParameterBufferMPEG2 *parameters =
+		&surface_object->params.mpeg2.picture;
 	struct v4l2_ctrl_mpeg2_slice_params slice_params;
 	struct object_surface *forward_reference_surface;
 	struct object_surface *backward_reference_surface;
@@ -61,28 +62,45 @@ int mpeg2_set_controls(struct cedrus_data *driver_data,
 	slice_params.f_code[1][0] = (parameters->f_code >> 4) & 0x0f;
 	slice_params.f_code[1][1] = (parameters->f_code >> 0) & 0x0f;
 
-	slice_params.intra_dc_precision = parameters->picture_coding_extension.bits.intra_dc_precision;
-	slice_params.picture_structure = parameters->picture_coding_extension.bits.picture_structure;
-	slice_params.top_field_first = parameters->picture_coding_extension.bits.top_field_first;
-	slice_params.frame_pred_frame_dct = parameters->picture_coding_extension.bits.frame_pred_frame_dct;
-	slice_params.concealment_motion_vectors = parameters->picture_coding_extension.bits.concealment_motion_vectors;
-	slice_params.q_scale_type = parameters->picture_coding_extension.bits.q_scale_type;
-	slice_params.intra_vlc_format = parameters->picture_coding_extension.bits.intra_vlc_format;
-	slice_params.alternate_scan = parameters->picture_coding_extension.bits.alternate_scan;
+	slice_params.intra_dc_precision =
+		parameters->picture_coding_extension.bits.intra_dc_precision;
+	slice_params.picture_structure =
+		parameters->picture_coding_extension.bits.picture_structure;
+	slice_params.top_field_first =
+		parameters->picture_coding_extension.bits.top_field_first;
+	slice_params.frame_pred_frame_dct =
+		parameters->picture_coding_extension.bits.frame_pred_frame_dct;
+	slice_params.concealment_motion_vectors =
+		parameters->picture_coding_extension.bits
+			.concealment_motion_vectors;
+	slice_params.q_scale_type =
+		parameters->picture_coding_extension.bits.q_scale_type;
+	slice_params.intra_vlc_format =
+		parameters->picture_coding_extension.bits.intra_vlc_format;
+	slice_params.alternate_scan =
+		parameters->picture_coding_extension.bits.alternate_scan;
 
-	forward_reference_surface = SURFACE(driver_data, parameters->forward_reference_picture);
+	forward_reference_surface =
+		SURFACE(driver_data, parameters->forward_reference_picture);
 	if (forward_reference_surface != NULL)
-		slice_params.forward_ref_index = forward_reference_surface->destination_index;
+		slice_params.forward_ref_index =
+			forward_reference_surface->destination_index;
 	else
-		slice_params.forward_ref_index = surface_object->destination_index;
+		slice_params.forward_ref_index =
+			surface_object->destination_index;
 
-	backward_reference_surface = SURFACE(driver_data, parameters->backward_reference_picture);
+	backward_reference_surface =
+		SURFACE(driver_data, parameters->backward_reference_picture);
 	if (backward_reference_surface != NULL)
-		slice_params.backward_ref_index = backward_reference_surface->destination_index;
+		slice_params.backward_ref_index =
+			backward_reference_surface->destination_index;
 	else
-		slice_params.backward_ref_index = surface_object->destination_index;
+		slice_params.backward_ref_index =
+			surface_object->destination_index;
 
-	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd, V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS, &slice_params, sizeof(slice_params));
+	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd,
+			      V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS,
+			      &slice_params, sizeof(slice_params));
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

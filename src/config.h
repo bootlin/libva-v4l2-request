@@ -31,7 +31,8 @@
 #include "object_heap.h"
 #include "sunxi_cedrus.h"
 
-#define CONFIG(data, id)  ((struct object_config *)  object_heap_lookup(&(data)->config_heap,  id))
+#define CONFIG(data, id)                                                       \
+	((struct object_config *)object_heap_lookup(&(data)->config_heap, id))
 #define CONFIG_ID_OFFSET		0x01000000
 
 struct object_config {
@@ -44,25 +45,37 @@ struct object_config {
 };
 
 VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
-	VAEntrypoint entrypoint, VAConfigAttrib *attributes,
-	int attributes_count, VAConfigID *config_id);
+				 VAEntrypoint entrypoint,
+				 VAConfigAttrib *attributes,
+				 int attributes_count, VAConfigID *config_id);
 VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
-	VAConfigID config_id);
+				  VAConfigID config_id);
 VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
-	VAProfile *profiles, int *profiles_count);
+					VAProfile *profiles,
+					int *profiles_count);
 VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
-	VAProfile profile, VAEntrypoint *entrypoints, int *entrypoints_count);
+					   VAProfile profile,
+					   VAEntrypoint *entrypoints,
+					   int *entrypoints_count);
 VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
-	VAConfigID config_id, VAProfile *profile, VAEntrypoint *entrypoint,
-	VAConfigAttrib *attributes, int *attributes_count);
+					  VAConfigID config_id,
+					  VAProfile *profile,
+					  VAEntrypoint *entrypoint,
+					  VAConfigAttrib *attributes,
+					  int *attributes_count);
 VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
-	VAProfile profile, VAEntrypoint entrypoint, VAConfigAttrib *attributes,
-	int attributes_count);
+					VAProfile profile,
+					VAEntrypoint entrypoint,
+					VAConfigAttrib *attributes,
+					int attributes_count);
 VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
-	VADisplayAttribute *attributes, int *attributes_count);
+					   VADisplayAttribute *attributes,
+					   int *attributes_count);
 VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
-	VADisplayAttribute *attributes, int attributes_count);
+					 VADisplayAttribute *attributes,
+					 int attributes_count);
 VAStatus SunxiCedrusSetDisplayAttributes(VADriverContextP context,
-	VADisplayAttribute *attributes, int attributes_count);
+					 VADisplayAttribute *attributes,
+					 int attributes_count);
 
 #endif

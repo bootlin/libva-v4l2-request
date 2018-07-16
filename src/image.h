@@ -30,7 +30,9 @@
 
 #include "object_heap.h"
 
-#define IMAGE(id)   ((struct object_image *)   object_heap_lookup(&driver_data->image_heap,   id))
+#define IMAGE(id)                                                              \
+	((struct object_image *)object_heap_lookup(&driver_data->image_heap,   \
+						   id))
 #define IMAGE_ID_OFFSET			0x10000000
 
 struct object_image {
@@ -39,20 +41,22 @@ struct object_image {
 };
 
 VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
-	int width, int height, VAImage *image);
+				int width, int height, VAImage *image);
 VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id);
 VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
-	VASurfaceID surface_id, VAImage *image);
+				VASurfaceID surface_id, VAImage *image);
 VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
-	VAImageFormat *formats, int *formats_count);
+				      VAImageFormat *formats,
+				      int *formats_count);
 VAStatus SunxiCedrusSetImagePalette(VADriverContextP context,
-	VAImageID image_id, unsigned char *palette);
+				    VAImageID image_id, unsigned char *palette);
 VAStatus SunxiCedrusGetImage(VADriverContextP context, VASurfaceID surface_id,
-	int x, int y, unsigned int width, unsigned int height,
-	VAImageID image_id);
+			     int x, int y, unsigned int width,
+			     unsigned int height, VAImageID image_id);
 VAStatus SunxiCedrusPutImage(VADriverContextP context, VASurfaceID surface_id,
-	VAImageID image, int src_x, int src_y, unsigned int src_width,
-	unsigned int src_height, int dst_x, int dst_y, unsigned int dst_width,
-	unsigned int dst_height);
+			     VAImageID image, int src_x, int src_y,
+			     unsigned int src_width, unsigned int src_height,
+			     int dst_x, int dst_y, unsigned int dst_width,
+			     unsigned int dst_height);
 
 #endif

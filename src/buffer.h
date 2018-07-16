@@ -31,7 +31,8 @@
 #include "object_heap.h"
 #include "sunxi_cedrus.h"
 
-#define BUFFER(data, id)  ((struct object_buffer *)  object_heap_lookup(&(data)->buffer_heap,  id))
+#define BUFFER(data, id)                                                       \
+	((struct object_buffer *)object_heap_lookup(&(data)->buffer_heap, id))
 #define BUFFER_ID_OFFSET		0x08000000
 
 struct object_buffer {
@@ -46,18 +47,21 @@ struct object_buffer {
 };
 
 VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
-	VAContextID context_id, VABufferType type, unsigned int size,
-	unsigned int count, void *data, VABufferID *buffer_id);
+				 VAContextID context_id, VABufferType type,
+				 unsigned int size, unsigned int count,
+				 void *data, VABufferID *buffer_id);
 void sunxi_cedrus_destroy_buffer(struct cedrus_data *driver_data,
-	struct object_buffer *obj_buffer);
+				 struct object_buffer *obj_buffer);
 VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
-	VABufferID buffer_id);
+				  VABufferID buffer_id);
 VAStatus SunxiCedrusMapBuffer(VADriverContextP context, VABufferID buffer_id,
-	void **data_map);
+			      void **data_map);
 VAStatus SunxiCedrusUnmapBuffer(VADriverContextP context, VABufferID buffer_id);
 VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
-	VABufferID buffer_id, unsigned int count);
+					 VABufferID buffer_id,
+					 unsigned int count);
 VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,
-	VABufferType *type, unsigned int *size, unsigned int *count);
+			       VABufferType *type, unsigned int *size,
+			       unsigned int *count);
 
 #endif

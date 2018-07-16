@@ -30,7 +30,6 @@
 struct object_surface;
 struct cedrus_data;
 
-int h264_set_controls(struct cedrus_data *data,
-		      struct object_surface *surface);
+int h264_set_controls(struct cedrus_data *data, struct object_surface *surface);
 
 #endif

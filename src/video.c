@@ -22,17 +22,17 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
 #include <errno.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 
-#include <linux/videodev2.h>
 #include <drm_fourcc.h>
+#include <linux/videodev2.h>
 
-#include "video.h"
 #include "utils.h"
+#include "video.h"
 
 static inline unsigned int video_v4l2_format(bool tiled_format)
 {

@@ -28,9 +28,9 @@
 
 #include <stdbool.h>
 
-#include <va/va.h>
-#include "object_heap.h"
 #include "context.h"
+#include "object_heap.h"
+#include <va/va.h>
 
 #include <linux/videodev2.h>
 
