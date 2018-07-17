@@ -161,6 +161,7 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 
 		memset(&surface_object->params, 0,
 		       sizeof(surface_object->params));
+		surface_object->slices_count = 0;
 		surface_object->slices_size = 0;
 
 		surface_object->request_fd = -1;

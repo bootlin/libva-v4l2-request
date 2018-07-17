@@ -65,6 +65,7 @@ static VAStatus codec_store_buffer(struct cedrus_data *driver_data,
 		       buffer_object->size * buffer_object->count);
 		surface_object->slices_size +=
 			buffer_object->size * buffer_object->count;
+		surface_object->slices_count++;
 		break;
 
 	case VAPictureParameterBufferType:

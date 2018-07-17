@@ -59,6 +59,7 @@ struct object_surface {
 	unsigned int destination_buffers_count;
 
 	unsigned int slices_size;
+	unsigned int slices_count;
 
 	union {
 		struct {

@@ -207,6 +207,7 @@ static void h264_fill_dpb(struct cedrus_data *data,
 
 static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
 				    struct object_context *context,
+				    struct object_surface *surface,
 				    VAPictureParameterBufferH264 *VAPicture,
 				    struct v4l2_ctrl_h264_decode_param *decode,
 				    struct v4l2_ctrl_h264_pps *pps,
@@ -214,7 +215,7 @@ static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
 {
 	h264_fill_dpb(driver_data, context, decode);
 
-	decode->num_slices = VAPicture->num_ref_frames;
+	decode->num_slices = surface->slices_count;
 	decode->top_field_order_cnt = VAPicture->CurrPic.TopFieldOrderCnt;
 	decode->bottom_field_order_cnt = VAPicture->CurrPic.BottomFieldOrderCnt;
 
@@ -420,7 +421,7 @@ int h264_set_controls(struct cedrus_data *driver_data,
 
 	dpb_update(context, &surface->params.h264.picture);
 
-	h264_va_picture_to_v4l2(driver_data, context,
+	h264_va_picture_to_v4l2(driver_data, context, surface,
 				&surface->params.h264.picture,
 				&decode, &pps, &sps);
 	h264_va_matrix_to_v4l2(driver_data, context,
