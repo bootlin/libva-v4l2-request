@@ -1,12 +1,12 @@
 # intel-driver package version number
-m4_define([sunxi_cedrus_major_version], [1])
-m4_define([sunxi_cedrus_minor_version], [0])
-m4_define([sunxi_cedrus_micro_version], [0])
-m4_define([sunxi_cedrus_pre_version],   [0])
-m4_define([sunxi_cedrus_version],
-          [sunxi_cedrus_major_version.sunxi_cedrus_minor_version.sunxi_cedrus_micro_version])
-m4_if(sunxi_cedrus_pre_version, [0], [], [
-m4_append([sunxi_cedrus_version], sunxi_cedrus_pre_version, [.pre])
+m4_define([v4l2_request_major_version], [1])
+m4_define([v4l2_request_minor_version], [0])
+m4_define([v4l2_request_micro_version], [0])
+m4_define([v4l2_request_pre_version],   [0])
+m4_define([v4l2_request_version],
+          [v4l2_request_major_version.v4l2_request_minor_version.v4l2_request_micro_version])
+m4_if(v4l2_request_pre_version, [0], [], [
+m4_append([v4l2_request_version], v4l2_request_pre_version, [.pre])
 ])
 
 # libva minimum version requirement
@@ -17,23 +17,23 @@ m4_define([va_api_version], [0.34.0])
 m4_define([libdrm_version], [2.4.45])
 
 AC_PREREQ([2.60])
-AC_INIT([liva_wrapper], [sunxi_cedrus_version],
-	[florent.revest@free-electrons.com], [sunxi_cedrus])
+AC_INIT([liva_wrapper], [v4l2_request_version],
+	[florent.revest@free-electrons.com], [v4l2_request])
 AC_CONFIG_SRCDIR([Makefile.am])
 AM_INIT_AUTOMAKE([1.9 tar-ustar])
 
 AC_CONFIG_HEADERS([src/autoconfig.h])
 
-SUNXI_CEDRUS_MAJOR_VERSION=sunxi_cedrus_major_version
-SUNXI_CEDRUS_MINOR_VERSION=sunxi_cedrus_minor_version
-SUNXI_CEDRUS_MICRO_VERSION=sunxi_cedrus_micro_version
-AC_DEFINE([SUNXI_CEDRUS_MAJOR_VERSION], [sunxi_cedrus_major_version], [Major version of the driver])
-AC_DEFINE([SUNXI_CEDRUS_MINOR_VERSION], [sunxi_cedrus_minor_version], [Minor version of the driver])
-AC_DEFINE([SUNXI_CEDRUS_MICRO_VERSION], [sunxi_cedrus_micro_version], [Micro version of the driver])
-AC_DEFINE([SUNXI_CEDRUS_PRE_VERSION], [sunxi_cedrus_pre_version], [Preversion of the driver])
+V4L2_REQUEST_MAJOR_VERSION=v4l2_request_major_version
+V4L2_REQUEST_MINOR_VERSION=v4l2_request_minor_version
+V4L2_REQUEST_MICRO_VERSION=v4l2_request_micro_version
+AC_DEFINE([V4L2_REQUEST_MAJOR_VERSION], [v4l2_request_major_version], [Major version of the driver])
+AC_DEFINE([V4L2_REQUEST_MINOR_VERSION], [v4l2_request_minor_version], [Minor version of the driver])
+AC_DEFINE([V4L2_REQUEST_MICRO_VERSION], [v4l2_request_micro_version], [Micro version of the driver])
+AC_DEFINE([V4L2_REQUEST_PRE_VERSION], [v4l2_request_pre_version], [Preversion of the driver])
 
-SUNXI_CEDRUS_LT_LDFLAGS="-avoid-version"
-AC_SUBST(SUNXI_CEDRUS_LT_LDFLAGS)
+V4L2_REQUEST_LT_LDFLAGS="-avoid-version"
+AC_SUBST(V4L2_REQUEST_LT_LDFLAGS)
 
 dnl Use pretty build output with automake >= 1.11
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])], [

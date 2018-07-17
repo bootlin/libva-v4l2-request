@@ -11,10 +11,10 @@ The Sunxi-Cedrus libVA backend currently only supports MPEG2 video decoding.
 
 ## Instructions
 
-In order to use the Sunxi-Cedrus libVA backend, the `sunxi_cedrus` driver has to
+In order to use the Sunxi-Cedrus libVA backend, the `v4l2_request` driver has to
 be specified through the `LIBVA_DRIVER_NAME` environment variable, as such:
 
-	export LIBVA_DRIVER_NAME=sunxi_cedrus
+	export LIBVA_DRIVER_NAME=v4l2_request
 
 A media player that supports VAAPI (such as VLC) can then be used to decode a
 video in a supported format:
