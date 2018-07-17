@@ -294,14 +294,34 @@ static void h264_va_matrix_to_v4l2(struct cedrus_data *driver_data,
 	       sizeof(v4l2_matrix->scaling_list_8x8[3]));
 }
 
+static void h264_copy_pred_table(struct v4l2_h264_weight_factors *factors,
+				 unsigned int num_refs,
+				 int16_t luma_weight[32],
+				 int16_t luma_offset[32],
+				 int16_t chroma_weight[32][2],
+				 int16_t chroma_offset[32][2])
+{
+	unsigned int i;
+
+	for (i = 0; i < num_refs; i++) {
+		unsigned int j;
+
+		factors->luma_weight[i] = luma_weight[i];
+		factors->luma_offset[i] = luma_offset[i];
+
+		for (j = 0; j < 2; j++) {
+			factors->chroma_weight[i][j] = chroma_weight[i][j];
+			factors->chroma_offset[i][j] = chroma_offset[i][j];
+		}
+	}
+}
+
 static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
 				  struct object_context *context,
 				  VASliceParameterBufferH264 *VASlice,
 				  VAPictureParameterBufferH264 *VAPicture,
 				  struct v4l2_ctrl_h264_slice_param *slice)
 {
-	struct v4l2_h264_weight_factors *factors;
-
 	slice->size = VASlice->slice_data_size;
 	slice->header_bit_size = VASlice->slice_data_bit_offset;
 	slice->first_mb_in_slice = VASlice->first_mb_in_slice;
@@ -360,25 +380,22 @@ static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
 	slice->pred_weight_table.luma_log2_weight_denom =
 		VASlice->luma_log2_weight_denom;
 
-	factors = &slice->pred_weight_table.weight_factors[0];
-	memcpy(&factors->chroma_weight, &VASlice->chroma_weight_l0,
-	       sizeof(factors->chroma_weight));
-	memcpy(&factors->chroma_offset, &VASlice->chroma_offset_l0,
-	       sizeof(factors->chroma_offset));
-	memcpy(&factors->luma_weight, &VASlice->luma_weight_l0,
-	       sizeof(factors->luma_weight));
-	memcpy(&factors->luma_offset, &VASlice->luma_offset_l0,
-	       sizeof(factors->luma_offset));
+	if (((VASlice->slice_type % 5) == H264_SLICE_P) ||
+	    ((VASlice->slice_type % 5) == H264_SLICE_B))
+		h264_copy_pred_table(&slice->pred_weight_table.weight_factors[0],
+				     slice->num_ref_idx_l0_active_minus1 + 1,
+				     VASlice->luma_weight_l0,
+				     VASlice->luma_offset_l0,
+				     VASlice->chroma_weight_l0,
+				     VASlice->chroma_offset_l0);
 
-	factors = &slice->pred_weight_table.weight_factors[1];
-	memcpy(&factors->chroma_weight, &VASlice->chroma_weight_l1,
-	       sizeof(factors->chroma_weight));
-	memcpy(&factors->chroma_offset, &VASlice->chroma_offset_l1,
-	       sizeof(factors->chroma_offset));
-	memcpy(&factors->luma_weight, &VASlice->luma_weight_l1,
-	       sizeof(factors->luma_weight));
-	memcpy(&factors->luma_offset, &VASlice->luma_offset_l1,
-	       sizeof(factors->luma_offset));
+	if ((VASlice->slice_type % 5) == H264_SLICE_B)
+		h264_copy_pred_table(&slice->pred_weight_table.weight_factors[1],
+				     slice->num_ref_idx_l1_active_minus1 + 1,
+				     VASlice->luma_weight_l1,
+				     VASlice->luma_offset_l1,
+				     VASlice->chroma_weight_l1,
+				     VASlice->chroma_offset_l1);
 }
 
 int h264_set_controls(struct cedrus_data *driver_data,
