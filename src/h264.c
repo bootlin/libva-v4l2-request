@@ -221,6 +221,7 @@ static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
 	pps->weighted_bipred_idc =
 		VAPicture->pic_fields.bits.weighted_bipred_idc;
 	pps->pic_init_qs_minus26 = VAPicture->pic_init_qs_minus26;
+	pps->pic_init_qp_minus26 = VAPicture->pic_init_qp_minus26;
 	pps->chroma_qp_index_offset = VAPicture->chroma_qp_index_offset;
 	pps->second_chroma_qp_index_offset =
 		VAPicture->second_chroma_qp_index_offset;
