@@ -1,18 +1,21 @@
-# Sunxi-Cedrus libVA Backend
+# v4l2-request libVA Backend
 
 ## About
 
-This libVA backend is designed to work with the Sunxi-Cedrus VPU kernel driver,
-that supports the Video Engine found in most Allwinner SoCs.
+This libVA backend is designed to work with the Linux Video4Linux2
+Request API that is used by a number of video codecs drivers,
+including the Video Engine found in most Allwinner SoCs.
 
 ## Status
 
-The Sunxi-Cedrus libVA backend currently only supports MPEG2 video decoding.
+The v4l2-request libVA backend currently only supports MPEG2 video
+decoding.
 
 ## Instructions
 
-In order to use the Sunxi-Cedrus libVA backend, the `v4l2_request` driver has to
-be specified through the `LIBVA_DRIVER_NAME` environment variable, as such:
+In order to use this libVA backend, the `v4l2_request` driver has to
+be specified through the `LIBVA_DRIVER_NAME` environment variable, as
+such:
 
 	export LIBVA_DRIVER_NAME=v4l2_request
 
