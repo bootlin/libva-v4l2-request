@@ -46,8 +46,7 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 			      VASurfaceID *surfaces_ids, int surfaces_count,
 			      VAContextID *context_id)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
 	struct object_context *context_object = NULL;
@@ -195,8 +194,7 @@ complete:
 
 VAStatus RequestDestroyContext(VADriverContextP context, VAContextID context_id)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_context *context_object;
 	int rc;
 

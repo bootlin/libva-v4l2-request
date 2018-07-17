@@ -46,8 +46,7 @@ VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
 			       int format, int surfaces_count,
 			       VASurfaceID *surfaces_ids)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
 	struct video_format *video_format;
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
@@ -123,8 +122,8 @@ VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
 				surface_object->destination_offsets[j] =
 					j > 0 ? destination_sizes[j - 1] : 0;
 				surface_object->destination_data[j] =
-					(void *)((unsigned char *)surface_object->destination_map[0] +
-						 surface_object->destination_offsets[j]);
+					((unsigned char *)surface_object->destination_map[0] +
+					 surface_object->destination_offsets[j]);
 				surface_object->destination_sizes[j] =
 					destination_sizes[j];
 				surface_object->destination_bytesperlines[j] =
@@ -175,8 +174,7 @@ VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
 VAStatus RequestDestroySurfaces(VADriverContextP context,
 				VASurfaceID *surfaces_ids, int surfaces_count)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
 	unsigned int i, j;
 
@@ -211,8 +209,7 @@ VAStatus RequestDestroySurfaces(VADriverContextP context,
 
 VAStatus RequestSyncSurface(VADriverContextP context, VASurfaceID surface_id)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
 	VAStatus status;
 	int request_fd = -1;
@@ -289,8 +286,7 @@ VAStatus RequestQuerySurfaceStatus(VADriverContextP context,
 				   VASurfaceID surface_id,
 				   VASurfaceStatus *status)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
 
 	surface_object = SURFACE(driver_data, surface_id);

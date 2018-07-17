@@ -38,8 +38,7 @@
 VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 			    int width, int height, VAImage *image)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
 	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
 	unsigned int destination_planes_count;
@@ -99,8 +98,7 @@ VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 
 VAStatus RequestDestroyImage(VADriverContextP context, VAImageID image_id)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_image *image_object;
 	VAStatus status;
 
@@ -121,8 +119,7 @@ VAStatus RequestDestroyImage(VADriverContextP context, VAImageID image_id)
 VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
 			    VAImage *image)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
 	struct object_buffer *buffer_object;
 	unsigned int i;

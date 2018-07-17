@@ -166,8 +166,7 @@ static VAStatus codec_set_controls(struct request_data *driver_data,
 VAStatus RequestBeginPicture(VADriverContextP context, VAContextID context_id,
 			     VASurfaceID surface_id)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_context *context_object;
 	struct object_surface *surface_object;
 
@@ -191,8 +190,7 @@ VAStatus RequestBeginPicture(VADriverContextP context, VAContextID context_id,
 VAStatus RequestRenderPicture(VADriverContextP context, VAContextID context_id,
 			      VABufferID *buffers_ids, int buffers_count)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
@@ -229,8 +227,7 @@ VAStatus RequestRenderPicture(VADriverContextP context, VAContextID context_id,
 
 VAStatus RequestEndPicture(VADriverContextP context, VAContextID context_id)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;

@@ -125,7 +125,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	driver_data = malloc(sizeof(*driver_data));
 	memset(driver_data, 0, sizeof(*driver_data));
 
-	context->pDriverData = (void *)driver_data;
+	context->pDriverData = driver_data;
 
 	object_heap_init(&driver_data->config_heap,
 			 sizeof(struct object_config), CONFIG_ID_OFFSET);
@@ -183,8 +183,7 @@ complete:
 
 VAStatus RequestTerminate(VADriverContextP context)
 {
-	struct request_data *driver_data =
-		(struct request_data *)context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_buffer *buffer_object;
 	struct object_image *image_object;
 	struct object_surface *surface_object;
