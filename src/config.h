@@ -29,6 +29,7 @@
 #include <va/va_backend.h>
 
 #include "object_heap.h"
+#include "sunxi_cedrus.h"
 
 #define CONFIG(data, id)  ((struct object_config *)  object_heap_lookup(&(data)->config_heap,  id))
 #define CONFIG_ID_OFFSET		0x01000000
