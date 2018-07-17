@@ -138,7 +138,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	object_heap_init(&driver_data->image_heap, sizeof(struct object_image),
 			 IMAGE_ID_OFFSET);
 
-	video_path = getenv("LIBVA_CEDRUS_VIDEO_PATH");
+	video_path = getenv("LIBVA_V4L2_REQUEST_VIDEO_PATH");
 	if (video_path == NULL)
 		video_path = "/dev/video0";
 
@@ -154,7 +154,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 		goto error;
 	}
 
-	media_path = getenv("LIBVA_CEDRUS_MEDIA_PATH");
+	media_path = getenv("LIBVA_V4L2_REQUEST_MEDIA_PATH");
 	if (media_path == NULL)
 		media_path = "/dev/media0";
 
