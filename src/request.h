@@ -34,7 +34,7 @@
 
 #include <linux/videodev2.h>
 
-#define V4L2_REQUEST_STR_VENDOR			"Sunxi-Cedrus"
+#define V4L2_REQUEST_STR_VENDOR			"v4l2-request"
 
 #define V4L2_REQUEST_MAX_PROFILES		11
 #define V4L2_REQUEST_MAX_ENTRYPOINTS		5
