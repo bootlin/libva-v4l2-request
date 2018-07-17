@@ -42,9 +42,9 @@
 #include "v4l2.h"
 #include "video.h"
 
-VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
-				   int height, int format, int surfaces_count,
-				   VASurfaceID *surfaces_ids)
+VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
+			       int format, int surfaces_count,
+			       VASurfaceID *surfaces_ids)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -172,9 +172,8 @@ VAStatus SunxiCedrusCreateSurfaces(VADriverContextP context, int width,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
-				    VASurfaceID *surfaces_ids,
-				    int surfaces_count)
+VAStatus RequestDestroySurfaces(VADriverContextP context,
+				VASurfaceID *surfaces_ids, int surfaces_count)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -210,8 +209,7 @@ VAStatus SunxiCedrusDestroySurfaces(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusSyncSurface(VADriverContextP context,
-				VASurfaceID surface_id)
+VAStatus RequestSyncSurface(VADriverContextP context, VASurfaceID surface_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -287,9 +285,9 @@ complete:
 	return status;
 }
 
-VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
-				       VASurfaceID surface_id,
-				       VASurfaceStatus *status)
+VAStatus RequestQuerySurfaceStatus(VADriverContextP context,
+				   VASurfaceID surface_id,
+				   VASurfaceStatus *status)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -304,33 +302,29 @@ VAStatus SunxiCedrusQuerySurfaceStatus(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusPutSurface(VADriverContextP context, VASurfaceID surface_id,
-			       void *draw, short src_x, short src_y,
-			       unsigned short src_width,
-			       unsigned short src_height, short dst_x,
-			       short dst_y, unsigned short dst_width,
-			       unsigned short dst_height,
-			       VARectangle *cliprects,
-			       unsigned int cliprects_count, unsigned int flags)
+VAStatus RequestPutSurface(VADriverContextP context, VASurfaceID surface_id,
+			   void *draw, short src_x, short src_y,
+			   unsigned short src_width, unsigned short src_height,
+			   short dst_x, short dst_y, unsigned short dst_width,
+			   unsigned short dst_height, VARectangle *cliprects,
+			   unsigned int cliprects_count, unsigned int flags)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
 
-VAStatus SunxiCedrusLockSurface(VADriverContextP context,
-				VASurfaceID surface_id, unsigned int *fourcc,
-				unsigned int *luma_stride,
-				unsigned int *chroma_u_stride,
-				unsigned int *chroma_v_stride,
-				unsigned int *luma_offset,
-				unsigned int *chroma_u_offset,
-				unsigned int *chroma_v_offset,
-				unsigned int *buffer_name, void **buffer)
+VAStatus RequestLockSurface(VADriverContextP context, VASurfaceID surface_id,
+			    unsigned int *fourcc, unsigned int *luma_stride,
+			    unsigned int *chroma_u_stride,
+			    unsigned int *chroma_v_stride,
+			    unsigned int *luma_offset,
+			    unsigned int *chroma_u_offset,
+			    unsigned int *chroma_v_offset,
+			    unsigned int *buffer_name, void **buffer)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
 
-VAStatus SunxiCedrusUnlockSurface(VADriverContextP context,
-				  VASurfaceID surface_id)
+VAStatus RequestUnlockSurface(VADriverContextP context, VASurfaceID surface_id)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }

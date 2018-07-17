@@ -77,51 +77,50 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	context->max_display_attributes = SUNXI_CEDRUS_MAX_DISPLAY_ATTRIBUTES;
 	context->str_vendor = SUNXI_CEDRUS_STR_VENDOR;
 
-	vtable->vaTerminate = SunxiCedrusTerminate;
-	vtable->vaQueryConfigEntrypoints = SunxiCedrusQueryConfigEntrypoints;
-	vtable->vaQueryConfigProfiles = SunxiCedrusQueryConfigProfiles;
-	vtable->vaQueryConfigEntrypoints = SunxiCedrusQueryConfigEntrypoints;
-	vtable->vaQueryConfigAttributes = SunxiCedrusQueryConfigAttributes;
-	vtable->vaCreateConfig = SunxiCedrusCreateConfig;
-	vtable->vaDestroyConfig = SunxiCedrusDestroyConfig;
-	vtable->vaGetConfigAttributes = SunxiCedrusGetConfigAttributes;
-	vtable->vaCreateSurfaces = SunxiCedrusCreateSurfaces;
-	vtable->vaDestroySurfaces = SunxiCedrusDestroySurfaces;
-	vtable->vaCreateContext = SunxiCedrusCreateContext;
-	vtable->vaDestroyContext = SunxiCedrusDestroyContext;
-	vtable->vaCreateBuffer = SunxiCedrusCreateBuffer;
-	vtable->vaBufferSetNumElements = SunxiCedrusBufferSetNumElements;
-	vtable->vaMapBuffer = SunxiCedrusMapBuffer;
-	vtable->vaUnmapBuffer = SunxiCedrusUnmapBuffer;
-	vtable->vaDestroyBuffer = SunxiCedrusDestroyBuffer;
-	vtable->vaBeginPicture = SunxiCedrusBeginPicture;
-	vtable->vaRenderPicture = SunxiCedrusRenderPicture;
-	vtable->vaEndPicture = SunxiCedrusEndPicture;
-	vtable->vaSyncSurface = SunxiCedrusSyncSurface;
-	vtable->vaQuerySurfaceStatus = SunxiCedrusQuerySurfaceStatus;
-	vtable->vaPutSurface = SunxiCedrusPutSurface;
-	vtable->vaQueryImageFormats = SunxiCedrusQueryImageFormats;
-	vtable->vaCreateImage = SunxiCedrusCreateImage;
-	vtable->vaDeriveImage = SunxiCedrusDeriveImage;
-	vtable->vaDestroyImage = SunxiCedrusDestroyImage;
-	vtable->vaSetImagePalette = SunxiCedrusSetImagePalette;
-	vtable->vaGetImage = SunxiCedrusGetImage;
-	vtable->vaPutImage = SunxiCedrusPutImage;
-	vtable->vaQuerySubpictureFormats = SunxiCedrusQuerySubpictureFormats;
-	vtable->vaCreateSubpicture = SunxiCedrusCreateSubpicture;
-	vtable->vaDestroySubpicture = SunxiCedrusDestroySubpicture;
-	vtable->vaSetSubpictureImage = SunxiCedrusSetSubpictureImage;
-	vtable->vaSetSubpictureChromakey = SunxiCedrusSetSubpictureChromakey;
-	vtable->vaSetSubpictureGlobalAlpha =
-		SunxiCedrusSetSubpictureGlobalAlpha;
-	vtable->vaAssociateSubpicture = SunxiCedrusAssociateSubpicture;
-	vtable->vaDeassociateSubpicture = SunxiCedrusDeassociateSubpicture;
-	vtable->vaQueryDisplayAttributes = SunxiCedrusQueryDisplayAttributes;
-	vtable->vaGetDisplayAttributes = SunxiCedrusGetDisplayAttributes;
-	vtable->vaSetDisplayAttributes = SunxiCedrusSetDisplayAttributes;
-	vtable->vaLockSurface = SunxiCedrusLockSurface;
-	vtable->vaUnlockSurface = SunxiCedrusUnlockSurface;
-	vtable->vaBufferInfo = SunxiCedrusBufferInfo;
+	vtable->vaTerminate = RequestTerminate;
+	vtable->vaQueryConfigEntrypoints = RequestQueryConfigEntrypoints;
+	vtable->vaQueryConfigProfiles = RequestQueryConfigProfiles;
+	vtable->vaQueryConfigEntrypoints = RequestQueryConfigEntrypoints;
+	vtable->vaQueryConfigAttributes = RequestQueryConfigAttributes;
+	vtable->vaCreateConfig = RequestCreateConfig;
+	vtable->vaDestroyConfig = RequestDestroyConfig;
+	vtable->vaGetConfigAttributes = RequestGetConfigAttributes;
+	vtable->vaCreateSurfaces = RequestCreateSurfaces;
+	vtable->vaDestroySurfaces = RequestDestroySurfaces;
+	vtable->vaCreateContext = RequestCreateContext;
+	vtable->vaDestroyContext = RequestDestroyContext;
+	vtable->vaCreateBuffer = RequestCreateBuffer;
+	vtable->vaBufferSetNumElements = RequestBufferSetNumElements;
+	vtable->vaMapBuffer = RequestMapBuffer;
+	vtable->vaUnmapBuffer = RequestUnmapBuffer;
+	vtable->vaDestroyBuffer = RequestDestroyBuffer;
+	vtable->vaBeginPicture = RequestBeginPicture;
+	vtable->vaRenderPicture = RequestRenderPicture;
+	vtable->vaEndPicture = RequestEndPicture;
+	vtable->vaSyncSurface = RequestSyncSurface;
+	vtable->vaQuerySurfaceStatus = RequestQuerySurfaceStatus;
+	vtable->vaPutSurface = RequestPutSurface;
+	vtable->vaQueryImageFormats = RequestQueryImageFormats;
+	vtable->vaCreateImage = RequestCreateImage;
+	vtable->vaDeriveImage = RequestDeriveImage;
+	vtable->vaDestroyImage = RequestDestroyImage;
+	vtable->vaSetImagePalette = RequestSetImagePalette;
+	vtable->vaGetImage = RequestGetImage;
+	vtable->vaPutImage = RequestPutImage;
+	vtable->vaQuerySubpictureFormats = RequestQuerySubpictureFormats;
+	vtable->vaCreateSubpicture = RequestCreateSubpicture;
+	vtable->vaDestroySubpicture = RequestDestroySubpicture;
+	vtable->vaSetSubpictureImage = RequestSetSubpictureImage;
+	vtable->vaSetSubpictureChromakey = RequestSetSubpictureChromakey;
+	vtable->vaSetSubpictureGlobalAlpha = RequestSetSubpictureGlobalAlpha;
+	vtable->vaAssociateSubpicture = RequestAssociateSubpicture;
+	vtable->vaDeassociateSubpicture = RequestDeassociateSubpicture;
+	vtable->vaQueryDisplayAttributes = RequestQueryDisplayAttributes;
+	vtable->vaGetDisplayAttributes = RequestGetDisplayAttributes;
+	vtable->vaSetDisplayAttributes = RequestSetDisplayAttributes;
+	vtable->vaLockSurface = RequestLockSurface;
+	vtable->vaUnlockSurface = RequestUnlockSurface;
+	vtable->vaBufferInfo = RequestBufferInfo;
 
 	driver_data = malloc(sizeof(*driver_data));
 	memset(driver_data, 0, sizeof(*driver_data));
@@ -182,7 +181,7 @@ complete:
 	return status;
 }
 
-VAStatus SunxiCedrusTerminate(VADriverContextP context)
+VAStatus RequestTerminate(VADriverContextP context)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -201,8 +200,7 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	image_object = (struct object_image *)
 		object_heap_first(&driver_data->image_heap, &iterator);
 	while (image_object != NULL) {
-		SunxiCedrusDestroyImage(context,
-					(VAImageID)image_object->base.id);
+		RequestDestroyImage(context, (VAImageID)image_object->base.id);
 		image_object = (struct object_image *)
 			object_heap_next(&driver_data->image_heap, &iterator);
 	}
@@ -212,8 +210,8 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	buffer_object = (struct object_buffer *)
 		object_heap_first(&driver_data->buffer_heap, &iterator);
 	while (buffer_object != NULL) {
-		SunxiCedrusDestroyBuffer(context,
-					 (VABufferID)buffer_object->base.id);
+		RequestDestroyBuffer(context,
+				     (VABufferID)buffer_object->base.id);
 		buffer_object = (struct object_buffer *)
 			object_heap_next(&driver_data->buffer_heap, &iterator);
 	}
@@ -223,9 +221,8 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	surface_object = (struct object_surface *)
 		object_heap_first(&driver_data->surface_heap, &iterator);
 	while (surface_object != NULL) {
-		SunxiCedrusDestroySurfaces(context,
-					   (VASurfaceID *)&surface_object->base.id,
-					   1);
+		RequestDestroySurfaces(context,
+				      (VASurfaceID *)&surface_object->base.id, 1);
 		surface_object = (struct object_surface *)
 			object_heap_next(&driver_data->surface_heap, &iterator);
 	}
@@ -235,8 +232,8 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	context_object = (struct object_context *)
 		object_heap_first(&driver_data->context_heap, &iterator);
 	while (context_object != NULL) {
-		SunxiCedrusDestroyContext(context,
-					  (VAContextID)context_object->base.id);
+		RequestDestroyContext(context,
+				      (VAContextID)context_object->base.id);
 		context_object = (struct object_context *)
 			object_heap_next(&driver_data->context_heap, &iterator);
 	}
@@ -246,8 +243,8 @@ VAStatus SunxiCedrusTerminate(VADriverContextP context)
 	config_object = (struct object_config *)
 		object_heap_first(&driver_data->config_heap, &iterator);
 	while (config_object != NULL) {
-		SunxiCedrusDestroyConfig(context,
-					 (VAConfigID)config_object->base.id);
+		RequestDestroyConfig(context,
+				     (VAConfigID)config_object->base.id);
 		config_object = (struct object_config *)
 			object_heap_next(&driver_data->config_heap, &iterator);
 	}

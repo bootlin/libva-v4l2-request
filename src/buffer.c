@@ -39,10 +39,10 @@
 #include "utils.h"
 #include "v4l2.h"
 
-VAStatus SunxiCedrusCreateBuffer(VADriverContextP context,
-				 VAContextID context_id, VABufferType type,
-				 unsigned int size, unsigned int count,
-				 void *data, VABufferID *buffer_id)
+VAStatus RequestCreateBuffer(VADriverContextP context, VAContextID context_id,
+			     VABufferType type, unsigned int size,
+			     unsigned int count, void *data,
+			     VABufferID *buffer_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -100,8 +100,7 @@ complete:
 	return status;
 }
 
-VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
-				  VABufferID buffer_id)
+VAStatus RequestDestroyBuffer(VADriverContextP context, VABufferID buffer_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -120,8 +119,8 @@ VAStatus SunxiCedrusDestroyBuffer(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusMapBuffer(VADriverContextP context, VABufferID buffer_id,
-			      void **data_map)
+VAStatus RequestMapBuffer(VADriverContextP context, VABufferID buffer_id,
+			  void **data_map)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -137,7 +136,7 @@ VAStatus SunxiCedrusMapBuffer(VADriverContextP context, VABufferID buffer_id,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
+VAStatus RequestUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -152,9 +151,8 @@ VAStatus SunxiCedrusUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
-					 VABufferID buffer_id,
-					 unsigned int count)
+VAStatus RequestBufferSetNumElements(VADriverContextP context,
+				     VABufferID buffer_id, unsigned int count)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -172,9 +170,9 @@ VAStatus SunxiCedrusBufferSetNumElements(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusBufferInfo(VADriverContextP context, VABufferID buffer_id,
-			       VABufferType *type, unsigned int *size,
-			       unsigned int *count)
+VAStatus RequestBufferInfo(VADriverContextP context, VABufferID buffer_id,
+			   VABufferType *type, unsigned int *size,
+			   unsigned int *count)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;

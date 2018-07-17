@@ -41,11 +41,10 @@
 #include "utils.h"
 #include "v4l2.h"
 
-VAStatus SunxiCedrusCreateContext(VADriverContextP context,
-				  VAConfigID config_id, int picture_width,
-				  int picture_height, int flags,
-				  VASurfaceID *surfaces_ids, int surfaces_count,
-				  VAContextID *context_id)
+VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
+			      int picture_width, int picture_height, int flags,
+			      VASurfaceID *surfaces_ids, int surfaces_count,
+			      VAContextID *context_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -194,8 +193,7 @@ complete:
 	return status;
 }
 
-VAStatus SunxiCedrusDestroyContext(VADriverContextP context,
-				   VAContextID context_id)
+VAStatus RequestDestroyContext(VADriverContextP context, VAContextID context_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;

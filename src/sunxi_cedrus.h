@@ -56,6 +56,6 @@ struct cedrus_data {
 };
 
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context);
-VAStatus SunxiCedrusTerminate(VADriverContextP context);
+VAStatus RequestTerminate(VADriverContextP context);
 
 #endif

@@ -40,23 +40,22 @@ struct object_image {
 	VABufferID buffer_id;
 };
 
-VAStatus SunxiCedrusCreateImage(VADriverContextP context, VAImageFormat *format,
-				int width, int height, VAImage *image);
-VAStatus SunxiCedrusDestroyImage(VADriverContextP context, VAImageID image_id);
-VAStatus SunxiCedrusDeriveImage(VADriverContextP context,
-				VASurfaceID surface_id, VAImage *image);
-VAStatus SunxiCedrusQueryImageFormats(VADriverContextP context,
-				      VAImageFormat *formats,
-				      int *formats_count);
-VAStatus SunxiCedrusSetImagePalette(VADriverContextP context,
-				    VAImageID image_id, unsigned char *palette);
-VAStatus SunxiCedrusGetImage(VADriverContextP context, VASurfaceID surface_id,
-			     int x, int y, unsigned int width,
-			     unsigned int height, VAImageID image_id);
-VAStatus SunxiCedrusPutImage(VADriverContextP context, VASurfaceID surface_id,
-			     VAImageID image, int src_x, int src_y,
-			     unsigned int src_width, unsigned int src_height,
-			     int dst_x, int dst_y, unsigned int dst_width,
-			     unsigned int dst_height);
+VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
+			    int width, int height, VAImage *image);
+VAStatus RequestDestroyImage(VADriverContextP context, VAImageID image_id);
+VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
+			    VAImage *image);
+VAStatus RequestQueryImageFormats(VADriverContextP context,
+				  VAImageFormat *formats, int *formats_count);
+VAStatus RequestSetImagePalette(VADriverContextP context, VAImageID image_id,
+				unsigned char *palette);
+VAStatus RequestGetImage(VADriverContextP context, VASurfaceID surface_id,
+			 int x, int y, unsigned int width, unsigned int height,
+			 VAImageID image_id);
+VAStatus RequestPutImage(VADriverContextP context, VASurfaceID surface_id,
+			 VAImageID image, int src_x, int src_y,
+			 unsigned int src_width, unsigned int src_height,
+			 int dst_x, int dst_y, unsigned int dst_width,
+			 unsigned int dst_height);
 
 #endif

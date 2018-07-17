@@ -36,10 +36,10 @@
 #include "utils.h"
 #include "v4l2.h"
 
-VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
-				 VAEntrypoint entrypoint,
-				 VAConfigAttrib *attributes,
-				 int attributes_count, VAConfigID *config_id)
+VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
+			     VAEntrypoint entrypoint,
+			     VAConfigAttrib *attributes, int attributes_count,
+			     VAConfigID *config_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -89,8 +89,7 @@ VAStatus SunxiCedrusCreateConfig(VADriverContextP context, VAProfile profile,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
-				  VAConfigID config_id)
+VAStatus RequestDestroyConfig(VADriverContextP context, VAConfigID config_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -106,9 +105,8 @@ VAStatus SunxiCedrusDestroyConfig(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
-					VAProfile *profiles,
-					int *profiles_count)
+VAStatus RequestQueryConfigProfiles(VADriverContextP context,
+				    VAProfile *profiles, int *profiles_count)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -139,10 +137,10 @@ VAStatus SunxiCedrusQueryConfigProfiles(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
-					   VAProfile profile,
-					   VAEntrypoint *entrypoints,
-					   int *entrypoints_count)
+VAStatus RequestQueryConfigEntrypoints(VADriverContextP context,
+				       VAProfile profile,
+				       VAEntrypoint *entrypoints,
+				       int *entrypoints_count)
 {
 	switch (profile) {
 	case VAProfileMPEG2Simple:
@@ -164,12 +162,11 @@ VAStatus SunxiCedrusQueryConfigEntrypoints(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
-					  VAConfigID config_id,
-					  VAProfile *profile,
-					  VAEntrypoint *entrypoint,
-					  VAConfigAttrib *attributes,
-					  int *attributes_count)
+VAStatus RequestQueryConfigAttributes(VADriverContextP context,
+				      VAConfigID config_id, VAProfile *profile,
+				      VAEntrypoint *entrypoint,
+				      VAConfigAttrib *attributes,
+				      int *attributes_count)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -197,11 +194,10 @@ VAStatus SunxiCedrusQueryConfigAttributes(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
-					VAProfile profile,
-					VAEntrypoint entrypoint,
-					VAConfigAttrib *attributes,
-					int attributes_count)
+VAStatus RequestGetConfigAttributes(VADriverContextP context, VAProfile profile,
+				    VAEntrypoint entrypoint,
+				    VAConfigAttrib *attributes,
+				    int attributes_count)
 {
 	unsigned int i;
 
@@ -219,23 +215,23 @@ VAStatus SunxiCedrusGetConfigAttributes(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusQueryDisplayAttributes(VADriverContextP context,
-					   VADisplayAttribute *attributes,
-					   int *attributes_count)
+VAStatus RequestQueryDisplayAttributes(VADriverContextP context,
+				       VADisplayAttribute *attributes,
+				       int *attributes_count)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
 
-VAStatus SunxiCedrusGetDisplayAttributes(VADriverContextP context,
-					 VADisplayAttribute *attributes,
-					 int attributes_count)
+VAStatus RequestGetDisplayAttributes(VADriverContextP context,
+				     VADisplayAttribute *attributes,
+				     int attributes_count)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
 
-VAStatus SunxiCedrusSetDisplayAttributes(VADriverContextP context,
-					 VADisplayAttribute *attributes,
-					 int attributes_count)
+VAStatus RequestSetDisplayAttributes(VADriverContextP context,
+				     VADisplayAttribute *attributes,
+				     int attributes_count)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }

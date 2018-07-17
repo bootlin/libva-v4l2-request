@@ -163,8 +163,8 @@ static VAStatus codec_set_controls(struct cedrus_data *driver_data,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
-				 VAContextID context_id, VASurfaceID surface_id)
+VAStatus RequestBeginPicture(VADriverContextP context, VAContextID context_id,
+			     VASurfaceID surface_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -180,7 +180,7 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 		return VA_STATUS_ERROR_INVALID_SURFACE;
 
 	if (surface_object->status == VASurfaceRendering)
-		SunxiCedrusSyncSurface(context, surface_id);
+		RequestSyncSurface(context, surface_id);
 
 	surface_object->status = VASurfaceRendering;
 	context_object->render_surface_id = surface_id;
@@ -188,9 +188,8 @@ VAStatus SunxiCedrusBeginPicture(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
-				  VAContextID context_id,
-				  VABufferID *buffers_ids, int buffers_count)
+VAStatus RequestRenderPicture(VADriverContextP context, VAContextID context_id,
+			      VABufferID *buffers_ids, int buffers_count)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -228,7 +227,7 @@ VAStatus SunxiCedrusRenderPicture(VADriverContextP context,
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus SunxiCedrusEndPicture(VADriverContextP context, VAContextID context_id)
+VAStatus RequestEndPicture(VADriverContextP context, VAContextID context_id)
 {
 	struct cedrus_data *driver_data =
 		(struct cedrus_data *)context->pDriverData;
@@ -282,8 +281,7 @@ VAStatus SunxiCedrusEndPicture(VADriverContextP context, VAContextID context_id)
 
 	surface_object->slices_size = 0;
 
-	status = SunxiCedrusSyncSurface(context,
-					context_object->render_surface_id);
+	status = RequestSyncSurface(context, context_object->render_surface_id);
 	if (status != VA_STATUS_SUCCESS)
 		return status;
 
