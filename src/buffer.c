@@ -44,8 +44,8 @@ VAStatus RequestCreateBuffer(VADriverContextP context, VAContextID context_id,
 			     unsigned int count, void *data,
 			     VABufferID *buffer_id)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_buffer *buffer_object = NULL;
 	void *buffer_data;
 	VAStatus status;
@@ -102,8 +102,8 @@ complete:
 
 VAStatus RequestDestroyBuffer(VADriverContextP context, VABufferID buffer_id)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -122,8 +122,8 @@ VAStatus RequestDestroyBuffer(VADriverContextP context, VABufferID buffer_id)
 VAStatus RequestMapBuffer(VADriverContextP context, VABufferID buffer_id,
 			  void **data_map)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -138,8 +138,8 @@ VAStatus RequestMapBuffer(VADriverContextP context, VABufferID buffer_id,
 
 VAStatus RequestUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -154,8 +154,8 @@ VAStatus RequestUnmapBuffer(VADriverContextP context, VABufferID buffer_id)
 VAStatus RequestBufferSetNumElements(VADriverContextP context,
 				     VABufferID buffer_id, unsigned int count)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);
@@ -174,8 +174,8 @@ VAStatus RequestBufferInfo(VADriverContextP context, VABufferID buffer_id,
 			   VABufferType *type, unsigned int *size,
 			   unsigned int *count)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 
 	buffer_object = BUFFER(driver_data, buffer_id);

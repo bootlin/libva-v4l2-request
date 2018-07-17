@@ -57,7 +57,7 @@ VA_DRIVER_INIT_FUNC(VADriverContextP context);
 
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
-	struct cedrus_data *driver_data;
+	struct request_data *driver_data;
 	struct VADriverVTable *vtable = context->vtable;
 	struct v4l2_capability capability;
 	VAStatus status;
@@ -183,8 +183,8 @@ complete:
 
 VAStatus RequestTerminate(VADriverContextP context)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_buffer *buffer_object;
 	struct object_image *image_object;
 	struct object_surface *surface_object;

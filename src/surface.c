@@ -46,8 +46,8 @@ VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
 			       int format, int surfaces_count,
 			       VASurfaceID *surfaces_ids)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_surface *surface_object;
 	struct video_format *video_format;
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
@@ -175,8 +175,8 @@ VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
 VAStatus RequestDestroySurfaces(VADriverContextP context,
 				VASurfaceID *surfaces_ids, int surfaces_count)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_surface *surface_object;
 	unsigned int i, j;
 
@@ -211,8 +211,8 @@ VAStatus RequestDestroySurfaces(VADriverContextP context,
 
 VAStatus RequestSyncSurface(VADriverContextP context, VASurfaceID surface_id)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_surface *surface_object;
 	VAStatus status;
 	int request_fd = -1;
@@ -289,8 +289,8 @@ VAStatus RequestQuerySurfaceStatus(VADriverContextP context,
 				   VASurfaceID surface_id,
 				   VASurfaceStatus *status)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_surface *surface_object;
 
 	surface_object = SURFACE(driver_data, surface_id);

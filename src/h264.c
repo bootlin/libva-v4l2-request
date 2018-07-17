@@ -173,7 +173,7 @@ static void dpb_update(struct object_context *context,
 	}
 }
 
-static void h264_fill_dpb(struct cedrus_data *data,
+static void h264_fill_dpb(struct request_data *data,
 			  struct object_context *context,
 			  struct v4l2_ctrl_h264_decode_param *decode)
 {
@@ -205,7 +205,7 @@ static void h264_fill_dpb(struct cedrus_data *data,
 	}
 }
 
-static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
+static void h264_va_picture_to_v4l2(struct request_data *driver_data,
 				    struct object_context *context,
 				    struct object_surface *surface,
 				    VAPictureParameterBufferH264 *VAPicture,
@@ -277,7 +277,7 @@ static void h264_va_picture_to_v4l2(struct cedrus_data *driver_data,
 		sps->flags |= V4L2_H264_SPS_FLAG_DELTA_PIC_ORDER_ALWAYS_ZERO;
 }
 
-static void h264_va_matrix_to_v4l2(struct cedrus_data *driver_data,
+static void h264_va_matrix_to_v4l2(struct request_data *driver_data,
 				   struct object_context *context,
 				   VAIQMatrixBufferH264 *VAMatrix,
 				   struct v4l2_ctrl_h264_scaling_matrix *v4l2_matrix)
@@ -318,7 +318,7 @@ static void h264_copy_pred_table(struct v4l2_h264_weight_factors *factors,
 	}
 }
 
-static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
+static void h264_va_slice_to_v4l2(struct request_data *driver_data,
 				  struct object_context *context,
 				  VASliceParameterBufferH264 *VASlice,
 				  VAPictureParameterBufferH264 *VAPicture,
@@ -400,7 +400,7 @@ static void h264_va_slice_to_v4l2(struct cedrus_data *driver_data,
 				     VASlice->chroma_offset_l1);
 }
 
-int h264_set_controls(struct cedrus_data *driver_data,
+int h264_set_controls(struct request_data *driver_data,
 		      struct object_context *context,
 		      struct object_surface *surface)
 {

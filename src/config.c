@@ -41,8 +41,8 @@ VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
 			     VAConfigAttrib *attributes, int attributes_count,
 			     VAConfigID *config_id)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_config *config_object;
 	VAConfigID id;
 	int i, index;
@@ -91,8 +91,8 @@ VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
 
 VAStatus RequestDestroyConfig(VADriverContextP context, VAConfigID config_id)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_config *config_object;
 
 	config_object = CONFIG(driver_data, config_id);
@@ -108,8 +108,8 @@ VAStatus RequestDestroyConfig(VADriverContextP context, VAConfigID config_id)
 VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 				    VAProfile *profiles, int *profiles_count)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	unsigned int index = 0;
 	bool found;
 
@@ -168,8 +168,8 @@ VAStatus RequestQueryConfigAttributes(VADriverContextP context,
 				      VAConfigAttrib *attributes,
 				      int *attributes_count)
 {
-	struct cedrus_data *driver_data =
-		(struct cedrus_data *)context->pDriverData;
+	struct request_data *driver_data =
+		(struct request_data *)context->pDriverData;
 	struct object_config *config_object;
 	int i;
 

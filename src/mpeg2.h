@@ -28,9 +28,9 @@
 
 struct object_context;
 struct object_surface;
-struct cedrus_data;
+struct request_data;
 
-int mpeg2_set_controls(struct cedrus_data *driver_data,
+int mpeg2_set_controls(struct request_data *driver_data,
 		       struct object_context *context,
 		       struct object_surface *surface_object);
 

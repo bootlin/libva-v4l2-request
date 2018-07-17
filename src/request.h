@@ -43,7 +43,7 @@
 #define V4L2_REQUEST_MAX_SUBPIC_FORMATS		4
 #define V4L2_REQUEST_MAX_DISPLAY_ATTRIBUTES	4
 
-struct cedrus_data {
+struct request_data {
 	struct object_heap config_heap;
 	struct object_heap context_heap;
 	struct object_heap surface_heap;

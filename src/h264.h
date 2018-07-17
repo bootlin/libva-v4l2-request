@@ -33,7 +33,7 @@
 
 struct object_context;
 struct object_surface;
-struct cedrus_data;
+struct request_data;
 
 #define H264_DPB_SIZE 16
 
@@ -50,7 +50,7 @@ struct h264_dpb {
 	unsigned int age;
 };
 
-int h264_set_controls(struct cedrus_data *data,
+int h264_set_controls(struct request_data *data,
 		      struct object_context *context,
 		      struct object_surface *surface);
 
