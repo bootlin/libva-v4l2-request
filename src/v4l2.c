@@ -71,8 +71,8 @@ int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 
 	rc = ioctl(video_fd, VIDIOC_S_FMT, &format);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to set format for type %d: %s\n", type,
-				 strerror(errno));
+		request_log("Unable to set format for type %d: %s\n", type,
+			    strerror(errno));
 		return -1;
 	}
 
@@ -93,8 +93,8 @@ int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 
 	rc = ioctl(video_fd, VIDIOC_G_FMT, &format);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to get format for type %d: %s\n", type,
-				 strerror(errno));
+		request_log("Unable to get format for type %d: %s\n", type,
+			    strerror(errno));
 		return -1;
 	}
 
@@ -138,15 +138,15 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_G_FMT, &buffers.format);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to get format for type %d: %s\n", type,
-				 strerror(errno));
+		request_log("Unable to get format for type %d: %s\n", type,
+			    strerror(errno));
 		return -1;
 	}
 
 	rc = ioctl(video_fd, VIDIOC_CREATE_BUFS, &buffers);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to create buffer for type %d: %s\n",
-				 type, strerror(errno));
+		request_log("Unable to create buffer for type %d: %s\n", type,
+			    strerror(errno));
 		return -1;
 	}
 
@@ -173,8 +173,7 @@ int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
 
 	rc = ioctl(video_fd, VIDIOC_QUERYBUF, &buffer);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to query buffer: %s\n",
-				 strerror(errno));
+		request_log("Unable to query buffer: %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -217,8 +216,7 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_QBUF, &buffer);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to queue buffer: %s\n",
-				 strerror(errno));
+		request_log("Unable to queue buffer: %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -248,8 +246,7 @@ int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_DQBUF, &buffer);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to dequeue buffer: %s\n",
-				 strerror(errno));
+		request_log("Unable to dequeue buffer: %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -280,8 +277,7 @@ int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
 
 	rc = ioctl(video_fd, VIDIOC_S_EXT_CTRLS, &controls);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to set control: %s\n",
-				 strerror(errno));
+		request_log("Unable to set control: %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -296,8 +292,8 @@ int v4l2_set_stream(int video_fd, unsigned int type, bool enable)
 	rc = ioctl(video_fd, enable ? VIDIOC_STREAMON : VIDIOC_STREAMOFF,
 		   &buf_type);
 	if (rc < 0) {
-		sunxi_cedrus_log("Unable to %sable stream: %s\n",
-				 enable ? "en" : "dis", strerror(errno));
+		request_log("Unable to %sable stream: %s\n",
+			    enable ? "en" : "dis", strerror(errno));
 		return -1;
 	}
 

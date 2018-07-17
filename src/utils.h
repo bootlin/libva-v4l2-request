@@ -26,6 +26,6 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-void sunxi_cedrus_log(const char *format, ...);
+void request_log(const char *format, ...);
 
 #endif
