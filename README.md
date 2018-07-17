@@ -8,8 +8,9 @@ including the Video Engine found in most Allwinner SoCs.
 
 ## Status
 
-The v4l2-request libVA backend currently only supports MPEG2 video
-decoding.
+The v4l2-request libVA backend currently supports the following formats:
+* MPEG2 (Simple and Main profiles)
+* H264 (Baseline, Main and High profiles)
 
 ## Instructions
 
