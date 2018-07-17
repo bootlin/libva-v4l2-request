@@ -29,7 +29,7 @@
 #include <va/va_backend.h>
 
 #include "object_heap.h"
-#include "sunxi_cedrus.h"
+#include "request.h"
 
 #define CONFIG(data, id)                                                       \
 	((struct object_config *)object_heap_lookup(&(data)->config_heap, id))
@@ -40,7 +40,7 @@ struct object_config {
 
 	VAProfile profile;
 	VAEntrypoint entrypoint;
-	VAConfigAttrib attributes[SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES];
+	VAConfigAttrib attributes[V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES];
 	int attributes_count;
 };
 

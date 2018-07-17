@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#include "sunxi_cedrus.h"
+#include "request.h"
 
 #include <assert.h>
 #include <string.h>
@@ -63,8 +63,8 @@ VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
 		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
 
-	if (attributes_count > SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES)
-		attributes_count = SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES;
+	if (attributes_count > V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES)
+		attributes_count = V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES;
 
 	id = object_heap_allocate(&driver_data->config_heap);
 	config_object = CONFIG(driver_data, id);
@@ -116,7 +116,7 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 	found = v4l2_find_format(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
 				 V4L2_PIX_FMT_MPEG2_SLICE);
-	if (found && index < (SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES - 2)) {
+	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 2)) {
 		profiles[index++] = VAProfileMPEG2Simple;
 		profiles[index++] = VAProfileMPEG2Main;
 	}
@@ -124,7 +124,7 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 	found = v4l2_find_format(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
 				 V4L2_PIX_FMT_H264_SLICE);
-	if (found && index < (SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES - 5)) {
+	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 5)) {
 		profiles[index++] = VAProfileH264Main;
 		profiles[index++] = VAProfileH264High;
 		profiles[index++] = VAProfileH264ConstrainedBaseline;

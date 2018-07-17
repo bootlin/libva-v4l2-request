@@ -25,7 +25,7 @@
 
 #include "mpeg2.h"
 #include "context.h"
-#include "sunxi_cedrus.h"
+#include "request.h"
 #include "surface.h"
 
 #include <assert.h>

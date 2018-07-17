@@ -29,7 +29,7 @@
 #include <va/va_backend.h>
 
 #include "object_heap.h"
-#include "sunxi_cedrus.h"
+#include "request.h"
 
 #define BUFFER(data, id)                                                       \
 	((struct object_buffer *)object_heap_lookup(&(data)->buffer_heap, id))

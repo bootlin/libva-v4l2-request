@@ -23,8 +23,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "request.h"
 #include "surface.h"
-#include "sunxi_cedrus.h"
 
 #include <assert.h>
 #include <errno.h>

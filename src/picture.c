@@ -27,7 +27,7 @@
 #include "buffer.h"
 #include "config.h"
 #include "context.h"
-#include "sunxi_cedrus.h"
+#include "request.h"
 #include "surface.h"
 
 #include "h264.h"

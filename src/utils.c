@@ -27,14 +27,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sunxi_cedrus.h"
+#include "request.h"
 #include "utils.h"
 
 void request_log(const char *format, ...)
 {
 	va_list arguments;
 
-	fprintf(stderr, "%s: ", SUNXI_CEDRUS_STR_VENDOR);
+	fprintf(stderr, "%s: ", V4L2_REQUEST_STR_VENDOR);
 
 	va_start(arguments, format);
 	vfprintf(stderr, format, arguments);

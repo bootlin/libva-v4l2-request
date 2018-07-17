@@ -25,7 +25,7 @@
 
 #include "buffer.h"
 #include "context.h"
-#include "sunxi_cedrus.h"
+#include "request.h"
 
 #include <assert.h>
 #include <stdlib.h>

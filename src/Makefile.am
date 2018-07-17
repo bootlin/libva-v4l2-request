@@ -10,7 +10,7 @@ backend_c = sunxi_cedrus.c object_heap.c config.c surface.c context.c buffer.c \
 
 backend_s = tiled_yuv.S
 
-backend_h = sunxi_cedrus.h object_heap.h config.h surface.h context.h buffer.h \
+backend_h = request.h object_heap.h config.h surface.h context.h buffer.h \
 	mpeg2.h picture.h subpicture.h image.h v4l2.h video.h media.h utils.h \
 	tiled_yuv.h h264.h
 

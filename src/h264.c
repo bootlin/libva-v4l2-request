@@ -33,7 +33,7 @@
 
 #include <linux/videodev2.h>
 
-#include "sunxi_cedrus.h"
+#include "request.h"
 #include "surface.h"
 #include "v4l2.h"
 

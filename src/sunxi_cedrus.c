@@ -35,7 +35,7 @@
 
 #include <va/va_backend.h>
 
-#include "sunxi_cedrus.h"
+#include "request.h"
 #include "utils.h"
 
 #include <assert.h>
@@ -69,13 +69,13 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 
 	context->version_major = VA_MAJOR_VERSION;
 	context->version_minor = VA_MINOR_VERSION;
-	context->max_profiles = SUNXI_CEDRUS_MAX_PROFILES;
-	context->max_entrypoints = SUNXI_CEDRUS_MAX_ENTRYPOINTS;
-	context->max_attributes = SUNXI_CEDRUS_MAX_CONFIG_ATTRIBUTES;
-	context->max_image_formats = SUNXI_CEDRUS_MAX_IMAGE_FORMATS;
-	context->max_subpic_formats = SUNXI_CEDRUS_MAX_SUBPIC_FORMATS;
-	context->max_display_attributes = SUNXI_CEDRUS_MAX_DISPLAY_ATTRIBUTES;
-	context->str_vendor = SUNXI_CEDRUS_STR_VENDOR;
+	context->max_profiles = V4L2_REQUEST_MAX_PROFILES;
+	context->max_entrypoints = V4L2_REQUEST_MAX_ENTRYPOINTS;
+	context->max_attributes = V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES;
+	context->max_image_formats = V4L2_REQUEST_MAX_IMAGE_FORMATS;
+	context->max_subpic_formats = V4L2_REQUEST_MAX_SUBPIC_FORMATS;
+	context->max_display_attributes = V4L2_REQUEST_MAX_DISPLAY_ATTRIBUTES;
+	context->str_vendor = V4L2_REQUEST_STR_VENDOR;
 
 	vtable->vaTerminate = RequestTerminate;
 	vtable->vaQueryConfigEntrypoints = RequestQueryConfigEntrypoints;
