@@ -105,5 +105,8 @@ VAStatus RequestLockSurface(VADriverContextP context, VASurfaceID surface_id,
 			    unsigned int *chroma_v_offset,
 			    unsigned int *buffer_name, void **buffer);
 VAStatus RequestUnlockSurface(VADriverContextP context, VASurfaceID surface_id);
+VAStatus RequestExportSurfaceHandle(VADriverContextP context,
+				    VASurfaceID surface_id, uint32_t mem_type,
+				    uint32_t flags, void *descriptor);
 
 #endif

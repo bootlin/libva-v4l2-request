@@ -88,6 +88,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	vtable->vaCreateSurfaces = RequestCreateSurfaces;
 	vtable->vaCreateSurfaces2 = RequestCreateSurfaces2;
 	vtable->vaDestroySurfaces = RequestDestroySurfaces;
+	vtable->vaExportSurfaceHandle = RequestExportSurfaceHandle;
 	vtable->vaCreateContext = RequestCreateContext;
 	vtable->vaDestroyContext = RequestDestroyContext;
 	vtable->vaCreateBuffer = RequestCreateBuffer;

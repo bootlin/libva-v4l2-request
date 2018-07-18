@@ -31,9 +31,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+
+#include <va/va_drmcommon.h>
 
 #include <linux/videodev2.h>
 
@@ -334,4 +337,97 @@ VAStatus RequestLockSurface(VADriverContextP context, VASurfaceID surface_id,
 VAStatus RequestUnlockSurface(VADriverContextP context, VASurfaceID surface_id)
 {
 	return VA_STATUS_ERROR_UNIMPLEMENTED;
+}
+
+VAStatus RequestExportSurfaceHandle(VADriverContextP context,
+				    VASurfaceID surface_id, uint32_t mem_type,
+				    uint32_t flags, void *descriptor)
+{
+	struct request_data *driver_data = context->pDriverData;
+	VADRMPRIMESurfaceDescriptor *surface_descriptor = descriptor;
+	struct object_surface *surface_object;
+	struct video_format *video_format;
+	int *export_fds = NULL;
+	unsigned int export_fds_count;
+	unsigned int planes_count;
+	unsigned int size;
+	unsigned int i;
+	VAStatus status;
+	int rc;
+
+	if (mem_type != VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME_2)
+		return VA_STATUS_ERROR_UNSUPPORTED_MEMORY_TYPE;
+
+	surface_object = SURFACE(driver_data, surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
+
+	export_fds_count = surface_object->destination_buffers_count;
+	export_fds = malloc(export_fds_count * sizeof(*export_fds));
+
+	rc = v4l2_export_buffer(driver_data->video_fd,
+				V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
+				surface_object->destination_index, O_RDONLY,
+				export_fds, export_fds_count);
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
+	planes_count = surface_object->destination_planes_count;
+
+	video_format = video_format_find(driver_data->tiled_format);
+	if (video_format == NULL) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
+	surface_descriptor->fourcc = VA_FOURCC_NV12;
+	surface_descriptor->width = surface_object->width;
+	surface_descriptor->height = surface_object->height;
+	surface_descriptor->num_objects = export_fds_count;
+
+	if (export_fds_count == 1) {
+		size = 0;
+
+		for (i = 0; i < planes_count; i++)
+			size += surface_object->destination_sizes[i];
+	}
+
+	for (i = 0; i < export_fds_count; i++) {
+		surface_descriptor->objects[i].drm_format_modifier =
+			video_format->drm_modifier;
+		surface_descriptor->objects[i].fd = export_fds[i];
+		surface_descriptor->objects[i].size = export_fds_count == 1 ?
+						      size :
+						      surface_object->destination_sizes[i];
+	}
+
+	surface_descriptor->num_layers = 1;
+
+	surface_descriptor->layers[0].drm_format = video_format->drm_format;
+	surface_descriptor->layers[0].num_planes = planes_count;
+
+	for (i = 0; i < planes_count; i++) {
+		surface_descriptor->layers[0].object_index[i] =
+			export_fds_count == 1 ? 0 : i;
+		surface_descriptor->layers[0].offset[i] =
+			surface_object->destination_offsets[i];
+		surface_descriptor->layers[0].pitch[i] =
+			surface_object->destination_bytesperlines[i];
+	}
+
+	status = VA_STATUS_SUCCESS;
+	goto complete;
+
+error:
+	for (i = 0; i < export_fds_count; i++)
+		if (export_fds[i] >= 0)
+			close(export_fds[i]);
+
+complete:
+	if (export_fds != NULL)
+		free(export_fds);
+
+	return status;
 }
