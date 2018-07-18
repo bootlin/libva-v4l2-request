@@ -36,7 +36,7 @@
 
 struct object_image {
 	struct object_base base;
-	VABufferID buffer_id;
+	VAImage image;
 };
 
 VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,

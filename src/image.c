@@ -75,8 +75,6 @@ VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 		return status;
 	}
 
-	image_object->buffer_id = buffer_id;
-
 	memset(image, 0, sizeof(*image));
 
 	image->format = *format;
@@ -87,6 +85,8 @@ VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 
 	image->num_planes = destination_planes_count;
 	image->data_size = size;
+
+	image_object->image = *image;
 
 	for (i = 0; i < image->num_planes; i++) {
 		image->pitches[i] = destination_bytesperlines[i];
@@ -106,7 +106,7 @@ VAStatus RequestDestroyImage(VADriverContextP context, VAImageID image_id)
 	if (image_object == NULL)
 		return VA_STATUS_ERROR_INVALID_IMAGE;
 
-	status = RequestDestroyBuffer(context, image_object->buffer_id);
+	status = RequestDestroyBuffer(context, image_object->image.buf);
 	if (status != VA_STATUS_SUCCESS)
 		return status;
 
