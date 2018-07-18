@@ -194,8 +194,7 @@ VAStatus RequestAcquireBufferHandle(VADriverContextP context,
 				    VABufferID buffer_id,
 				    VABufferInfo *buffer_info)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_buffer *buffer_object;
 	struct object_surface *surface_object;
 	int export_fd;
@@ -205,14 +204,14 @@ VAStatus RequestAcquireBufferHandle(VADriverContextP context,
 	    driver_data->tiled_format)
 		return VA_STATUS_ERROR_UNSUPPORTED_MEMORY_TYPE;
 
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(driver_data, buffer_id);
 	if (buffer_object == NULL || buffer_object->type != VAImageBufferType)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
 	if (buffer_object->derived_surface_id == VA_INVALID_ID)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
-	surface_object = SURFACE(buffer_object->derived_surface_id);
+	surface_object = SURFACE(driver_data, buffer_object->derived_surface_id);
 	if (surface_object == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
@@ -238,12 +237,11 @@ VAStatus RequestAcquireBufferHandle(VADriverContextP context,
 VAStatus RequestReleaseBufferHandle(VADriverContextP context,
 	VABufferID buffer_id)
 {
-	struct sunxi_cedrus_driver_data *driver_data =
-		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct request_data *driver_data = context->pDriverData;
 	struct object_buffer *buffer_object;
 	int export_fd;
 
-	buffer_object = BUFFER(buffer_id);
+	buffer_object = BUFFER(driver_data, buffer_id);
 	if (buffer_object == NULL)
 		return VA_STATUS_ERROR_INVALID_BUFFER;
 
@@ -254,7 +252,7 @@ VAStatus RequestReleaseBufferHandle(VADriverContextP context,
 
 	close(export_fd);
 
-	buffer_object->info.handle = NULL;
+	buffer_object->info.handle = (uintptr_t) -1;
 
 	return VA_STATUS_SUCCESS;
 }
