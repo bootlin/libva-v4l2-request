@@ -270,8 +270,8 @@ int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
 
 		rc = ioctl(video_fd, VIDIOC_EXPBUF, &exportbuffer);
 		if (rc < 0) {
-			sunxi_cedrus_log("Unable to export buffer: %s\n",
-					 strerror(errno));
+			request_log("Unable to export buffer: %s\n",
+				    strerror(errno));
 			return -1;
 		}
 
