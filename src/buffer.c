@@ -85,6 +85,9 @@ VAStatus RequestCreateBuffer(VADriverContextP context, VAContextID context_id,
 	buffer_object->data = buffer_data;
 	buffer_object->size = size;
 
+	buffer_object->derived_surface_id = VA_INVALID_ID;
+	buffer_object->info.handle = (uintptr_t) -1;
+
 	*buffer_id = id;
 
 	status = VA_STATUS_SUCCESS;

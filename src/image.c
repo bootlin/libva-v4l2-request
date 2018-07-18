@@ -122,8 +122,8 @@ VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
 	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
 	struct object_buffer *buffer_object;
-	unsigned int i;
 	VAImageFormat format;
+	unsigned int i;
 	VAStatus status;
 
 	surface_object = SURFACE(driver_data, surface_id);
@@ -134,8 +134,6 @@ VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
 		status = RequestSyncSurface(context, surface_id);
 		if (status != VA_STATUS_SUCCESS)
 			return status;
-	} else if (surface_object->status == VASurfaceReady) {
-		return VA_STATUS_SUCCESS;
 	}
 
 	format.fourcc = VA_FOURCC_NV12;
@@ -163,6 +161,8 @@ VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
 	}
 
 	surface_object->status = VASurfaceReady;
+
+	buffer_object->derived_surface_id = surface_id;
 
 	return VA_STATUS_SUCCESS;
 }

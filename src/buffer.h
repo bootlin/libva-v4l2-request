@@ -44,6 +44,9 @@ struct object_buffer {
 
 	void *data;
 	unsigned int size;
+
+	VASurfaceID derived_surface_id;
+	VABufferInfo info;
 };
 
 VAStatus RequestCreateBuffer(VADriverContextP context, VAContextID context_id,
