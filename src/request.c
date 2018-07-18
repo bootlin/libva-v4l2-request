@@ -95,6 +95,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	vtable->vaMapBuffer = RequestMapBuffer;
 	vtable->vaUnmapBuffer = RequestUnmapBuffer;
 	vtable->vaDestroyBuffer = RequestDestroyBuffer;
+	vtable->vaBufferInfo = RequestBufferInfo;
 	vtable->vaBeginPicture = RequestBeginPicture;
 	vtable->vaRenderPicture = RequestRenderPicture;
 	vtable->vaEndPicture = RequestEndPicture;
@@ -121,7 +122,6 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	vtable->vaSetDisplayAttributes = RequestSetDisplayAttributes;
 	vtable->vaLockSurface = RequestLockSurface;
 	vtable->vaUnlockSurface = RequestUnlockSurface;
-	vtable->vaBufferInfo = RequestBufferInfo;
 
 	driver_data = malloc(sizeof(*driver_data));
 	memset(driver_data, 0, sizeof(*driver_data));
