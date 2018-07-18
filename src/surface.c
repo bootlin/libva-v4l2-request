@@ -42,9 +42,12 @@
 #include "v4l2.h"
 #include "video.h"
 
-VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
-			       int format, int surfaces_count,
-			       VASurfaceID *surfaces_ids)
+VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
+				unsigned int width, unsigned int height,
+				VASurfaceID *surfaces_ids,
+				unsigned int surfaces_count,
+				VASurfaceAttrib *attributes,
+				unsigned int attributes_count)
 {
 	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
@@ -169,6 +172,14 @@ VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
 	}
 
 	return VA_STATUS_SUCCESS;
+}
+
+VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
+			       int format, int surfaces_count,
+			       VASurfaceID *surfaces_ids)
+{
+	return RequestCreateSurfaces2(context, format, width, height,
+				      surfaces_ids, surfaces_count, NULL, 0);
 }
 
 VAStatus RequestDestroySurfaces(VADriverContextP context,

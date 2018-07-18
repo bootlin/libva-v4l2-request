@@ -75,6 +75,12 @@ struct object_surface {
 	int request_fd;
 };
 
+VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
+				unsigned int width, unsigned int height,
+				VASurfaceID *surfaces_ids,
+				unsigned int surfaces_count,
+				VASurfaceAttrib *attributes,
+				unsigned int attributes_count);
 VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
 			       int format, int surfaces_count,
 			       VASurfaceID *surfaces_ids);
