@@ -62,5 +62,10 @@ VAStatus RequestBufferSetNumElements(VADriverContextP context,
 VAStatus RequestBufferInfo(VADriverContextP context, VABufferID buffer_id,
 			   VABufferType *type, unsigned int *size,
 			   unsigned int *count);
+VAStatus RequestAcquireBufferHandle(VADriverContextP context,
+				    VABufferID buffer_id,
+				    VABufferInfo *buffer_info);
+VAStatus RequestReleaseBufferHandle(VADriverContextP context,
+	VABufferID buffer_id);
 
 #endif

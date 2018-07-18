@@ -26,13 +26,17 @@
 #include "buffer.h"
 #include "context.h"
 #include "request.h"
+#include "surface.h"
 
-#include <assert.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+
+#include <va/va_drmcommon.h>
 
 #include <linux/videodev2.h>
 
@@ -182,6 +186,75 @@ VAStatus RequestBufferInfo(VADriverContextP context, VABufferID buffer_id,
 	*type = buffer_object->type;
 	*size = buffer_object->size;
 	*count = buffer_object->count;
+
+	return VA_STATUS_SUCCESS;
+}
+
+VAStatus RequestAcquireBufferHandle(VADriverContextP context,
+				    VABufferID buffer_id,
+				    VABufferInfo *buffer_info)
+{
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_buffer *buffer_object;
+	struct object_surface *surface_object;
+	int export_fd;
+	int rc;
+
+	if (buffer_info->mem_type != VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME ||
+	    driver_data->tiled_format)
+		return VA_STATUS_ERROR_UNSUPPORTED_MEMORY_TYPE;
+
+	buffer_object = BUFFER(buffer_id);
+	if (buffer_object == NULL || buffer_object->type != VAImageBufferType)
+		return VA_STATUS_ERROR_INVALID_BUFFER;
+
+	if (buffer_object->derived_surface_id == VA_INVALID_ID)
+		return VA_STATUS_ERROR_INVALID_BUFFER;
+
+	surface_object = SURFACE(buffer_object->derived_surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_BUFFER;
+
+	if (surface_object->destination_buffers_count > 1)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	rc = v4l2_export_buffer(driver_data->video_fd,
+				V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
+				surface_object->destination_index, O_RDONLY,
+				&export_fd, 1);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	buffer_info->handle = (uintptr_t) export_fd;
+	buffer_info->type = buffer_object->type;
+	buffer_info->mem_size = buffer_object->size * buffer_object->count;
+
+	buffer_object->info = *buffer_info;
+
+	return VA_STATUS_SUCCESS;
+}
+
+VAStatus RequestReleaseBufferHandle(VADriverContextP context,
+	VABufferID buffer_id)
+{
+	struct sunxi_cedrus_driver_data *driver_data =
+		(struct sunxi_cedrus_driver_data *) context->pDriverData;
+	struct object_buffer *buffer_object;
+	int export_fd;
+
+	buffer_object = BUFFER(buffer_id);
+	if (buffer_object == NULL)
+		return VA_STATUS_ERROR_INVALID_BUFFER;
+
+	if (buffer_object->info.handle == (uintptr_t) -1)
+		return VA_STATUS_SUCCESS;
+
+	export_fd = (int) buffer_object->info.handle;
+
+	close(export_fd);
+
+	buffer_object->info.handle = NULL;
 
 	return VA_STATUS_SUCCESS;
 }

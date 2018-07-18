@@ -96,6 +96,8 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	vtable->vaUnmapBuffer = RequestUnmapBuffer;
 	vtable->vaDestroyBuffer = RequestDestroyBuffer;
 	vtable->vaBufferInfo = RequestBufferInfo;
+	vtable->vaAcquireBufferHandle = RequestAcquireBufferHandle;
+	vtable->vaReleaseBufferHandle = RequestReleaseBufferHandle;
 	vtable->vaBeginPicture = RequestBeginPicture;
 	vtable->vaRenderPicture = RequestRenderPicture;
 	vtable->vaEndPicture = RequestEndPicture;
