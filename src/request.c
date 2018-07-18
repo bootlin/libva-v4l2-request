@@ -103,6 +103,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	vtable->vaRenderPicture = RequestRenderPicture;
 	vtable->vaEndPicture = RequestEndPicture;
 	vtable->vaSyncSurface = RequestSyncSurface;
+	vtable->vaQuerySurfaceAttributes = RequestQuerySurfaceAttributes;
 	vtable->vaQuerySurfaceStatus = RequestQuerySurfaceStatus;
 	vtable->vaPutSurface = RequestPutSurface;
 	vtable->vaQueryImageFormats = RequestQueryImageFormats;

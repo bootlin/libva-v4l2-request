@@ -296,6 +296,82 @@ complete:
 	return status;
 }
 
+VAStatus RequestQuerySurfaceAttributes(VADriverContextP context,
+				       VAConfigID config,
+				       VASurfaceAttrib *attributes,
+				       unsigned int *attributes_count)
+{
+	struct request_data *driver_data = context->pDriverData;
+	VASurfaceAttrib *attributes_list;
+	unsigned int attributes_list_size = V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES *
+					    sizeof(*attributes);
+	int memory_types;
+	unsigned int i = 0;
+
+	attributes_list = malloc(attributes_list_size);
+	memset(attributes_list, 0, attributes_list_size);
+
+	attributes_list[i].type = VASurfaceAttribPixelFormat;
+	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE;
+	attributes_list[i].value.type = VAGenericValueTypeInteger;
+	attributes_list[i].value.value.i = VA_FOURCC_NV12;
+	i++;
+
+	attributes_list[i].type = VASurfaceAttribMinWidth;
+	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE;
+	attributes_list[i].value.type = VAGenericValueTypeInteger;
+	attributes_list[i].value.value.i = 32;
+	i++;
+
+	attributes_list[i].type = VASurfaceAttribMaxWidth;
+	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE;
+	attributes_list[i].value.type = VAGenericValueTypeInteger;
+	attributes_list[i].value.value.i = 2048;
+	i++;
+
+	attributes_list[i].type = VASurfaceAttribMinHeight;
+	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE;
+	attributes_list[i].value.type = VAGenericValueTypeInteger;
+	attributes_list[i].value.value.i = 32;
+	i++;
+
+	attributes_list[i].type = VASurfaceAttribMaxHeight;
+	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE;
+	attributes_list[i].value.type = VAGenericValueTypeInteger;
+	attributes_list[i].value.value.i = 2048;
+	i++;
+
+	attributes_list[i].type = VASurfaceAttribMemoryType;
+	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE |
+				   VA_SURFACE_ATTRIB_SETTABLE;
+	attributes_list[i].value.type = VAGenericValueTypeInteger;
+
+	memory_types = VA_SURFACE_ATTRIB_MEM_TYPE_VA |
+		VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME_2;
+
+	/*
+	 * First version of DRM prime export does not handle modifiers,
+	 * that are required for supporting the tiled output format.
+	 */
+
+	if (!driver_data->tiled_format)
+		memory_types |= VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME;
+
+	attributes_list[i].value.value.i = memory_types;
+	i++;
+
+	attributes_list_size = i * sizeof(*attributes);
+
+	if (attributes != NULL)
+		memcpy(attributes, attributes_list, attributes_list_size);
+
+	free(attributes_list);
+
+	*attributes_count = i;
+
+	return VA_STATUS_SUCCESS;
+}
+
 VAStatus RequestQuerySurfaceStatus(VADriverContextP context,
 				   VASurfaceID surface_id,
 				   VASurfaceStatus *status)
