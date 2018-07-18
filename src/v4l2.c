@@ -253,6 +253,34 @@ int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 	return 0;
 }
 
+int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
+		       unsigned int flags, int *export_fds,
+		       unsigned int export_fds_count)
+{
+	struct v4l2_exportbuffer exportbuffer;
+	unsigned int i;
+	int rc;
+
+	for (i = 0; i < export_fds_count; i++) {
+		memset(&exportbuffer, 0, sizeof(exportbuffer));
+		exportbuffer.type = type;
+		exportbuffer.index = index;
+		exportbuffer.plane = i;
+		exportbuffer.flags = flags;
+
+		rc = ioctl(video_fd, VIDIOC_EXPBUF, &exportbuffer);
+		if (rc < 0) {
+			sunxi_cedrus_log("Unable to export buffer: %s\n",
+					 strerror(errno));
+			return -1;
+		}
+
+		export_fds[i] = exportbuffer.fd;
+	}
+
+	return 0;
+}
+
 int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
 		     unsigned int size)
 {
