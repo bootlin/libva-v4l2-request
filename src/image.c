@@ -179,14 +179,14 @@ VAStatus RequestQueryImageFormats(VADriverContextP context,
 VAStatus RequestSetImagePalette(VADriverContextP context, VAImageID image_id,
 				unsigned char *palette)
 {
-	return VA_STATUS_SUCCESS;
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
 
 VAStatus RequestGetImage(VADriverContextP context, VASurfaceID surface_id,
 			 int x, int y, unsigned int width, unsigned int height,
 			 VAImageID image_id)
 {
-	return VA_STATUS_SUCCESS;
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
 
 VAStatus RequestPutImage(VADriverContextP context, VASurfaceID surface_id,
@@ -195,5 +195,5 @@ VAStatus RequestPutImage(VADriverContextP context, VASurfaceID surface_id,
 			 int dst_x, int dst_y, unsigned int dst_width,
 			 unsigned int dst_height)
 {
-	return VA_STATUS_SUCCESS;
+	return VA_STATUS_ERROR_UNIMPLEMENTED;
 }
