@@ -202,9 +202,6 @@ VAStatus RequestDestroySurfaces(VADriverContextP context,
 			munmap(surface_object->source_data,
 			       surface_object->source_size);
 
-		if (surface_object->request_fd >= 0)
-			close(surface_object->request_fd);
-
 		for (j = 0; j < surface_object->destination_buffers_count; j++)
 			if (surface_object->destination_map[j] != NULL &&
 			    surface_object->destination_map_lengths[j] > 0)
