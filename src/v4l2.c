@@ -188,6 +188,26 @@ int v4l2_query_buffer(int video_fd, unsigned int type, unsigned int index,
 	return 0;
 }
 
+int v4l2_request_buffers(int video_fd, unsigned int type,
+			 unsigned int buffers_count)
+{
+	struct v4l2_requestbuffers buffers;
+	int rc;
+
+	memset(&buffers, 0, sizeof(buffers));
+	buffers.type = type;
+	buffers.memory = V4L2_MEMORY_MMAP;
+	buffers.count = buffers_count;
+
+	rc = ioctl(video_fd, VIDIOC_REQBUFS, &buffers);
+	if (rc < 0) {
+		request_log("Unable to request buffers: %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
 int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 		      unsigned int index, unsigned int size,
 		      unsigned int buffers_count)
