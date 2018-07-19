@@ -196,14 +196,12 @@ VAStatus RequestDestroyContext(VADriverContextP context, VAContextID context_id)
 {
 	struct request_data *driver_data = context->pDriverData;
 	struct object_context *context_object;
+	VAStatus status;
 	int rc;
 
 	context_object = CONTEXT(driver_data, context_id);
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
-
-	object_heap_free(&driver_data->context_heap,
-			 (struct object_base *)context_object);
 
 	rc = v4l2_set_stream(driver_data->video_fd,
 			     V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, false);
@@ -212,6 +210,28 @@ VAStatus RequestDestroyContext(VADriverContextP context, VAContextID context_id)
 
 	rc = v4l2_set_stream(driver_data->video_fd,
 			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, false);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	/* Buffers liberation */
+
+	status = RequestDestroySurfaces(context, context_object->surfaces_ids,
+					context_object->surfaces_count);
+	if (status != VA_STATUS_SUCCESS)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	free(context_object->surfaces_ids);
+
+	object_heap_free(&driver_data->context_heap,
+			 (struct object_base *)context_object);
+
+	rc = v4l2_request_buffers(driver_data->video_fd,
+				  V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, 0);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	rc = v4l2_request_buffers(driver_data->video_fd,
+				  V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, 0);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
