@@ -153,9 +153,9 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 	return 0;
 }
 
-int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
-			unsigned int *lengths, unsigned int *offsets,
-			unsigned int buffers_count)
+int v4l2_query_buffer(int video_fd, unsigned int type, unsigned int index,
+		      unsigned int *lengths, unsigned int *offsets,
+		      unsigned int buffers_count)
 {
 	struct v4l2_plane planes[buffers_count];
 	struct v4l2_buffer buffer;

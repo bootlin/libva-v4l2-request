@@ -103,11 +103,11 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
-		rc = v4l2_request_buffer(driver_data->video_fd,
-					 V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i,
-					 surface_object->destination_map_lengths,
-					 surface_object->destination_map_offsets,
-					 video_format->v4l2_buffers_count);
+		rc = v4l2_query_buffer(driver_data->video_fd,
+				       V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i,
+				       surface_object->destination_map_lengths,
+				       surface_object->destination_map_offsets,
+				       video_format->v4l2_buffers_count);
 		if (rc < 0)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 

@@ -38,9 +38,9 @@ int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 		    unsigned int *sizes, unsigned int *planes_count);
 int v4l2_create_buffers(int video_fd, unsigned int type,
 			unsigned int buffers_count);
-int v4l2_request_buffer(int video_fd, unsigned int type, unsigned int index,
-			unsigned int *lengths, unsigned int *offsets,
-			unsigned int buffers_count);
+int v4l2_query_buffer(int video_fd, unsigned int type, unsigned int index,
+		      unsigned int *lengths, unsigned int *offsets,
+		      unsigned int buffers_count);
 int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 		      unsigned int index, unsigned int size,
 		      unsigned int buffers_count);
