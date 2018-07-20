@@ -460,12 +460,11 @@ VAStatus RequestExportSurfaceHandle(VADriverContextP context,
 	surface_descriptor->height = surface_object->height;
 	surface_descriptor->num_objects = export_fds_count;
 
-	if (export_fds_count == 1) {
-		size = 0;
+	size = 0;
 
+	if (export_fds_count == 1)
 		for (i = 0; i < planes_count; i++)
 			size += surface_object->destination_sizes[i];
-	}
 
 	for (i = 0; i < export_fds_count; i++) {
 		surface_descriptor->objects[i].drm_format_modifier =
