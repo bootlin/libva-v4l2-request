@@ -126,7 +126,7 @@ int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 }
 
 int v4l2_create_buffers(int video_fd, unsigned int type,
-			unsigned int buffers_count)
+			unsigned int buffers_count, unsigned int *index_base)
 {
 	struct v4l2_create_buffers buffers;
 	int rc;
@@ -149,6 +149,9 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 			    strerror(errno));
 		return -1;
 	}
+
+	if (index_base != NULL)
+		*index_base = buffers.index;
 
 	return 0;
 }

@@ -58,6 +58,8 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
 	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
 	unsigned int destination_planes_count;
+	unsigned int index_base;
+	unsigned int index;
 	unsigned int i, j;
 	VASurfaceID id;
 	bool found;
@@ -93,18 +95,21 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 
 	rc = v4l2_create_buffers(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
-				 surfaces_count);
+				 surfaces_count, &index_base);
 	if (rc < 0)
 		return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 	for (i = 0; i < surfaces_count; i++) {
+		index = index_base + i;
+
 		id = object_heap_allocate(&driver_data->surface_heap);
 		surface_object = SURFACE(driver_data, id);
 		if (surface_object == NULL)
 			return VA_STATUS_ERROR_ALLOCATION_FAILED;
 
 		rc = v4l2_query_buffer(driver_data->video_fd,
-				       V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, i,
+				       V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
+				       index,
 				       surface_object->destination_map_lengths,
 				       surface_object->destination_map_offsets,
 				       video_format->v4l2_buffers_count);
@@ -157,7 +162,7 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		surface_object->source_data = NULL;
 		surface_object->source_size = 0;
 
-		surface_object->destination_index = 0;
+		surface_object->destination_index = index;
 
 		surface_object->destination_planes_count =
 			destination_planes_count;

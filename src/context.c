@@ -57,6 +57,8 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	VAContextID id;
 	VAStatus status;
 	unsigned int pixelformat;
+	unsigned int index_base;
+	unsigned int index;
 	unsigned int i;
 	int rc;
 
@@ -103,7 +105,7 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 
 	rc = v4l2_create_buffers(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
-				 surfaces_count);
+				 surfaces_count, &index_base);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
@@ -123,6 +125,8 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	memcpy(ids, surfaces_ids, surfaces_count * sizeof(VASurfaceID));
 
 	for (i = 0; i < surfaces_count; i++) {
+		index = index_base + i;
+
 		surface_object = SURFACE(driver_data, surfaces_ids[i]);
 		if (surface_object == NULL) {
 			status = VA_STATUS_ERROR_INVALID_SURFACE;
@@ -130,7 +134,7 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 		}
 
 		rc = v4l2_query_buffer(driver_data->video_fd,
-				       V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, i,
+				       V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, index,
 				       &length, &offset, 1);
 		if (rc < 0) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
@@ -144,8 +148,7 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 			goto error;
 		}
 
-		surface_object->source_index = i;
-		surface_object->destination_index = i;
+		surface_object->source_index = index;
 		surface_object->source_data = source_data;
 		surface_object->source_size = length;
 	}
