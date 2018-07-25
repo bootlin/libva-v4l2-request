@@ -44,9 +44,14 @@ int mpeg2_set_controls(struct request_data *driver_data,
 {
 	VAPictureParameterBufferMPEG2 *parameters =
 		&surface_object->params.mpeg2.picture;
+	VAIQMatrixBufferMPEG2 *iqmatrix =
+		&surface_object->params.mpeg2.iqmatrix;
+	bool iqmatrix_set = surface_object->params.mpeg2.iqmatrix_set;
 	struct v4l2_ctrl_mpeg2_slice_params slice_params;
+	struct v4l2_ctrl_mpeg2_quantization quantization;
 	struct object_surface *forward_reference_surface;
 	struct object_surface *backward_reference_surface;
+	unsigned int i;
 	int rc;
 
 	memset(&slice_params, 0, sizeof(slice_params));
@@ -104,6 +109,33 @@ int mpeg2_set_controls(struct request_data *driver_data,
 			      &slice_params, sizeof(slice_params));
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	if (iqmatrix_set) {
+		quantization.load_intra_quantiser_matrix =
+			iqmatrix->load_intra_quantiser_matrix;
+		quantization.load_non_intra_quantiser_matrix =
+			iqmatrix->load_non_intra_quantiser_matrix;
+		quantization.load_chroma_intra_quantiser_matrix =
+			iqmatrix->load_chroma_intra_quantiser_matrix;
+		quantization.load_chroma_non_intra_quantiser_matrix =
+			iqmatrix->load_chroma_non_intra_quantiser_matrix;
+
+		for (i = 0; i < 64; i++) {
+			quantization.intra_quantiser_matrix[i] =
+				iqmatrix->intra_quantiser_matrix[i];
+			quantization.non_intra_quantiser_matrix[i] =
+				iqmatrix->non_intra_quantiser_matrix[i];
+			quantization.chroma_intra_quantiser_matrix[i] =
+				iqmatrix->chroma_intra_quantiser_matrix[i];
+			quantization.chroma_non_intra_quantiser_matrix[i] =
+				iqmatrix->chroma_non_intra_quantiser_matrix[i];
+		}
+
+		rc = v4l2_set_control(driver_data->video_fd,
+				      surface_object->request_fd,
+				      V4L2_CID_MPEG_VIDEO_MPEG2_QUANTIZATION,
+				      &quantization, sizeof(quantization));
+	}
 
 	return 0;
 }

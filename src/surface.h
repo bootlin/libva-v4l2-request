@@ -64,6 +64,8 @@ struct object_surface {
 	union {
 		struct {
 			VAPictureParameterBufferMPEG2 picture;
+			VAIQMatrixBufferMPEG2 iqmatrix;
+			bool iqmatrix_set;
 		} mpeg2;
 		struct {
 			VAIQMatrixBufferH264 matrix;

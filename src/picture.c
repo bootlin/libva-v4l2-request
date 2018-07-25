@@ -109,6 +109,14 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 
 	case VAIQMatrixBufferType:
 		switch (profile) {
+		case VAProfileMPEG2Simple:
+		case VAProfileMPEG2Main:
+			memcpy(&surface_object->params.mpeg2.iqmatrix,
+			       buffer_object->data,
+			       sizeof(surface_object->params.mpeg2.iqmatrix));
+			surface_object->params.mpeg2.iqmatrix_set = true;
+			break;
+
 		case VAProfileH264Main:
 		case VAProfileH264High:
 		case VAProfileH264ConstrainedBaseline:
