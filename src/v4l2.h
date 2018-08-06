@@ -29,6 +29,7 @@
 
 #define SOURCE_SIZE_MAX						(1024 * 1024)
 
+int v4l2_query_capabilities(int video_fd, unsigned int *capabilities);
 bool v4l2_find_format(int video_fd, unsigned int type,
 		      unsigned int pixelformat);
 int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
