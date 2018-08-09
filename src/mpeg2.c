@@ -42,8 +42,10 @@ int mpeg2_set_controls(struct request_data *driver_data,
 		       struct object_context *context_object,
 		       struct object_surface *surface_object)
 {
-	VAPictureParameterBufferMPEG2 *parameters =
+	VAPictureParameterBufferMPEG2 *picture =
 		&surface_object->params.mpeg2.picture;
+	VASliceParameterBufferMPEG2 *slice =
+		&surface_object->params.mpeg2.slice;
 	VAIQMatrixBufferMPEG2 *iqmatrix =
 		&surface_object->params.mpeg2.iqmatrix;
 	bool iqmatrix_set = surface_object->params.mpeg2.iqmatrix_set;
@@ -56,38 +58,49 @@ int mpeg2_set_controls(struct request_data *driver_data,
 
 	memset(&slice_params, 0, sizeof(slice_params));
 
-	slice_params.width = surface_object->width;
-	slice_params.height = surface_object->height;
+	slice_params.bit_size = surface_object->slices_size * 8;
+	slice_params.data_bit_offset = 0;
 
-	slice_params.slice_pos = 0;
-	slice_params.slice_len = surface_object->slices_size * 8;
+	slice_params.sequence.horizontal_size = picture->horizontal_size;
+	slice_params.sequence.vertical_size = picture->vertical_size;
+	slice_params.sequence.vbv_buffer_size = SOURCE_SIZE_MAX;
 
-	slice_params.slice_type = parameters->picture_coding_type;
-	slice_params.f_code[0][0] = (parameters->f_code >> 12) & 0x0f;
-	slice_params.f_code[0][1] = (parameters->f_code >> 8) & 0x0f;
-	slice_params.f_code[1][0] = (parameters->f_code >> 4) & 0x0f;
-	slice_params.f_code[1][1] = (parameters->f_code >> 0) & 0x0f;
+	slice_params.sequence.profile_and_level_indication = 0;
+	slice_params.sequence.progressive_sequence = 0;
+	slice_params.sequence.chroma_format = 1; // 4:2:0
 
-	slice_params.intra_dc_precision =
-		parameters->picture_coding_extension.bits.intra_dc_precision;
-	slice_params.picture_structure =
-		parameters->picture_coding_extension.bits.picture_structure;
-	slice_params.top_field_first =
-		parameters->picture_coding_extension.bits.top_field_first;
-	slice_params.frame_pred_frame_dct =
-		parameters->picture_coding_extension.bits.frame_pred_frame_dct;
-	slice_params.concealment_motion_vectors =
-		parameters->picture_coding_extension.bits
+	slice_params.picture.picture_coding_type = picture->picture_coding_type;
+	slice_params.picture.f_code[0][0] = (picture->f_code >> 12) & 0x0f;
+	slice_params.picture.f_code[0][1] = (picture->f_code >> 8) & 0x0f;
+	slice_params.picture.f_code[1][0] = (picture->f_code >> 4) & 0x0f;
+	slice_params.picture.f_code[1][1] = (picture->f_code >> 0) & 0x0f;
+
+	slice_params.picture.intra_dc_precision =
+		picture->picture_coding_extension.bits.intra_dc_precision;
+	slice_params.picture.picture_structure =
+		picture->picture_coding_extension.bits.picture_structure;
+	slice_params.picture.top_field_first =
+		picture->picture_coding_extension.bits.top_field_first;
+	slice_params.picture.frame_pred_frame_dct =
+		picture->picture_coding_extension.bits.frame_pred_frame_dct;
+	slice_params.picture.concealment_motion_vectors =
+		picture->picture_coding_extension.bits
 			.concealment_motion_vectors;
-	slice_params.q_scale_type =
-		parameters->picture_coding_extension.bits.q_scale_type;
-	slice_params.intra_vlc_format =
-		parameters->picture_coding_extension.bits.intra_vlc_format;
-	slice_params.alternate_scan =
-		parameters->picture_coding_extension.bits.alternate_scan;
+	slice_params.picture.q_scale_type =
+		picture->picture_coding_extension.bits.q_scale_type;
+	slice_params.picture.intra_vlc_format =
+		picture->picture_coding_extension.bits.intra_vlc_format;
+	slice_params.picture.alternate_scan =
+		picture->picture_coding_extension.bits.alternate_scan;
+	slice_params.picture.repeat_first_field =
+		picture->picture_coding_extension.bits.repeat_first_field;
+	slice_params.picture.progressive_frame =
+		picture->picture_coding_extension.bits.progressive_frame;
+
+	slice_params.quantiser_scale_code = slice->quantiser_scale_code;
 
 	forward_reference_surface =
-		SURFACE(driver_data, parameters->forward_reference_picture);
+		SURFACE(driver_data, picture->forward_reference_picture);
 	if (forward_reference_surface != NULL)
 		slice_params.forward_ref_index =
 			forward_reference_surface->destination_index;
@@ -96,7 +109,7 @@ int mpeg2_set_controls(struct request_data *driver_data,
 			surface_object->destination_index;
 
 	backward_reference_surface =
-		SURFACE(driver_data, parameters->backward_reference_picture);
+		SURFACE(driver_data, picture->backward_reference_picture);
 	if (backward_reference_surface != NULL)
 		slice_params.backward_ref_index =
 			backward_reference_surface->destination_index;

@@ -36,7 +36,7 @@
 
 static inline unsigned int video_v4l2_format(bool tiled_format)
 {
-	return tiled_format ? V4L2_PIX_FMT_MB32_NV12 : V4L2_PIX_FMT_NV12;
+	return tiled_format ? V4L2_PIX_FMT_SUNXI_TILED_NV12 : V4L2_PIX_FMT_NV12;
 }
 
 static struct video_format formats[] = {
@@ -50,8 +50,8 @@ static struct video_format formats[] = {
 		.bpp			= 16,
 	},
 	{
-		.description		= "MB32-tiled NV12 YUV",
-		.v4l2_format		= V4L2_PIX_FMT_MB32_NV12,
+		.description		= "Sunxi tiled NV12 YUV",
+		.v4l2_format		= V4L2_PIX_FMT_SUNXI_TILED_NV12,
 		.v4l2_buffers_count	= 1,
 		.drm_format		= DRM_FORMAT_NV12,
 		.drm_modifier		= DRM_FORMAT_MOD_ALLWINNER_MB32_TILED,
