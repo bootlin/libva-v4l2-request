@@ -10,8 +10,8 @@ m4_append([v4l2_request_version], v4l2_request_pre_version, [.pre])
 ])
 
 # libva minimum version requirement
-m4_define([libva_package_version], [1.2.2])
-m4_define([va_api_version], [0.34.0])
+m4_define([libva_package_version], [2.0.0])
+m4_define([va_api_version], [1.1.0])
 
 # libdrm minimum version requirement
 m4_define([libdrm_version], [2.4.45])
