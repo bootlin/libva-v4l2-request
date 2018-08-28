@@ -35,17 +35,17 @@
 
 int media_request_alloc(int media_fd)
 {
-	struct media_request_alloc request_alloc;
+	int fd;
 	int rc;
 
-	rc = ioctl(media_fd, MEDIA_IOC_REQUEST_ALLOC, &request_alloc);
+	rc = ioctl(media_fd, MEDIA_IOC_REQUEST_ALLOC, &fd);
 	if (rc < 0) {
 		request_log("Unable to allocate media request: %s\n",
 			    strerror(errno));
 		return -1;
 	}
 
-	return request_alloc.fd;
+	return fd;
 }
 
 int media_request_reinit(int request_fd)
