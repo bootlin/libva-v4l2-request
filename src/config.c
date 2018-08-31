@@ -54,6 +54,7 @@ VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
 	case VAProfileH264ConstrainedBaseline:
 	case VAProfileH264MultiviewHigh:
 	case VAProfileH264StereoHigh:
+		case VAProfileHEVCMain:
 		if (entrypoint != VAEntrypointVLD)
 			return VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
 		break;
@@ -129,6 +130,12 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 		profiles[index++] = VAProfileH264StereoHigh;
 	}
 
+	found = v4l2_find_format(driver_data->video_fd,
+				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
+				 V4L2_PIX_FMT_HEVC_SLICE);
+	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 1))
+		profiles[index++] = VAProfileHEVCMain;
+
 	*profiles_count = index;
 
 	return VA_STATUS_SUCCESS;
@@ -147,6 +154,7 @@ VAStatus RequestQueryConfigEntrypoints(VADriverContextP context,
 	case VAProfileH264ConstrainedBaseline:
 	case VAProfileH264MultiviewHigh:
 	case VAProfileH264StereoHigh:
+	case VAProfileHEVCMain:
 		entrypoints[0] = VAEntrypointVLD;
 		*entrypoints_count = 1;
 		break;

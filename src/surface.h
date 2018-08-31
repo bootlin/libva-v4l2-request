@@ -73,6 +73,12 @@ struct object_surface {
 			VAPictureParameterBufferH264 picture;
 			VASliceParameterBufferH264 slice;
 		} h264;
+		struct {
+			VAPictureParameterBufferHEVC picture;
+			VASliceParameterBufferHEVC slice;
+			VAIQMatrixBufferHEVC iqmatrix;
+			bool iqmatrix_set;
+		} h265;
 	} params;
 
 	int request_fd;
