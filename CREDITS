@@ -1,0 +1,274 @@
+Thanks to the following companies and individuals, who participated to
+the Allwinner VPU crowdfunding campaign [1], which allowed to start
+the development of the libva-v4l2-request library together with the
+Cedrus Linux kernel driver.
+
+[1] https://www.kickstarter.com/projects/bootlin/allwinner-vpu-support-in-the-official-linux-kernel/
+
+- Abe Lacker
+- Adam Morris
+- Adam Oberbeck
+- Alerino Reis
+- Alex
+- Alex Kaplan
+- Alexander A. Istomin
+- Alexander Kamm
+- Alexandru Nedel
+- Amarpreet Minhas
+- André
+- Andre Przywara
+- Andreas
+- Andreas Färber
+- Andreas Rozek
+- Andrew Fosdike
+- Andrew Langley
+- Angel Rua Amo
+- Anssi Kolehmainen
+- Antony
+- Appreciation of Efforts
+- Aron Somodi
+- Artur Huhtaniemi
+- Atsushi Sasaki
+- Bastien Nocera
+- Bavay
+- Ben Young
+- Benjamin Glass
+- Benjamin Larsson
+- Bernard D'Havé
+- Bert Lindner
+- Bert Vermeulen
+- Biji-san
+- Bob
+- brot
+- Bruce Shipman
+- Butterkeks
+- Carl Wall
+- Carla Sella
+- Carsten Tolkmit
+- cbrocas
+- chae
+- Charlie Bruce
+- Christian Gnägi
+- Christian Pellegrin
+- Christian Stalp
+- Christoph Kröppl
+- Christophe Vaillot
+- Conan Kudo
+- D1don
+- Dale Cousins
+- Daniel
+- Daniel Hrynczenko
+- Daniel Kulesz
+- Daniel Mühlbachler
+- David Pottage
+- David Willmore
+- defsy
+- Denis Bodor
+- Dimitrios Bogiatzoules
+- Dominique Dumont
+- Doyle Young
+- Dubouil
+- Eelco Wesemann
+- eineki
+- Emil Karlson
+- Emmanuel Fusté
+- Erdem MEYDANLI
+- Erdos Miklos
+- Eric des Courtis
+- Eric Jensen
+- Eric Koorn
+- Éric Périé
+- Erik
+- erikf
+- Evaryont
+- Fabian Korak
+- Felix Eickeler
+- Flo
+- Florian Beier
+- Florian Kempf
+- Frank
+- Frank van Kesteren
+- Frederir
+- G40
+- Gabor
+- Gabriel Ortiz
+- Garrett Gee
+- Georg Ottinger
+- Gerald Hochegger
+- Geralt
+- ghostpatch
+- Gianpaolo Macario
+- Giulio Benetti
+- Guenther Gassner
+- Guilhem
+- Guilhem Saurel
+- Guy Dessard
+- hackman
+- Hamish
+- Hanno Helge
+- Hans-Frieder Vogt
+- Heinz Thölecke
+- Henrik Kuhn
+- hook
+- Hugh Reynolds
+- Ian Daniher
+- iav
+- Ingo Strauch
+- Ioan Rogers
+- Irvel Nduva
+- James
+- James Cloos
+- James Valleroy
+- jan koopmanschap
+- Jared Smith
+- Jari-Matti
+- Jarkko Pöyry
+- Jasper Horn
+- jean
+- Jean-Pierre Rivière
+- Jeffrey Sites
+- Jens Kaiser
+- Jernej
+- Jerome Hanoteau
+- JK
+- John Kelley
+- Johnny Sorocil
+- Juanjo Marin
+- Jussi Pakkanen
+- Justin Ross
+- Justus Baumgartner
+- Karl Palsson
+- Kazım Rıfat Özyılmaz
+- Kean
+- Kevin Fowlks
+- Kevin Read
+- kicklix
+- Kiesel
+- Koen Kooi
+- Korbinian Probst
+- kratz00
+- Kristof Vandenbussche
+- Laurent GUERBY
+- Lee Donaghy
+- Libre Computer Project
+- liushuyu
+- Logicite
+- luigi
+- Lukas Schauer
+- lzrmzz
+- Maksims Matjakubovs
+- Manuel
+- Marc Bessieres
+- Marcel Sarge
+- Marcus Cooper
+- Mario Villarreal
+- Mark Dietzer
+- Markus Härer
+- Martijn Bosgraaf
+- mateuszkj
+- Mathias Brossard
+- mathieu
+- Matsumoto Kenichi
+- Matt Mets
+- Matthew Zhang
+- Matthias
+- Matthias Lamm
+- Maxime Brousse
+- Me
+- MESNIL Mikaël
+- Michael Gregorowicz
+- Michael Thalmeier
+- Michal Zatloukal
+- Mindee
+- Mirko Vogt
+- mouren
+- N/A
+- naguirre
+- Neil Davenport
+- neutis.io
+- Nick Crasci
+- Nick Richards
+- Oleksij Rempel
+- Olimex
+- oliver
+- Oliver Heyme
+- Orange Pi
+- Osakana Taro
+- othiman
+- ozcoder
+- Pablo
+- Patrick
+- Paul Philippov
+- Paul Sykes
+- Per Larsson
+- perpetualrabbit
+- Peter Gnodde
+- Peter Robinson
+- Philip-Dylan Gleonec
+- Phipli
+- Phoenix Chen
+- Pierce Lopez
+- Priit Laes
+- Prisma
+- Rainer Stober
+- Reignier
+- René Kliment
+- Reto Haeberli
+- Ricardo Salveti de Araujo
+- Richard Cote
+- Richard Ferlazzo
+- Riku Voipio
+- Robert Lukierski
+- Robert McQueen
+- roens
+- Rohan Williams
+- Rui Gu
+- Ryan Casey
+- Salvatore Bognanni
+- Samuel Frederick
+- Scott Devaney
+- Sebastian Krzyszkowiak
+- Sébastien Da Rocha
+- Sergey Kopalkin
+- Sertac Tulluk
+- Shelby Cruver
+- Shervin Emami
+- SIMANCAS
+- Simon Josefsson
+- Spas Kyuchukov
+- ssam
+- Stan
+- Stanislav Bogatyrev
+- Stas
+- Stefan Bethke
+- Stefan Monnier
+- Steffen Elste
+- Stephan
+- Stephan Bärwolf
+- Stephen Kelly
+- Steven Seifried
+- Stokes Gresh
+- Sven Kasemann
+- SvOlli
+- Tarjei Solvang Tjønn
+- Tetsuyuki Kobayashi
+- Texier Pierre-jean
+- Thomas Monjalon
+- Thomas Samson
+- Tim Symossek
+- TL Lim
+- Todd Zebert
+- Tomas Virgl
+- tpc010
+- Tyler Style
+- Valentin Hăloiu
+- valhalla
+- Vasily Evseenko
+- Vitaly Shukela
+- Xavier Duret
+- Yanko Kaneti
+- Yannick Allard
+- Yves Serrano
+- Zoltan Herpai
+- ZotoPatate
+- zym060050
