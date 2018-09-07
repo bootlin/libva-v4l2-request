@@ -34,11 +34,6 @@
 #include "utils.h"
 #include "video.h"
 
-static inline unsigned int video_v4l2_format(bool tiled_format)
-{
-	return tiled_format ? V4L2_PIX_FMT_SUNXI_TILED_NV12 : V4L2_PIX_FMT_NV12;
-}
-
 static struct video_format formats[] = {
 	{
 		.description		= "NV12 YUV",
@@ -62,16 +57,21 @@ static struct video_format formats[] = {
 
 static unsigned int formats_count = sizeof(formats) / sizeof(formats[0]);
 
-struct video_format *video_format_find(bool tiled_format)
+struct video_format *video_format_find(unsigned int pixelformat)
 {
-	unsigned int pixelformat;
 	unsigned int i;
-
-	pixelformat = video_v4l2_format(tiled_format);
 
 	for (i = 0; i < formats_count; i++)
 		if (formats[i].v4l2_format == pixelformat)
 			return &formats[i];
 
 	return NULL;
+}
+
+bool video_format_is_linear(struct video_format *format)
+{
+	if (format == NULL)
+		return true;
+
+	return format->drm_modifier == DRM_FORMAT_MOD_NONE;
 }

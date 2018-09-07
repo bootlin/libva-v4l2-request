@@ -27,6 +27,7 @@
 #include "context.h"
 #include "request.h"
 #include "surface.h"
+#include "video.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -37,7 +38,6 @@
 #include <sys/mman.h>
 
 #include <va/va_drmcommon.h>
-
 #include <linux/videodev2.h>
 
 #include "utils.h"
@@ -201,7 +201,7 @@ VAStatus RequestAcquireBufferHandle(VADriverContextP context,
 	int rc;
 
 	if (buffer_info->mem_type != VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME ||
-	    driver_data->tiled_format)
+	    !video_format_is_linear(driver_data->video_format))
 		return VA_STATUS_ERROR_UNSUPPORTED_MEMORY_TYPE;
 
 	buffer_object = BUFFER(driver_data, buffer_id);

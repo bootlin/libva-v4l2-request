@@ -37,7 +37,7 @@
 #include <sys/mman.h>
 
 #include <va/va_drmcommon.h>
-
+#include <drm_fourcc.h>
 #include <linux/videodev2.h>
 
 #include "media.h"
@@ -54,7 +54,7 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 {
 	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
-	struct video_format *video_format;
+	struct video_format *video_format = NULL;
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
 	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
 	unsigned int destination_planes_count;
@@ -68,17 +68,22 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
 
-	driver_data->tiled_format = true;
+	found = v4l2_find_format(driver_data->video_fd,
+				 V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
+				 V4L2_PIX_FMT_SUNXI_TILED_NV12);
+	if (found)
+		video_format = video_format_find(V4L2_PIX_FMT_SUNXI_TILED_NV12);
 
 	found = v4l2_find_format(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
 				 V4L2_PIX_FMT_NV12);
 	if (found)
-		driver_data->tiled_format = false;
+		video_format = video_format_find(V4L2_PIX_FMT_NV12);
 
-	video_format = video_format_find(driver_data->tiled_format);
 	if (video_format == NULL)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	driver_data->video_format = video_format;
 
 	rc = v4l2_set_format(driver_data->video_fd,
 			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
@@ -356,7 +361,7 @@ VAStatus RequestQuerySurfaceAttributes(VADriverContextP context,
 	 * that are required for supporting the tiled output format.
 	 */
 
-	if (!driver_data->tiled_format)
+	if (video_format_is_linear(driver_data->video_format))
 		memory_types |= VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME;
 
 	attributes_list[i].value.value.i = memory_types;
@@ -454,7 +459,7 @@ VAStatus RequestExportSurfaceHandle(VADriverContextP context,
 
 	planes_count = surface_object->destination_planes_count;
 
-	video_format = video_format_find(driver_data->tiled_format);
+	video_format = driver_data->video_format;
 	if (video_format == NULL) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;

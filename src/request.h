@@ -52,7 +52,7 @@ struct request_data {
 	int video_fd;
 	int media_fd;
 
-	bool tiled_format;
+	struct video_format *video_format;
 };
 
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context);
