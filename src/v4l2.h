@@ -29,6 +29,8 @@
 
 #define SOURCE_SIZE_MAX						(1024 * 1024)
 
+unsigned int v4l2_type_video_output(bool mplane);
+unsigned int v4l2_type_video_capture(bool mplane);
 int v4l2_query_capabilities(int video_fd, unsigned int *capabilities);
 bool v4l2_find_format(int video_fd, unsigned int type,
 		      unsigned int pixelformat);

@@ -159,7 +159,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 		goto error;
 	}
 
-	capabilities_required = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;
+	capabilities_required = V4L2_CAP_STREAMING;
 
 	if ((capabilities & capabilities_required) != capabilities_required) {
 		request_log("Missing required driver capabilities\n");

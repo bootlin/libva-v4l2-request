@@ -30,6 +30,7 @@
 
 #include "context.h"
 #include "object_heap.h"
+#include "video.h"
 #include <va/va.h>
 
 #include <linux/videodev2.h>

@@ -31,9 +31,10 @@ struct video_format {
 	char *description;
 	unsigned int v4l2_format;
 	unsigned int v4l2_buffers_count;
+	bool v4l2_mplane;
 	unsigned int drm_format;
 	uint64_t drm_modifier;
-	unsigned int drm_planes_count;
+	unsigned int planes_count;
 	unsigned int bpp;
 };
 

@@ -112,7 +112,7 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 	bool found;
 
 	found = v4l2_find_format(driver_data->video_fd,
-				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
+				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
 				 V4L2_PIX_FMT_MPEG2_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 2)) {
 		profiles[index++] = VAProfileMPEG2Simple;
@@ -120,7 +120,7 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 	}
 
 	found = v4l2_find_format(driver_data->video_fd,
-				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
+				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
 				 V4L2_PIX_FMT_H264_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 5)) {
 		profiles[index++] = VAProfileH264Main;
@@ -131,7 +131,7 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 	}
 
 	found = v4l2_find_format(driver_data->video_fd,
-				 V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
+				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
 				 V4L2_PIX_FMT_HEVC_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 1))
 		profiles[index++] = VAProfileHEVCMain;

@@ -43,7 +43,11 @@ VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 	unsigned int destination_sizes[VIDEO_MAX_PLANES];
 	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
 	unsigned int destination_planes_count;
+	unsigned int planes_count;
+	unsigned int format_width, format_height;
 	unsigned int size;
+	unsigned int capture_type;
+	struct video_format *video_format;
 	struct object_image *image_object;
 	VABufferID buffer_id;
 	VAImageID id;
@@ -51,17 +55,38 @@ VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 	unsigned int i;
 	int rc;
 
-	rc = v4l2_get_format(driver_data->video_fd,
-			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE, NULL, NULL,
+	video_format = driver_data->video_format;
+	if (video_format == NULL)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	capture_type = v4l2_type_video_capture(video_format->v4l2_mplane);
+
+	/*
+	 * FIXME: This should be replaced by per-pixelformat hadling to
+	 * determine the logical plane offsets and sizes;
+	 */
+	rc = v4l2_get_format(driver_data->video_fd, capture_type,
+			     &format_width, &format_height,
 			     destination_bytesperlines, destination_sizes,
-			     &destination_planes_count);
+			     &planes_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
+	destination_planes_count = video_format->planes_count;
 	size = 0;
 
-	for (i = 0; i < destination_planes_count; i++)
+	/* The size returned by V4L2 covers buffers, not logical planes. */
+	for (i = 0; i < planes_count; i++)
 		size += destination_sizes[i];
+
+	/* Here we calculate the sizes assuming NV12. */
+
+	destination_sizes[0] = destination_bytesperlines[0] * format_height;
+
+	for (i = 1; i < destination_planes_count; i++) {
+		destination_bytesperlines[i] = destination_bytesperlines[0];
+		destination_sizes[i] = destination_sizes[0] / 2;
+	}
 
 	id = object_heap_allocate(&driver_data->image_heap);
 	image_object = IMAGE(driver_data, id);
@@ -155,10 +180,11 @@ VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
 					image->pitches[i], image->width,
 					i == 0 ? image->height :
 						 image->height / 2);
-		else
+		else {
 			memcpy(buffer_object->data + image->offsets[i],
 			       surface_object->destination_data[i],
 			       surface_object->destination_sizes[i]);
+		}
 	}
 
 	surface_object->status = VASurfaceReady;

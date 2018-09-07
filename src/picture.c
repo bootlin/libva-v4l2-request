@@ -267,9 +267,18 @@ VAStatus RequestEndPicture(VADriverContextP context, VAContextID context_id)
 	struct object_context *context_object;
 	struct object_config *config_object;
 	struct object_surface *surface_object;
+	struct video_format *video_format;
+	unsigned int output_type, capture_type;
 	int request_fd;
 	VAStatus status;
 	int rc;
+
+	video_format = driver_data->video_format;
+	if (video_format == NULL)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	output_type = v4l2_type_video_output(video_format->v4l2_mplane);
+	capture_type = v4l2_type_video_capture(video_format->v4l2_mplane);
 
 	context_object = CONTEXT(driver_data, context_id);
 	if (context_object == NULL)
@@ -298,15 +307,13 @@ VAStatus RequestEndPicture(VADriverContextP context, VAContextID context_id)
 	if (rc != VA_STATUS_SUCCESS)
 		return rc;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, -1,
-			       V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
+	rc = v4l2_queue_buffer(driver_data->video_fd, -1, capture_type,
 			       surface_object->destination_index, 0,
 			       surface_object->destination_buffers_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd,
-			       V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE,
+	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, output_type,
 			       surface_object->source_index,
 			       surface_object->slices_size, 1);
 	if (rc < 0)

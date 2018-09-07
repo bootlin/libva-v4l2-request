@@ -32,6 +32,42 @@
 #include "utils.h"
 #include "v4l2.h"
 
+static bool v4l2_type_is_output(unsigned int type)
+{
+	switch (type) {
+	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
+	case V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+static bool v4l2_type_is_mplane(unsigned int type)
+{
+	switch (type) {
+	case V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE:
+	case V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+unsigned int v4l2_type_video_output(bool mplane)
+{
+	return mplane ? V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE :
+			V4L2_BUF_TYPE_VIDEO_OUTPUT;
+}
+
+unsigned int v4l2_type_video_capture(bool mplane)
+{
+	return mplane ? V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE :
+			V4L2_BUF_TYPE_VIDEO_CAPTURE;
+}
+
 int v4l2_query_capabilities(int video_fd, unsigned int *capabilities)
 {
 	struct v4l2_capability capability;
@@ -51,6 +87,30 @@ int v4l2_query_capabilities(int video_fd, unsigned int *capabilities)
 	}
 
 	return 0;
+}
+
+static void v4l2_setup_format(struct v4l2_format *format, unsigned int type,
+			      unsigned int width, unsigned int height,
+			      unsigned int pixelformat)
+{
+	unsigned int sizeimage;
+
+	memset(format, 0, sizeof(*format));
+	format->type = type;
+
+	sizeimage = v4l2_type_is_output(type) ? SOURCE_SIZE_MAX : 0;
+
+	if (v4l2_type_is_mplane(type)) {
+		format->fmt.pix_mp.width = width;
+		format->fmt.pix_mp.height = height;
+		format->fmt.pix_mp.plane_fmt[0].sizeimage = sizeimage;
+		format->fmt.pix_mp.pixelformat = pixelformat;
+	} else {
+		format->fmt.pix.width = width;
+		format->fmt.pix.height = height;
+		format->fmt.pix.sizeimage = sizeimage;
+		format->fmt.pix.pixelformat = pixelformat;
+	}
 }
 
 bool v4l2_find_format(int video_fd, unsigned int type, unsigned int pixelformat)
@@ -76,19 +136,31 @@ bool v4l2_find_format(int video_fd, unsigned int type, unsigned int pixelformat)
 	return false;
 }
 
+int v4l2_try_format(int video_fd, unsigned int type, unsigned int width,
+		    unsigned int height, unsigned int pixelformat)
+{
+	struct v4l2_format format;
+	int rc;
+
+	v4l2_setup_format(&format, type, width, height, pixelformat);
+
+	rc = ioctl(video_fd, VIDIOC_TRY_FMT, &format);
+	if (rc < 0) {
+		request_log("Unable to try format for type %d: %s\n", type,
+			    strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
 int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 		    unsigned int width, unsigned int height)
 {
 	struct v4l2_format format;
 	int rc;
 
-	memset(&format, 0, sizeof(format));
-	format.type = type;
-	format.fmt.pix_mp.width = width;
-	format.fmt.pix_mp.height = height;
-	format.fmt.pix_mp.plane_fmt[0].sizeimage =
-		type == V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE ? SOURCE_SIZE_MAX : 0;
-	format.fmt.pix_mp.pixelformat = pixelformat;
+	v4l2_setup_format(&format, type, width, height, pixelformat);
 
 	rc = ioctl(video_fd, VIDIOC_S_FMT, &format);
 	if (rc < 0) {
@@ -119,29 +191,46 @@ int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 		return -1;
 	}
 
-	count = format.fmt.pix_mp.num_planes;
+	if (v4l2_type_is_mplane(type)) {
+		count = format.fmt.pix_mp.num_planes;
 
-	if (width != NULL)
-		*width = format.fmt.pix_mp.width;
+		if (width != NULL)
+			*width = format.fmt.pix_mp.width;
 
-	if (height != NULL)
-		*height = format.fmt.pix_mp.height;
+		if (height != NULL)
+			*height = format.fmt.pix_mp.height;
 
-	if (planes_count != NULL)
-		if (*planes_count > 0 && *planes_count < count)
-			count = *planes_count;
+		if (planes_count != NULL)
+			if (*planes_count > 0 && *planes_count < count)
+				count = *planes_count;
 
-	if (bytesperline != NULL)
-		for (i = 0; i < count; i++)
-			bytesperline[i] =
-				format.fmt.pix_mp.plane_fmt[i].bytesperline;
+		if (bytesperline != NULL)
+			for (i = 0; i < count; i++)
+				bytesperline[i] =
+					format.fmt.pix_mp.plane_fmt[i].bytesperline;
 
-	if (sizes != NULL)
-		for (i = 0; i < count; i++)
-			sizes[i] = format.fmt.pix_mp.plane_fmt[i].sizeimage;
+		if (sizes != NULL)
+			for (i = 0; i < count; i++)
+				sizes[i] = format.fmt.pix_mp.plane_fmt[i].sizeimage;
 
-	if (planes_count != NULL)
-		*planes_count = count;
+		if (planes_count != NULL)
+			*planes_count = count;
+	} else {
+		if (width != NULL)
+			*width = format.fmt.pix.width;
+
+		if (height != NULL)
+			*height = format.fmt.pix.height;
+
+		if (bytesperline != NULL)
+			bytesperline[0] = format.fmt.pix.bytesperline;
+
+		if (sizes != NULL)
+			sizes[0] = format.fmt.pix.sizeimage;
+
+		if (planes_count != NULL)
+			*planes_count = 1;
+	}
 
 	return 0;
 }
@@ -201,13 +290,21 @@ int v4l2_query_buffer(int video_fd, unsigned int type, unsigned int index,
 		return -1;
 	}
 
-	if (lengths != NULL)
-		for (i = 0; i < buffer.length; i++)
-			lengths[i] = buffer.m.planes[i].length;
+	if (v4l2_type_is_mplane(type)) {
+		if (lengths != NULL)
+			for (i = 0; i < buffer.length; i++)
+				lengths[i] = buffer.m.planes[i].length;
 
-	if (offsets != NULL)
-		for (i = 0; i < buffer.length; i++)
-			offsets[i] = buffer.m.planes[i].m.mem_offset;
+		if (offsets != NULL)
+			for (i = 0; i < buffer.length; i++)
+				offsets[i] = buffer.m.planes[i].m.mem_offset;
+	} else {
+		if (lengths != NULL)
+			lengths[0] = buffer.length;
+
+		if (offsets != NULL)
+			offsets[0] = buffer.m.offset;
+	}
 
 	return 0;
 }
