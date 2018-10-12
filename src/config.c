@@ -36,6 +36,8 @@
 #include "utils.h"
 #include "v4l2.h"
 
+#include "autoconfig.h"
+
 VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
 			     VAEntrypoint entrypoint,
 			     VAConfigAttrib *attributes, int attributes_count,
@@ -111,6 +113,7 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 	unsigned int index = 0;
 	bool found;
 
+#ifdef WITH_MPEG2
 	found = v4l2_find_format(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
 				 V4L2_PIX_FMT_MPEG2_SLICE);
@@ -118,7 +121,10 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 		profiles[index++] = VAProfileMPEG2Simple;
 		profiles[index++] = VAProfileMPEG2Main;
 	}
+#endif
 
+#ifdef WITH_H264
+	found = v4l2_find_format(driver_data->video_fd,
 	found = v4l2_find_format(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
 				 V4L2_PIX_FMT_H264_SLICE);
@@ -129,12 +135,15 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 		profiles[index++] = VAProfileH264MultiviewHigh;
 		profiles[index++] = VAProfileH264StereoHigh;
 	}
+#endif
 
+#ifdef WITH_H265
 	found = v4l2_find_format(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
 				 V4L2_PIX_FMT_HEVC_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 1))
 		profiles[index++] = VAProfileHEVCMain;
+#endif
 
 	*profiles_count = index;
 

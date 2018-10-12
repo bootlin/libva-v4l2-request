@@ -47,6 +47,8 @@
 #include "utils.h"
 #include "v4l2.h"
 
+#include "autoconfig.h"
+
 static VAStatus codec_store_buffer(struct request_data *driver_data,
 				   VAProfile profile,
 				   struct object_surface *surface_object,
@@ -71,13 +73,16 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 
 	case VAPictureParameterBufferType:
 		switch (profile) {
+#ifdef WITH_MPEG2
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
 			memcpy(&surface_object->params.mpeg2.picture,
 			       buffer_object->data,
 			       sizeof(surface_object->params.mpeg2.picture));
 			break;
+#endif
 
+#ifdef WITH_H264
 		case VAProfileH264Main:
 		case VAProfileH264High:
 		case VAProfileH264ConstrainedBaseline:
@@ -87,12 +92,15 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 			       buffer_object->data,
 			       sizeof(surface_object->params.h264.picture));
 			break;
+#endif
 
+#ifdef WITH_H265
 		case VAProfileHEVCMain:
 			memcpy(&surface_object->params.h265.picture,
 			       buffer_object->data,
 			       sizeof(surface_object->params.h265.picture));
 			break;
+#endif
 
 		default:
 			break;
@@ -101,6 +109,7 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 
 	case VASliceParameterBufferType:
 		switch (profile) {
+#ifdef WITH_H264
 		case VAProfileH264Main:
 		case VAProfileH264High:
 		case VAProfileH264ConstrainedBaseline:
@@ -110,12 +119,15 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 			       buffer_object->data,
 			       sizeof(surface_object->params.h264.slice));
 			break;
+#endif
 
+#ifdef WITH_H265
 		case VAProfileHEVCMain:
 			memcpy(&surface_object->params.h265.slice,
 			       buffer_object->data,
 			       sizeof(surface_object->params.h265.slice));
 			break;
+#endif
 
 		default:
 			break;
@@ -124,6 +136,7 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 
 	case VAIQMatrixBufferType:
 		switch (profile) {
+#ifdef WITH_MPEG2
 		case VAProfileMPEG2Simple:
 		case VAProfileMPEG2Main:
 			memcpy(&surface_object->params.mpeg2.iqmatrix,
@@ -131,7 +144,9 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 			       sizeof(surface_object->params.mpeg2.iqmatrix));
 			surface_object->params.mpeg2.iqmatrix_set = true;
 			break;
+#endif
 
+#ifdef WITH_H264
 		case VAProfileH264Main:
 		case VAProfileH264High:
 		case VAProfileH264ConstrainedBaseline:
@@ -141,13 +156,16 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 			       buffer_object->data,
 			       sizeof(surface_object->params.h264.matrix));
 			break;
+#endif
 
+#ifdef WITH_H265
 		case VAProfileHEVCMain:
 			memcpy(&surface_object->params.h265.iqmatrix,
 			       buffer_object->data,
 			       sizeof(surface_object->params.h265.iqmatrix));
 			surface_object->params.h265.iqmatrix_set = true;
 			break;
+#endif
 
 		default:
 			break;
@@ -169,13 +187,16 @@ static VAStatus codec_set_controls(struct request_data *driver_data,
 	int rc;
 
 	switch (profile) {
+#ifdef WITH_MPEG2
 	case VAProfileMPEG2Simple:
 	case VAProfileMPEG2Main:
 		rc = mpeg2_set_controls(driver_data, context, surface_object);
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
+#endif
 
+#ifdef WITH_H264
 	case VAProfileH264Main:
 	case VAProfileH264High:
 	case VAProfileH264ConstrainedBaseline:
@@ -185,12 +206,15 @@ static VAStatus codec_set_controls(struct request_data *driver_data,
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
+#endif
 
+#ifdef WITH_H265
 	case VAProfileHEVCMain:
 		rc = h265_set_controls(driver_data, context, surface_object);
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
+#endif
 
 	default:
 		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
