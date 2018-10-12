@@ -342,7 +342,7 @@ VAStatus RequestQuerySurfaceAttributes(VADriverContextP context,
 	memset(attributes_list, 0, attributes_list_size);
 
 	attributes_list[i].type = VASurfaceAttribPixelFormat;
-	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE;
+	attributes_list[i].flags = VA_SURFACE_ATTRIB_GETTABLE | VA_SURFACE_ATTRIB_SETTABLE;
 	attributes_list[i].value.type = VAGenericValueTypeInteger;
 	attributes_list[i].value.value.i = VA_FOURCC_NV12;
 	i++;
