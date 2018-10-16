@@ -76,6 +76,45 @@ if test "$USE_DRM" = "yes"; then
     CPPFLAGS="$saved_CPPFLAGS"
 fi
 
+AC_MSG_CHECKING([for MPEG2 support])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <linux/videodev2.h>
+#ifndef V4L2_PIX_FMT_MPEG2_SLICE
+# error macro not defined
+#endif
+]])], [WITH_MPEG2="yes"], [WITH_MPEG2="no"])
+AC_MSG_RESULT([$WITH_MPEG2])
+AM_CONDITIONAL([WITH_MPEG2], [test "$WITH_MPEG2" = "yes"])
+if test "$WITH_MPEG2" = "yes"; then
+    AC_DEFINE([WITH_MPEG2], [1], [MPEG2 support detected])
+fi
+
+AC_MSG_CHECKING([for H.264 support])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <linux/videodev2.h>
+#ifndef V4L2_PIX_FMT_H264_SLICE
+# error macro not defined
+#endif
+]])], [WITH_H264="yes"], [WITH_H264="no"])
+AC_MSG_RESULT([$WITH_H264])
+AM_CONDITIONAL([WITH_H264], [test "$WITH_H264" = "yes"])
+if test "$WITH_H264" = "yes"; then
+    AC_DEFINE([WITH_H264], [1], [H.264 support detected])
+fi
+
+AC_MSG_CHECKING([for H.265 support])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <linux/videodev2.h>
+#ifndef V4L2_PIX_FMT_HEVC_SLICE
+# error macro not defined
+#endif
+]])], [WITH_H265="yes"], [WITH_H265="no"])
+AC_MSG_RESULT([$WITH_H265])
+AM_CONDITIONAL([WITH_H265], [test "$WITH_H265" = "yes"])
+if test "$WITH_H265" = "yes"; then
+    AC_DEFINE([WITH_H265], [1], [H.265 support detected])
+fi
+
 VA_VERSION=`$PKG_CONFIG --modversion libva`
 VA_MAJOR_VERSION=`echo "$VA_VERSION" | cut -d'.' -f1`
 VA_MINOR_VERSION=`echo "$VA_VERSION" | cut -d'.' -f2`
@@ -109,4 +148,7 @@ echo $PACKAGE configuration summary:
 echo
 echo VA-API version ................... : $VA_VERSION_STR
 echo VA-API drivers path .............. : $LIBVA_DRIVERS_PATH
+echo H.264 support .................... : $WITH_H264
+echo H.265 support .................... : $WITH_H265
+echo MPEG2 support .................... : $WITH_MPEG2
 echo

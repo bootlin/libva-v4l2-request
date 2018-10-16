@@ -5,8 +5,19 @@ backend_ldflags = -module -avoid-version -no-undefined -Wl,--no-undefined
 backend_libs = -lpthread -ldl $(DRM_LIBS) $(LIBVA_DEPS_LIBS)
 
 backend_c = request.c object_heap.c config.c surface.c context.c buffer.c \
-	mpeg2.c picture.c subpicture.c image.c v4l2.c video.c media.c utils.c \
-	h264.c h265.c
+	picture.c subpicture.c image.c v4l2.c video.c media.c utils.c
+
+if WITH_MPEG2
+backend_c += mpeg2.c
+endif
+
+if WITH_H264
+backend_c += h264.c
+endif
+
+if WITH_H265
+backend_c += h265.c
+endif
 
 backend_s = tiled_yuv.S
 

@@ -41,6 +41,8 @@
 #include "utils.h"
 #include "v4l2.h"
 
+#include "autoconfig.h"
+
 VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 			      int picture_width, int picture_height, int flags,
 			      VASurfaceID *surfaces_ids, int surfaces_count,
@@ -86,11 +88,15 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	memset(&context_object->dpb, 0, sizeof(context_object->dpb));
 
 	switch (config_object->profile) {
+
+#ifdef WITH_MPEG2
 	case VAProfileMPEG2Simple:
 	case VAProfileMPEG2Main:
 		pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
 		break;
+#endif
 
+#ifdef WITH_H264
 	case VAProfileH264Main:
 	case VAProfileH264High:
 	case VAProfileH264ConstrainedBaseline:
@@ -98,10 +104,13 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	case VAProfileH264StereoHigh:
 		pixelformat = V4L2_PIX_FMT_H264_SLICE;
 		break;
+#endif
 
+#ifdef WITH_H265
 	case VAProfileHEVCMain:
 		pixelformat = V4L2_PIX_FMT_HEVC_SLICE;
 		break;
+#endif
 
 	default:
 		status = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;

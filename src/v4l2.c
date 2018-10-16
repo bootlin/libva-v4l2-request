@@ -348,7 +348,10 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 	buffer.m.planes = planes;
 
 	for (i = 0; i < buffers_count; i++)
-		buffer.m.planes[i].bytesused = size;
+		if (v4l2_type_is_mplane(type))
+			buffer.m.planes[i].bytesused = size;
+		else
+			buffer.bytesused = size;
 
 	if (request_fd >= 0) {
 		buffer.flags = V4L2_BUF_FLAG_REQUEST_FD;
