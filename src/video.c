@@ -51,7 +51,7 @@ static struct video_format formats[] = {
 		.v4l2_buffers_count	= 1,
 		.v4l2_mplane		= false,
 		.drm_format		= DRM_FORMAT_NV12,
-		.drm_modifier		= DRM_FORMAT_MOD_ALLWINNER_MB32_TILED,
+		.drm_modifier		= DRM_FORMAT_MOD_ARM_AFBC(1),
 		.planes_count		= 2,
 		.bpp			= 16
 	},
