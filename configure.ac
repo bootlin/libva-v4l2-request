@@ -55,26 +55,56 @@ AC_CHECK_LIB([m], [sin])
 LIBVA_PACKAGE_VERSION=libva_package_version
 AC_SUBST(LIBVA_PACKAGE_VERSION)
 
-dnl Check for recent enough DRM
+dnl Check for recent DRM headers (libdrm)
 LIBDRM_VERSION=libdrm_version
-PKG_CHECK_MODULES([DRM], [libdrm >= $LIBDRM_VERSION])
+BASE_CFLAGS=$CFLAGS
+PKG_CHECK_MODULES([DRM], [libdrm >= $LIBDRM_VERSION], [CFLAGS="$CFLAGS $DRM_CFLAGS"])
+AC_SUBST(DRM_CFLAGS)
 AC_SUBST(LIBDRM_VERSION)
+
+AC_CHECK_HEADERS([drm_fourcc.h])
+
+AC_MSG_CHECKING([for libdrm supporting DRM_FORMAT_MOD_ALLWINNER_TILED])
+TEST_FOURCC="
+#ifdef HAVE_DRM_FOURCC_H
+#include <drm_fourcc.h>
+#endif
+int main(void) {
+    int test = DRM_FORMAT_MOD_ALLWINNER_TILED;
+    return;
+}
+"
+AS_IF([test "$ac_cv_header_drm_fourcc_h" = "yes"], [
+    AC_COMPILE_IFELSE(
+        [AC_LANG_SOURCE([$TEST_FOURCC])],
+        [RECENT_FOURCC="yes"],
+        [RECENT_FOURCC="no"]
+    )
+    AC_MSG_RESULT([$RECENT_FOURCC])
+])
+
+case "${RECENT_FOURCC}" in
+no)
+	AC_MSG_RESULT("No recent DRM headers support in libdrm. Checking kernel drm header")
+	CFLAGS="$BASE_CFLAGS -I/usr/include/drm/"
+	AC_CHECK_HEADERS([drm_fourcc.h])
+        AS_IF([test "$ac_cv_header_drm_fourcc_h" = "yes"], [
+            AC_COMPILE_IFELSE(
+                [AC_LANG_SOURCE([$TEST_FOURCC])],
+                [RECENT_FOURCC="yes"],
+                [RECENT_FOURCC="no"]
+            )
+            AC_MSG_RESULT([$RECENT_FOURCC])
+        ])
+        ;;
+esac
 
 dnl Check for VA-API
 PKG_CHECK_MODULES(LIBVA_DEPS,     [libva >= va_api_version])
 
 dnl Check for VA/DRM API
 PKG_CHECK_MODULES(LIBVA_DRM_DEPS, [libva-drm],
-  [AC_DEFINE([HAVE_VA_DRM], [1], [Defined to 1 if VA/DRM API is enabled])],
-  [USE_DRM="no"])
-
-# Check for <drm_fourcc.h>
-if test "$USE_DRM" = "yes"; then
-    saved_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $DRM_CFLAGS"
-    AC_CHECK_HEADERS([drm_fourcc.h], [:], [USE_DRM="no"])
-    CPPFLAGS="$saved_CPPFLAGS"
-fi
+  [AC_DEFINE([HAVE_VA_DRM], [1], [Defined to 1 if VA/DRM API is enabled])])
 
 AC_MSG_CHECKING([for MPEG2 support])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
@@ -151,4 +181,4 @@ echo VA-API drivers path .............. : $LIBVA_DRIVERS_PATH
 echo H.264 support .................... : $WITH_H264
 echo H.265 support .................... : $WITH_H265
 echo MPEG2 support .................... : $WITH_MPEG2
-echo
+echo CFLAGS ........................... : $CFLAGS
