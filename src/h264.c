@@ -31,6 +31,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
+#include <linux/types.h>
 #include <linux/videodev2.h>
 
 #include "request.h"
@@ -189,7 +190,7 @@ static void h264_fill_dpb(struct request_data *data,
 			continue;
 
 		if (surface)
-			dpb->buf_index = surface->destination_index;
+			dpb->timestamp = surface->destination_index;
 
 		dpb->frame_num = entry->pic.frame_idx;
 		dpb->top_field_order_cnt = entry->pic.TopFieldOrderCnt;
