@@ -282,7 +282,7 @@ static void h265_fill_slice_params(VAPictureParameterBufferHEVC *picture,
 		if (surface_object == NULL)
 			break;
 
-		slice_params->dpb[i].buffer_index =
+		slice_params->dpb[i].timestamp =
 			surface_object->destination_index;
 
 		if ((hevc_picture->flags & VA_PICTURE_HEVC_RPS_ST_CURR_BEFORE) != 0) {
