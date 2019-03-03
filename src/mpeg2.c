@@ -23,18 +23,20 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "mpeg2.h"
-#include "context.h"
-#include "request.h"
-#include "surface.h"
-
 #include <assert.h>
 #include <string.h>
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
+#include <linux/types.h>
 #include <linux/videodev2.h>
+
+#include "mpeg2-ctrls.h"
+#include "mpeg2.h"
+#include "context.h"
+#include "request.h"
+#include "surface.h"
 
 #include "v4l2.h"
 
