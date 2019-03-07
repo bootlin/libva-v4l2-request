@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2016 Florent Revest, <florent.revest@free-electrons.com>
- *               2007 Intel Corporation. All Rights Reserved.
+ * Copyright (C) 2016 Florent Revest <florent.revest@free-electrons.com>
+ * Copyright (C) 2018 Paul Kocialkowski <paul.kocialkowski@bootlin.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the
