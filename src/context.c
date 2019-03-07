@@ -90,14 +90,11 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 
 	switch (config_object->profile) {
 
-#ifdef WITH_MPEG2
 	case VAProfileMPEG2Simple:
 	case VAProfileMPEG2Main:
 		pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
 		break;
-#endif
 
-#ifdef WITH_H264
 	case VAProfileH264Main:
 	case VAProfileH264High:
 	case VAProfileH264ConstrainedBaseline:
@@ -105,13 +102,10 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	case VAProfileH264StereoHigh:
 		pixelformat = V4L2_PIX_FMT_H264_SLICE;
 		break;
-#endif
 
-#ifdef WITH_H265
 	case VAProfileHEVCMain:
 		pixelformat = V4L2_PIX_FMT_HEVC_SLICE;
 		break;
-#endif
 
 	default:
 		status = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;

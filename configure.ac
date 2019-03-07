@@ -1,154 +1,53 @@
-# intel-driver package version number
-m4_define([v4l2_request_major_version], [1])
-m4_define([v4l2_request_minor_version], [0])
-m4_define([v4l2_request_micro_version], [0])
-m4_define([v4l2_request_pre_version],   [0])
-m4_define([v4l2_request_version],
-          [v4l2_request_major_version.v4l2_request_minor_version.v4l2_request_micro_version])
-m4_if(v4l2_request_pre_version, [0], [], [
-m4_append([v4l2_request_version], v4l2_request_pre_version, [.pre])
-])
-
-# libva minimum version requirement
-m4_define([libva_package_version], [1.2.2])
-m4_define([va_api_version], [0.34.0])
-
-# libdrm minimum version requirement
-m4_define([libdrm_version], [2.4.45])
+# Copyright (C) 2019 Bootlin
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sub license, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice (including the
+# next paragraph) shall be included in all copies or substantial portions
+# of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+# IN NO EVENT SHALL PRECISION INSIGHT AND/OR ITS SUPPLIERS BE LIABLE FOR
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 AC_PREREQ([2.60])
-AC_INIT([liva_wrapper], [v4l2_request_version],
-	[florent.revest@free-electrons.com], [v4l2_request])
-AC_CONFIG_SRCDIR([Makefile.am])
-AM_INIT_AUTOMAKE([1.9 tar-ustar])
+AC_INIT([libva-v4l2-request], [1.0.0], [paul.kocialkowski@bootlin.com])
+AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects foreign])
 
-AC_CONFIG_HEADERS([src/autoconfig.h])
-
-V4L2_REQUEST_MAJOR_VERSION=v4l2_request_major_version
-V4L2_REQUEST_MINOR_VERSION=v4l2_request_minor_version
-V4L2_REQUEST_MICRO_VERSION=v4l2_request_micro_version
-AC_DEFINE([V4L2_REQUEST_MAJOR_VERSION], [v4l2_request_major_version], [Major version of the driver])
-AC_DEFINE([V4L2_REQUEST_MINOR_VERSION], [v4l2_request_minor_version], [Minor version of the driver])
-AC_DEFINE([V4L2_REQUEST_MICRO_VERSION], [v4l2_request_micro_version], [Micro version of the driver])
-AC_DEFINE([V4L2_REQUEST_PRE_VERSION], [v4l2_request_pre_version], [Preversion of the driver])
-
-V4L2_REQUEST_LT_LDFLAGS="-avoid-version"
-AC_SUBST(V4L2_REQUEST_LT_LDFLAGS)
-
-dnl Use pretty build output with automake >= 1.11
-m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])], [
-    AM_DEFAULT_VERBOSITY=1
-    AC_SUBST(AM_DEFAULT_VERBOSITY)
-])
-
+AC_CONFIG_SRCDIR([src/request.c])
+AC_ENABLE_SHARED
 AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
+AC_LANG_C
 AC_PROG_CC
-AM_PROG_CC_C_O
+AC_PROG_LIBTOOL
+AC_PROG_INSTALL
 AM_PROG_AS
 
-AC_C_BIGENDIAN
-AC_HEADER_STDC
-AC_SYS_LARGEFILE
-AC_CHECK_LIB([m], [sin])
+PKG_CHECK_MODULES([LIBVA], [libva >= 1.4.0])
+PKG_CHECK_MODULES([DRM], [libdrm >= 2.4.52])
 
-LIBVA_PACKAGE_VERSION=libva_package_version
-AC_SUBST(LIBVA_PACKAGE_VERSION)
-
-dnl Check for recent enough DRM
-LIBDRM_VERSION=libdrm_version
-PKG_CHECK_MODULES([DRM], [libdrm >= $LIBDRM_VERSION])
-AC_SUBST(LIBDRM_VERSION)
-
-dnl Check for VA-API
-PKG_CHECK_MODULES(LIBVA_DEPS,     [libva >= va_api_version])
-
-dnl Check for VA/DRM API
-PKG_CHECK_MODULES(LIBVA_DRM_DEPS, [libva-drm],
-  [AC_DEFINE([HAVE_VA_DRM], [1], [Defined to 1 if VA/DRM API is enabled])],
-  [USE_DRM="no"])
-
-# Check for <drm_fourcc.h>
-if test "$USE_DRM" = "yes"; then
-    saved_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $DRM_CFLAGS"
-    AC_CHECK_HEADERS([drm_fourcc.h], [:], [USE_DRM="no"])
-    CPPFLAGS="$saved_CPPFLAGS"
-fi
-
-AC_MSG_CHECKING([for MPEG2 support])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#include <linux/videodev2.h>
-#ifndef V4L2_PIX_FMT_MPEG2_SLICE
-# error macro not defined
-#endif
-]])], [WITH_MPEG2="yes"], [WITH_MPEG2="no"])
-AC_MSG_RESULT([$WITH_MPEG2])
-AM_CONDITIONAL([WITH_MPEG2], [test "$WITH_MPEG2" = "yes"])
-if test "$WITH_MPEG2" = "yes"; then
-    AC_DEFINE([WITH_MPEG2], [1], [MPEG2 support detected])
-fi
-
-AC_MSG_CHECKING([for H.264 support])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#include <linux/videodev2.h>
-#ifndef V4L2_PIX_FMT_H264_SLICE
-# error macro not defined
-#endif
-]])], [WITH_H264="yes"], [WITH_H264="no"])
-AC_MSG_RESULT([$WITH_H264])
-AM_CONDITIONAL([WITH_H264], [test "$WITH_H264" = "yes"])
-if test "$WITH_H264" = "yes"; then
-    AC_DEFINE([WITH_H264], [1], [H.264 support detected])
-fi
-
-AC_MSG_CHECKING([for H.265 support])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#include <linux/videodev2.h>
-#ifndef V4L2_PIX_FMT_HEVC_SLICE
-# error macro not defined
-#endif
-]])], [WITH_H265="yes"], [WITH_H265="no"])
-AC_MSG_RESULT([$WITH_H265])
-AM_CONDITIONAL([WITH_H265], [test "$WITH_H265" = "yes"])
-if test "$WITH_H265" = "yes"; then
-    AC_DEFINE([WITH_H265], [1], [H.265 support detected])
-fi
+#LIBS="$LIBS $DRM_LIBS"
+#CFLAGS="$CFLAGS $DRM_CFLAGS $LIBVA_CFLAGS"
 
 VA_VERSION=`$PKG_CONFIG --modversion libva`
-VA_MAJOR_VERSION=`echo "$VA_VERSION" | cut -d'.' -f1`
-VA_MINOR_VERSION=`echo "$VA_VERSION" | cut -d'.' -f2`
-VA_MICRO_VERSION=`echo "$VA_VERSION" | cut -d'.' -f3`
-VA_VERSION_STR="$VA_VERSION"
+VA_VERSION_MAJOR=`echo "$VA_VERSION" | cut -d'.' -f1`
+VA_VERSION_MINOR=`echo "$VA_VERSION" | cut -d'.' -f2`
 
-va_full_version_int=`expr ${VA_MAJOR_VERSION:-0} "*" 1000000 + \
-                          ${VA_MINOR_VERSION:-0} "*" 10000   + \
-                          ${VA_MICRO_VERSION:-0} "*" 100     + \
-                          0`
-VA_DRIVER_INIT_FUNC="__vaDriverInit_${VA_MAJOR_VERSION}_${VA_MINOR_VERSION}"
+VA_DRIVER_INIT_FUNC="__vaDriverInit_${VA_VERSION_MAJOR}_${VA_VERSION_MINOR}"
 AC_DEFINE_UNQUOTED([VA_DRIVER_INIT_FUNC], [$VA_DRIVER_INIT_FUNC],
-    [Define driver entry-point])
+		   [Driver init function])
 
-dnl Check for VA-API drivers path
-AC_MSG_CHECKING([for VA drivers path])
-LIBVA_DRIVERS_PATH=`$PKG_CONFIG libva --variable driverdir`
-if test -z "$LIBVA_DRIVERS_PATH"; then
-    LIBVA_DRIVERS_PATH="/usr/lib/dri/"
-fi
-AC_MSG_RESULT([$LIBVA_DRIVERS_PATH])
-AC_SUBST(LIBVA_DRIVERS_PATH)
+AC_CONFIG_HEADERS([src/autoconfig.h])
+AC_CONFIG_FILES([Makefile src/Makefile])
 
-AC_OUTPUT([
-    Makefile
-    src/Makefile
-])
-
-echo
-echo $PACKAGE configuration summary:
-echo
-echo VA-API version ................... : $VA_VERSION_STR
-echo VA-API drivers path .............. : $LIBVA_DRIVERS_PATH
-echo H.264 support .................... : $WITH_H264
-echo H.265 support .................... : $WITH_H265
-echo MPEG2 support .................... : $WITH_MPEG2
-echo
+AC_OUTPUT
