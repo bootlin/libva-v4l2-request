@@ -67,6 +67,10 @@ headers = [
 	'h265.h'
 ]
 
+includes = [
+	include_directories('../include')
+]
+
 cflags = [
 	'-Wall',
 	'-fvisibility=hidden'
@@ -83,4 +87,5 @@ v4l2_request_drv_video = shared_module('v4l2_request_drv_video',
 	install_dir: '/usr/lib/dri/',
 	c_args: cflags,
 	sources: [ sources, headers, autoconf ],
+	include_directories: includes,
 	dependencies: deps)

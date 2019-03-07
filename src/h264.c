@@ -33,6 +33,7 @@
 #include <sys/mman.h>
 
 #include <linux/videodev2.h>
+#include <h264-ctrls.h>
 
 #include "request.h"
 #include "surface.h"
