@@ -186,12 +186,15 @@ static void h264_fill_dpb(struct request_data *data,
 		struct h264_dpb_entry *entry = &context->dpb.entries[i];
 		struct object_surface *surface =
 			SURFACE(data, entry->pic.picture_id);
+		uint64_t timestamp;
 
 		if (!entry->valid)
 			continue;
 
-		if (surface)
-			dpb->buf_index = surface->destination_index;
+		if (surface) {
+			timestamp = v4l2_timeval_to_ns(&surface->timestamp);
+			dpb->timestamp = timestamp;
+		}
 
 		dpb->frame_num = entry->pic.frame_idx;
 		dpb->top_field_order_cnt = entry->pic.TopFieldOrderCnt;

@@ -272,6 +272,8 @@ static void h265_fill_slice_params(VAPictureParameterBufferHEVC *picture,
 	num_rps_poc_lt_curr = 0;
 
 	for (i = 0; i < 15 && slice_type != V4L2_HEVC_SLICE_TYPE_I ; i++) {
+		uint64_t timestamp;
+
 		hevc_picture = &picture->ReferenceFrames[i];
 
 		if (hevc_picture->picture_id == VA_INVALID_SURFACE ||
@@ -284,8 +286,8 @@ static void h265_fill_slice_params(VAPictureParameterBufferHEVC *picture,
 		if (surface_object == NULL)
 			break;
 
-		slice_params->dpb[i].buffer_index =
-			surface_object->destination_index;
+		timestamp = v4l2_timeval_to_ns(&surface_object->timestamp);
+		slice_params->dpb[i].timestamp = timestamp;
 
 		if ((hevc_picture->flags & VA_PICTURE_HEVC_RPS_ST_CURR_BEFORE) != 0) {
 			slice_params->dpb[i].rps =

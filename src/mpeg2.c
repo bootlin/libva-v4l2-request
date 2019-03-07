@@ -54,6 +54,7 @@ int mpeg2_set_controls(struct request_data *driver_data,
 	struct v4l2_ctrl_mpeg2_quantization quantization;
 	struct object_surface *forward_reference_surface;
 	struct object_surface *backward_reference_surface;
+	uint64_t timestamp;
 	unsigned int i;
 	int rc;
 
@@ -102,21 +103,19 @@ int mpeg2_set_controls(struct request_data *driver_data,
 
 	forward_reference_surface =
 		SURFACE(driver_data, picture->forward_reference_picture);
-	if (forward_reference_surface != NULL)
-		slice_params.forward_ref_index =
-			forward_reference_surface->destination_index;
-	else
-		slice_params.forward_ref_index =
-			surface_object->destination_index;
+	if (forward_reference_surface == NULL)
+		forward_reference_surface = surface_object;
+
+	timestamp = v4l2_timeval_to_ns(&forward_reference_surface->timestamp);
+	slice_params.forward_ref_ts = timestamp;
 
 	backward_reference_surface =
 		SURFACE(driver_data, picture->backward_reference_picture);
-	if (backward_reference_surface != NULL)
-		slice_params.backward_ref_index =
-			backward_reference_surface->destination_index;
-	else
-		slice_params.backward_ref_index =
-			surface_object->destination_index;
+	if (backward_reference_surface == NULL)
+		backward_reference_surface = surface_object;
+
+	timestamp = v4l2_timeval_to_ns(&backward_reference_surface->timestamp);
+	slice_params.backward_ref_ts = timestamp;
 
 	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd,
 			      V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS,
