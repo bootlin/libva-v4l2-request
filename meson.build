@@ -26,7 +26,7 @@ project('libva-v4l2-request', 'c',
 
 cc = meson.get_compiler('c')
 
-libva_dep = dependency('libva', version : '>= 1.4.0')
+libva_dep = dependency('libva', version : '>= 1.1.0')
 libdrm_dep = dependency('libdrm', version : '>= 2.4.52')
 
 va_api_version_array = libva_dep.version().split('.')
