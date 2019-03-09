@@ -32,6 +32,76 @@
 #include "utils.h"
 #include "v4l2.h"
 
+const struct codec codec[] = {
+	{
+		.name = "MPEG-2",
+		.type = CODEC_TYPE_MPEG2,
+	},
+	{
+		.name = "H.264",
+		.type = CODEC_TYPE_H264,
+	},
+	{
+		.name = "H.265",
+		.type = CODEC_TYPE_H265,
+	},
+};
+
+const struct buffer_type buffer_type[] = {
+	{
+		.name	= "Video Capture Buffer",
+		.type	= V4L2_BUF_TYPE_VIDEO_CAPTURE
+	},
+	{
+		.name	= "Video Output Buffer",
+		.type	= V4L2_BUF_TYPE_VIDEO_OUTPUT
+	},
+	{
+		.name	= "Video Overlay Buffer",
+		.type	= V4L2_BUF_TYPE_VIDEO_OVERLAY
+	},
+	{
+		.name	= "VBI Capture Buffer",
+		.type	= V4L2_BUF_TYPE_VBI_CAPTURE
+	},
+	{
+		.name	= "VBI Output Buffer",
+		.type	= V4L2_BUF_TYPE_VBI_OUTPUT
+	},
+	{
+		.name	= "Sliced VBI Capture Buffer",
+		.type	= V4L2_BUF_TYPE_SLICED_VBI_CAPTURE
+	},
+	{
+		.name	= "Sliced VBI Output Buffer",
+		.type	= V4L2_BUF_TYPE_SLICED_VBI_OUTPUT
+	},
+	{
+		.name	= "Video Output Overlay Buffer",
+		.type	= V4L2_BUF_TYPE_VIDEO_OUTPUT_OVERLAY
+	},
+	{
+		.name	= "Video Multi-Plane Capture Buffer",
+		.type	= V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE
+	},
+	{
+		.name	= "Video Multi-Plane Output Buffer",
+		.type	= V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE
+	},
+	{
+		.name	= "SDR Capture Buffer",
+		.type	= V4L2_BUF_TYPE_SDR_CAPTURE
+	},
+	{
+		.name	= "SDR Output Buffer",
+		.type	= V4L2_BUF_TYPE_SDR_OUTPUT
+	},
+	{
+		.name	= "Meta Capture Buffer",
+		.type	= V4L2_BUF_TYPE_META_CAPTURE
+	}
+};
+
 static bool v4l2_type_is_output(unsigned int type)
 {
 	switch (type) {
@@ -146,8 +216,8 @@ int v4l2_try_format(int video_fd, unsigned int type, unsigned int width,
 
 	rc = ioctl(video_fd, VIDIOC_TRY_FMT, &format);
 	if (rc < 0) {
-		request_log("Unable to try format for type %d: %s\n", type,
-			    strerror(errno));
+		request_log("Unable to try format for %s (type %d): %s (%d)\n",
+			buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -164,8 +234,8 @@ int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 
 	rc = ioctl(video_fd, VIDIOC_S_FMT, &format);
 	if (rc < 0) {
-		request_log("Unable to set format for type %d: %s\n", type,
-			    strerror(errno));
+		request_log("Unable to set format for %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -186,8 +256,8 @@ int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 
 	rc = ioctl(video_fd, VIDIOC_G_FMT, &format);
 	if (rc < 0) {
-		request_log("Unable to get format for type %d: %s\n", type,
-			    strerror(errno));
+		request_log("Unable to get format for %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -248,15 +318,15 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_G_FMT, &buffers.format);
 	if (rc < 0) {
-		request_log("Unable to get format for type %d: %s\n", type,
-			    strerror(errno));
+		request_log("Unable to get format for %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
 	rc = ioctl(video_fd, VIDIOC_CREATE_BUFS, &buffers);
 	if (rc < 0) {
-		request_log("Unable to create buffer for type %d: %s\n", type,
-			    strerror(errno));
+		request_log("Unable to create %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -286,7 +356,8 @@ int v4l2_query_buffer(int video_fd, unsigned int type, unsigned int index,
 
 	rc = ioctl(video_fd, VIDIOC_QUERYBUF, &buffer);
 	if (rc < 0) {
-		request_log("Unable to query buffer: %s\n", strerror(errno));
+		request_log("Unable to query %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -322,7 +393,8 @@ int v4l2_request_buffers(int video_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_REQBUFS, &buffers);
 	if (rc < 0) {
-		request_log("Unable to request buffers: %s\n", strerror(errno));
+		request_log("Unable to request %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -363,7 +435,8 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_QBUF, &buffer);
 	if (rc < 0) {
-		request_log("Unable to queue buffer: %s\n", strerror(errno));
+		request_log("Unable to queue %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -393,7 +466,8 @@ int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	rc = ioctl(video_fd, VIDIOC_DQBUF, &buffer);
 	if (rc < 0) {
-		request_log("Unable to dequeue buffer: %s\n", strerror(errno));
+		request_log("Unable to dequeue %s (type %d): %s (%d)\n",
+			    buffer_type[type].name, type, strerror(errno), errno);
 		return -1;
 	}
 
@@ -417,8 +491,8 @@ int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
 
 		rc = ioctl(video_fd, VIDIOC_EXPBUF, &exportbuffer);
 		if (rc < 0) {
-			request_log("Unable to export buffer: %s\n",
-				    strerror(errno));
+			request_log("Unable to export %s (type %d): %s (%d)\n",
+				    buffer_type[type].name, type, strerror(errno), errno);
 			return -1;
 		}
 
@@ -452,7 +526,8 @@ int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
 
 	rc = ioctl(video_fd, VIDIOC_S_EXT_CTRLS, &controls);
 	if (rc < 0) {
-		request_log("Unable to set control: %s\n", strerror(errno));
+		request_log("Unable to set control: %s (%d)\n",
+			    strerror(errno), errno);
 		return -1;
 	}
 
@@ -467,8 +542,10 @@ int v4l2_set_stream(int video_fd, unsigned int type, bool enable)
 	rc = ioctl(video_fd, enable ? VIDIOC_STREAMON : VIDIOC_STREAMOFF,
 		   &buf_type);
 	if (rc < 0) {
-		request_log("Unable to %sable stream: %s\n",
-			    enable ? "en" : "dis", strerror(errno));
+		request_log("Unable to %sable stream %s (type %d): %s (%d)\n",
+			    enable ? "en" : "dis",
+			    buffer_type[type].name, type,
+			    strerror(errno));
 		return -1;
 	}
 
