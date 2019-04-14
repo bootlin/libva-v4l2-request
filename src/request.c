@@ -60,15 +60,18 @@ VA_DRIVER_INIT_FUNC(VADriverContextP context);
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
 	struct request_data *driver_data;
+	struct driver *driver = NULL;
+	struct decoder *decoder = NULL;
 	struct VADriverVTable *vtable = context->vtable;
 	VAStatus status;
-	unsigned int capabilities;
-	unsigned int capabilities_required;
+	__u32 capabilities;
+	__u32 capabilities_required;
 	int video_fd = -1;
 	int media_fd = -1;
 	char *video_path;
 	char *media_path;
 	int rc;
+	int id = 0;
 
 	context->version_major = VA_MAJOR_VERSION;
 	context->version_minor = VA_MINOR_VERSION;
@@ -146,6 +149,34 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	object_heap_init(&driver_data->image_heap, sizeof(struct object_image),
 			 IMAGE_ID_OFFSET);
 
+	/* initilize structures and pointer */
+	driver_init(driver);
+	decoder = driver->decoder[0];
+	  
+	/* environment settings */
+	decoder->media_path = getenv("LIBVA_V4L2_REQUEST_MEDIA_PATH");
+
+	if (decoder->media_path == NULL) {
+		subsystem = "media";
+		request_log("Scanning for suitable v4l2 driver (subsystem: %s)...\n",
+			    subsystem);
+		rc = udev_scan_subsystem(driver, subsystem);
+	}
+	else {
+		request_log("Scanning v4l2 topology (media_path: %s)...\n",
+			    decoder->media_path);
+		rc = media_scan_topology(driver, id);
+	}
+
+	if (rc < 0) {
+		request_log("No suitable v4l2 decoder found\n");
+		status = VA_STATUS_ERROR_INVALID_CONFIG;
+		goto error;
+	}
+
+	driver_print(driver);
+
+	/* 
 	video_path = getenv("LIBVA_V4L2_REQUEST_VIDEO_PATH");
 	if (video_path == NULL)
 		video_path = "/dev/video0";
@@ -183,8 +214,6 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	goto complete;
 
 error:
-	status = VA_STATUS_ERROR_OPERATION_FAILED;
-
 	if (video_fd >= 0)
 		close(video_fd);
 

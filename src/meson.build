@@ -24,6 +24,7 @@ autoconf_data = configuration_data()
 autoconf_data.set('VA_DRIVER_INIT_FUNC', va_driver_init_func)
 
 autoconf = configure_file(
+	input: 'mesonconfig.h.in',
 	output: 'autoconfig.h',
 	configuration: autoconf_data)
 
@@ -78,13 +79,18 @@ cflags = [
 
 deps = [
 	libva_dep,
-	libdrm_dep
+	libdrm_dep,
+	libudev_dep
 ]
 
-v4l2_request_drv_video = shared_module('v4l2_request_drv_video',
+libtype = get_option('default_library')
+
+#v4l2_request_drv_video = shared_module('v4l2_request_drv_video',
+v4l2_request_drv_video = library('v4l2_request_drv_video',
 	name_prefix: '',
 	install: true,
 	install_dir: '/usr/lib/dri/',
+	soversion: '1.0.0',
 	c_args: cflags,
 	sources: [ sources, headers, autoconf ],
 	include_directories: includes,

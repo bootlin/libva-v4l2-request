@@ -22,12 +22,26 @@
 
 project('libva-v4l2-request', 'c',
 	version: '1.0.0',
+	default_library : 'shared',
 	meson_version: '>= 0.43.0')
+
+add_project_arguments('-DMESON_BUILD', language : 'c')
 
 cc = meson.get_compiler('c')
 
-libva_dep = dependency('libva', version : '>= 1.1.0')
-libdrm_dep = dependency('libdrm', version : '>= 2.4.52')
+libva_dep = dependency('libva',
+	method: 'pkg-config',
+	version: '>= 1.1.0',
+	required: true)	
+
+libdrm_dep = dependency('libdrm',
+	method: 'pkg-config',
+	version : '>= 2.4.52',
+	required: true)
+
+libudev_dep = dependency('libudev',
+	method: 'pkg-config',
+	required: true)
 
 va_api_version_array = libva_dep.version().split('.')
 va_api_major_version = va_api_version_array[0]
