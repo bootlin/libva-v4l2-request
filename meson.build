@@ -32,7 +32,7 @@ cc = meson.get_compiler('c')
 libva_dep = dependency('libva',
 	method: 'pkg-config',
 	version: '>= 1.1.0',
-	required: true)	
+	required: true)
 
 libdrm_dep = dependency('libdrm',
 	method: 'pkg-config',

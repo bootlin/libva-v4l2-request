@@ -48,7 +48,9 @@
 #include "utils.h"
 #include "v4l2.h"
 
+#ifndef MESON_BUILD
 #include "autoconfig.h"
+#endif
 
 static VAStatus codec_store_buffer(struct request_data *driver_data,
 				   VAProfile profile,

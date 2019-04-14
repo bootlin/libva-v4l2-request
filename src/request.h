@@ -1,7 +1,6 @@
 /*
- * Copyright (C) 2007 Intel Corporation
- * Copyright (C) 2016 Florent Revest <florent.revest@free-electrons.com>
- * Copyright (C) 2018 Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+ * Copyright (c) 2016 Florent Revest, <florent.revest@free-electrons.com>
+ *               2007 Intel Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the
@@ -29,12 +28,15 @@
 
 #include <stdbool.h>
 
-#include "context.h"
-#include "object_heap.h"
-#include "video.h"
 #include <va/va.h>
 
 #include <linux/videodev2.h>
+
+#include "context.h"
+#include "media.h"
+#include "object_heap.h"
+#include "video.h"
+#include "utils.h"
 
 #define V4L2_REQUEST_STR_VENDOR			"v4l2-request"
 
