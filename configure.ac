@@ -25,6 +25,7 @@ AC_INIT([libva-v4l2-request], [1.0.0], [paul.kocialkowski@bootlin.com])
 AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects foreign])
 
 AC_CONFIG_SRCDIR([src/request.c])
+AC_CONFIG_MACRO_DIRS([m4])
 AC_ENABLE_SHARED
 AC_DISABLE_STATIC
 AC_LANG_C
@@ -35,6 +36,7 @@ AM_PROG_AS
 
 PKG_CHECK_MODULES([LIBVA], [libva >= 1.1.0])
 PKG_CHECK_MODULES([DRM], [libdrm >= 2.4.52])
+PKG_CHECK_MODULES([UDEV], [libudev >= 217])
 
 #LIBS="$LIBS $DRM_LIBS"
 #CFLAGS="$CFLAGS $DRM_CFLAGS $LIBVA_CFLAGS"
@@ -49,5 +51,5 @@ AC_DEFINE_UNQUOTED([VA_DRIVER_INIT_FUNC], [$VA_DRIVER_INIT_FUNC],
 
 AC_CONFIG_HEADERS([src/autoconfig.h])
 AC_CONFIG_FILES([Makefile src/Makefile])
-
+AC_CONFIG_MACRO_DIRS([m4])
 AC_OUTPUT

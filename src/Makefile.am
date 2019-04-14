@@ -57,10 +57,10 @@ v4l2_request_drv_video_la_SOURCES = request.c \
 	h265.c \
 	h265.h
 
-v4l2_request_drv_video_la_CFLAGS = -I../include $(DRM_CFLAGS) $(LIBVA_CFLAGS)
+v4l2_request_drv_video_la_CFLAGS = -I../include $(DRM_CFLAGS) $(LIBVA_CFLAGS) $(UDEV_LIBS)
 v4l2_request_drv_video_la_LDFLAGS = -module -avoid-version -no-undefined \
 				    -Wl,--no-undefined
-v4l2_request_drv_video_la_LIBADD = $(DRM_LIBS) $(LIBVA_LIBS)
+v4l2_request_drv_video_la_LIBADD = $(DRM_LIBS) $(LIBVA_LIBS) $(UDEV_LIBS)
 v4l2_request_drv_video_la_LTLIBRARIES = v4l2_request_drv_video.la
 v4l2_request_drv_video_ladir = /usr/lib/dri/
 
