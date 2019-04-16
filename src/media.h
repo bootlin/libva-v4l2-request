@@ -25,9 +25,14 @@
 #ifndef _MEDIA_H_
 #define _MEDIA_H_
 
+#include <linux/media.h>
+
+struct driver;
+
 int media_request_alloc(int media_fd);
 int media_request_reinit(int request_fd);
 int media_request_queue(int request_fd);
 int media_request_wait_completion(int request_fd);
+int media_scan_topology(struct driver *driver, int id, const char *path);
 
 #endif

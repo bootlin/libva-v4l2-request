@@ -1,0 +1,4 @@
+/* meson configure_file */
+
+/* Driver init function */
+#mesondefine VA_DRIVER_INIT_FUNC

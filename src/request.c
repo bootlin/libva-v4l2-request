@@ -1,7 +1,6 @@
 /*
- * Copyright (C) 2007 Intel Corporation
- * Copyright (C) 2016 Florent Revest <florent.revest@free-electrons.com>
- * Copyright (C) 2018 Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+ * Copyright (c) 2016 Florent Revest, <florent.revest@free-electrons.com>
+ *               2007 Intel Corporation. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the
@@ -24,6 +23,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define _GNU_SOURCE
 #include "buffer.h"
 #include "config.h"
 #include "context.h"
@@ -57,16 +57,49 @@
 VAStatus __attribute__((visibility("default")))
 VA_DRIVER_INIT_FUNC(VADriverContextP context);
 
+/*
+ *  may we can substitue this function when deducing the
+ *  driver-name from topology
+
+static int v4l2_callback(struct device *dev, void *p)
+{
+	struct v4l2_device *v4l2_dev = dev_get_drvdata(dev);
+
+	// test if we have initialized drivers
+	if (v4l2_dev == NULL)
+		return 0;
+
+	return 0;
+}
+
+int v4l2_iterate(void *p)
+{
+	struct device_driver *drv;
+	int rc;
+
+	// Find 'cedrus' driver.
+	drv = driver_find("cedrus", &pci_bus_type);
+
+	// iterate over all ivtv device instances
+	rc = driver_for_each_device(drv, NULL, p, v4l2_callback);
+	//if ( rc = 0 )
+	  request_log("cedrus driver: %s\n", drv->name);
+	put_driver(drv);
+
+	return rc;
+}
+*/
+
 VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 {
 	struct request_data *driver_data;
+	struct driver *driver;
+	struct decoder *decoder;
 	struct VADriverVTable *vtable = context->vtable;
 	VAStatus status;
-	unsigned int capabilities;
-	unsigned int capabilities_required;
 	int video_fd = -1;
 	int media_fd = -1;
-	char *video_path;
+	char *subsystem;
 	char *media_path;
 	int rc;
 
@@ -146,33 +179,68 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	object_heap_init(&driver_data->image_heap, sizeof(struct object_image),
 			 IMAGE_ID_OFFSET);
 
-	video_path = getenv("LIBVA_V4L2_REQUEST_VIDEO_PATH");
-	if (video_path == NULL)
-		video_path = "/dev/video0";
+	/* initilize structures and pointer */
+	request_log("Initializing driver structure...\n");
+	driver = calloc(1, sizeof(struct driver));
+	driver_init(driver);
 
-	video_fd = open(video_path, O_RDWR | O_NONBLOCK);
+	decoder = calloc(1, sizeof(struct decoder));
+
+	/* environment settings */
+	media_path = getenv("LIBVA_V4L2_REQUEST_MEDIA_PATH");
+	if (media_path == NULL) {
+		subsystem = "media";
+		request_log("Scanning for suitable v4l2 driver (subsystem: %s)...\n",
+			    subsystem);
+		rc = udev_scan_subsystem(driver, subsystem);
+	}
+	else {
+		request_log("Scanning v4l2 topology (media_path: %s)...\n",
+			    media_path);
+
+		// update media_path in driver structure
+		driver_set(driver, 0, decoder);
+		asprintf(&decoder->media_path, "%s", media_path);
+
+		rc = media_scan_topology(driver, 0, media_path);
+		if (rc < 0) {
+			request_log("media_path '%s' doesn't offer v4l2 video-decoder.\n",
+				    media_path);
+			driver_delete(driver, 0);
+		}
+		else if (rc == 1) {
+			request_log(" media_path '%s' offers v4l2 video-decoder.\n",
+				    media_path);
+		}
+	}
+
+	/* result structure with suitable video decoder entities */
+	if (driver_get_num_decoders(driver) > 0) {
+		driver_print_all(driver);
+		/*
+		 * assign first available decoder elements
+		 * to the corresponding config elements
+		 */
+		decoder = driver_get(driver, 0);
+		request_log("Decoders: %i (Select: '%s', media_path: %s, video_path: %s, capabilities: %ld)\n",
+			    driver->num_decoders,
+			    decoder->name,
+			    decoder->media_path,
+			    decoder->video_path,
+			    decoder->capabilities);
+	}
+	else {
+		request_log("No suitable v4l2 decoder found.\n");
+		status = VA_STATUS_ERROR_INVALID_CONFIG;
+		goto error;
+	}
+
+
+	video_fd = open(decoder->video_path, O_RDWR | O_NONBLOCK);
 	if (video_fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_query_capabilities(video_fd, &capabilities);
-	if (rc < 0) {
-		status = VA_STATUS_ERROR_OPERATION_FAILED;
-		goto error;
-	}
-
-	capabilities_required = V4L2_CAP_STREAMING;
-
-	if ((capabilities & capabilities_required) != capabilities_required) {
-		request_log("Missing required driver capabilities\n");
-		status = VA_STATUS_ERROR_OPERATION_FAILED;
-		goto error;
-	}
-
-	media_path = getenv("LIBVA_V4L2_REQUEST_MEDIA_PATH");
-	if (media_path == NULL)
-		media_path = "/dev/media0";
-
-	media_fd = open(media_path, O_RDWR | O_NONBLOCK);
+	media_fd = open(decoder->media_path, O_RDWR | O_NONBLOCK);
 	if (media_fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
@@ -180,11 +248,12 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	driver_data->media_fd = media_fd;
 
 	status = VA_STATUS_SUCCESS;
+
+	driver_free(driver);
+
 	goto complete;
 
 error:
-	status = VA_STATUS_ERROR_OPERATION_FAILED;
-
 	if (video_fd >= 0)
 		close(video_fd);
 

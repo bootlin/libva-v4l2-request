@@ -26,8 +26,25 @@
 #define _V4L2_H_
 
 #include <stdbool.h>
+#include <linux/videodev2.h>
 
 #define SOURCE_SIZE_MAX						(1024 * 1024)
+
+enum codec_type {
+	CODEC_TYPE_MPEG2,
+	CODEC_TYPE_H264,
+	CODEC_TYPE_H265,
+};
+
+extern const struct codec {
+	char *name;
+	enum codec_type type;
+} codec[];
+
+extern const struct buffer_type {
+	char *name;
+	enum v4l2_buf_type type;
+} buffer_type[];
 
 unsigned int v4l2_type_video_output(bool mplane);
 unsigned int v4l2_type_video_capture(bool mplane);
