@@ -143,32 +143,12 @@ VAStatus RequestDestroyImage(VADriverContextP context, VAImageID image_id)
 	return VA_STATUS_SUCCESS;
 }
 
-VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
-			    VAImage *image)
+static VAStatus copy_surface_to_image (struct request_data *driver_data,
+				       struct object_surface *surface_object,
+				       VAImage *image)
 {
-	struct request_data *driver_data = context->pDriverData;
-	struct object_surface *surface_object;
 	struct object_buffer *buffer_object;
-	VAImageFormat format;
 	unsigned int i;
-	VAStatus status;
-
-	surface_object = SURFACE(driver_data, surface_id);
-	if (surface_object == NULL)
-		return VA_STATUS_ERROR_INVALID_SURFACE;
-
-	if (surface_object->status == VASurfaceRendering) {
-		status = RequestSyncSurface(context, surface_id);
-		if (status != VA_STATUS_SUCCESS)
-			return status;
-	}
-
-	format.fourcc = VA_FOURCC_NV12;
-
-	status = RequestCreateImage(context, &format, surface_object->width,
-				    surface_object->height, image);
-	if (status != VA_STATUS_SUCCESS)
-		return status;
 
 	buffer_object = BUFFER(driver_data, image->buf);
 	if (buffer_object == NULL)
@@ -188,8 +168,42 @@ VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
 		}
 	}
 
+	return VA_STATUS_SUCCESS;
+}
+
+VAStatus RequestDeriveImage(VADriverContextP context, VASurfaceID surface_id,
+			    VAImage *image)
+{
+	struct request_data *driver_data = context->pDriverData;
+	struct object_surface *surface_object;
+	struct object_buffer *buffer_object;
+	VAImageFormat format;
+	VAStatus status;
+
+	surface_object = SURFACE(driver_data, surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
+
+	if (surface_object->status == VASurfaceRendering) {
+		status = RequestSyncSurface(context, surface_id);
+		if (status != VA_STATUS_SUCCESS)
+			return status;
+	}
+
+	format.fourcc = VA_FOURCC_NV12;
+
+	status = RequestCreateImage(context, &format, surface_object->width,
+				    surface_object->height, image);
+	if (status != VA_STATUS_SUCCESS)
+		return status;
+
+	status = copy_surface_to_image (driver_data, surface_object, image);
+	if (status != VA_STATUS_SUCCESS)
+		return status;
+
 	surface_object->status = VASurfaceReady;
 
+	buffer_object = BUFFER(driver_data, image->buf);
 	buffer_object->derived_surface_id = surface_id;
 
 	return VA_STATUS_SUCCESS;
@@ -214,7 +228,24 @@ VAStatus RequestGetImage(VADriverContextP context, VASurfaceID surface_id,
 			 int x, int y, unsigned int width, unsigned int height,
 			 VAImageID image_id)
 {
-	return VA_STATUS_ERROR_UNIMPLEMENTED;
+	struct request_data *driver_data = context->pDriverData;
+	struct object_surface *surface_object;
+	struct object_image *image_object;
+	VAImage *image;
+
+	surface_object = SURFACE(driver_data, surface_id);
+	if (surface_object == NULL)
+		return VA_STATUS_ERROR_INVALID_SURFACE;
+
+	image_object = IMAGE(driver_data, image_id);
+	if (image_object == NULL)
+		return VA_STATUS_ERROR_INVALID_IMAGE;
+
+	image = &image_object->image;
+	if (x != 0 || y != 0 || width != image->width || height != image->height)
+		return VA_STATUS_ERROR_UNIMPLEMENTED;
+
+	return copy_surface_to_image (driver_data, surface_object, image);
 }
 
 VAStatus RequestPutImage(VADriverContextP context, VASurfaceID surface_id,
