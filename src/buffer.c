@@ -207,7 +207,7 @@ VAStatus RequestAcquireBufferHandle(VADriverContextP context,
 	if (video_format == NULL)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	capture_type = v4l2_type_video_capture(video_format->v4l2_mplane);
+	capture_type = v4l2_type_video_capture(driver_data->mplane);
 
 	if (buffer_info->mem_type != VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME ||
 	    !video_format_is_linear(driver_data->video_format))

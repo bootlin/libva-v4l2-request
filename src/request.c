@@ -168,6 +168,14 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 		goto error;
 	}
 
+	if (capabilities & V4L2_CAP_VIDEO_M2M_MPLANE) {
+		driver_data->mplane = true;
+	} else if (!(capabilities & V4L2_CAP_VIDEO_M2M)) {
+		request_log("Missing memory to memory interface\n");
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
 	media_path = getenv("LIBVA_V4L2_REQUEST_MEDIA_PATH");
 	if (media_path == NULL)
 		media_path = "/dev/media0";

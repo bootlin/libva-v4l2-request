@@ -60,7 +60,7 @@ VAStatus RequestCreateImage(VADriverContextP context, VAImageFormat *format,
 	if (video_format == NULL)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	capture_type = v4l2_type_video_capture(video_format->v4l2_mplane);
+	capture_type = v4l2_type_video_capture(driver_data->mplane);
 
 	/*
 	 * FIXME: This should be replaced by per-pixelformat hadling to

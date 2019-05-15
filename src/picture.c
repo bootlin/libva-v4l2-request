@@ -199,11 +199,13 @@ static VAStatus codec_set_controls(struct request_data *driver_data,
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
 
+#if 1
 	case VAProfileHEVCMain:
 		rc = h265_set_controls(driver_data, context, surface_object);
 		if (rc < 0)
 			return VA_STATUS_ERROR_OPERATION_FAILED;
 		break;
+#endif
 
 	default:
 		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
@@ -291,8 +293,8 @@ VAStatus RequestEndPicture(VADriverContextP context, VAContextID context_id)
 	if (video_format == NULL)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	output_type = v4l2_type_video_output(video_format->v4l2_mplane);
-	capture_type = v4l2_type_video_capture(video_format->v4l2_mplane);
+	output_type = v4l2_type_video_output(driver_data->mplane);
+	capture_type = v4l2_type_video_capture(driver_data->mplane);
 
 	context_object = CONTEXT(driver_data, context_id);
 	if (context_object == NULL)

@@ -53,6 +53,7 @@ struct request_data {
 	struct object_heap image_heap;
 	int video_fd;
 	int media_fd;
+	bool mplane;
 
 	struct video_format *video_format;
 };
