@@ -100,7 +100,7 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	case VAProfileH264ConstrainedBaseline:
 	case VAProfileH264MultiviewHigh:
 	case VAProfileH264StereoHigh:
-		pixelformat = V4L2_PIX_FMT_H264_SLICE;
+		pixelformat = V4L2_PIX_FMT_H264_SLICE_RAW;
 		break;
 
 	case VAProfileHEVCMain:
