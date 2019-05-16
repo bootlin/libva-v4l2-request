@@ -177,7 +177,7 @@ static void dpb_update(struct object_context *context,
 
 static void h264_fill_dpb(struct request_data *data,
 			  struct object_context *context,
-			  struct v4l2_ctrl_h264_decode_param *decode)
+			  struct v4l2_ctrl_h264_decode_params *decode)
 {
 	int i;
 
@@ -193,7 +193,7 @@ static void h264_fill_dpb(struct request_data *data,
 
 		if (surface) {
 			timestamp = v4l2_timeval_to_ns(&surface->timestamp);
-			dpb->timestamp = timestamp;
+			dpb->reference_ts = timestamp;
 		}
 
 		dpb->frame_num = entry->pic.frame_idx;
@@ -214,7 +214,7 @@ static void h264_va_picture_to_v4l2(struct request_data *driver_data,
 				    struct object_context *context,
 				    struct object_surface *surface,
 				    VAPictureParameterBufferH264 *VAPicture,
-				    struct v4l2_ctrl_h264_decode_param *decode,
+				    struct v4l2_ctrl_h264_decode_params *decode,
 				    struct v4l2_ctrl_h264_pps *pps,
 				    struct v4l2_ctrl_h264_sps *sps)
 {
@@ -327,7 +327,7 @@ static void h264_va_slice_to_v4l2(struct request_data *driver_data,
 				  struct object_context *context,
 				  VASliceParameterBufferH264 *VASlice,
 				  VAPictureParameterBufferH264 *VAPicture,
-				  struct v4l2_ctrl_h264_slice_param *slice)
+				  struct v4l2_ctrl_h264_slice_params *slice)
 {
 	slice->size = VASlice->slice_data_size;
 	slice->header_bit_size = VASlice->slice_data_bit_offset;
@@ -410,8 +410,8 @@ int h264_set_controls(struct request_data *driver_data,
 		      struct object_surface *surface)
 {
 	struct v4l2_ctrl_h264_scaling_matrix matrix = { 0 };
-	struct v4l2_ctrl_h264_decode_param decode = { 0 };
-	struct v4l2_ctrl_h264_slice_param slice = { 0 };
+	struct v4l2_ctrl_h264_decode_params decode = { 0 };
+	struct v4l2_ctrl_h264_slice_params slice = { 0 };
 	struct v4l2_ctrl_h264_pps pps = { 0 };
 	struct v4l2_ctrl_h264_sps sps = { 0 };
 	struct h264_dpb_entry *output;

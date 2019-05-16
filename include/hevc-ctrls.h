@@ -11,19 +11,23 @@
 #ifndef _HEVC_CTRLS_H_
 #define _HEVC_CTRLS_H_
 
-#define V4L2_CID_MPEG_VIDEO_HEVC_SPS		(V4L2_CID_MPEG_BASE + 645)
-#define V4L2_CID_MPEG_VIDEO_HEVC_PPS		(V4L2_CID_MPEG_BASE + 646)
-#define V4L2_CID_MPEG_VIDEO_HEVC_SLICE_PARAMS	(V4L2_CID_MPEG_BASE + 647)
+/* The pixel format isn't stable at the moment and will likely be renamed. */
+#define V4L2_PIX_FMT_HEVC_SLICE v4l2_fourcc('S', '2', '6', '5') /* HEVC parsed slices */
+
+#define V4L2_CID_MPEG_VIDEO_HEVC_SPS		(V4L2_CID_MPEG_BASE + 1008)
+#define V4L2_CID_MPEG_VIDEO_HEVC_PPS		(V4L2_CID_MPEG_BASE + 1009)
+#define V4L2_CID_MPEG_VIDEO_HEVC_SLICE_PARAMS	(V4L2_CID_MPEG_BASE + 1010)
 
 /* enum v4l2_ctrl_type type values */
-#define V4L2_CTRL_TYPE_HEVC_SPS 0x0110
-#define V4L2_CTRL_TYPE_HEVC_PPS 0x0111
-#define V4L2_CTRL_TYPE_HEVC_SLICE_PARAMS 0x0112
+#define V4L2_CTRL_TYPE_HEVC_SPS 0x0120
+#define V4L2_CTRL_TYPE_HEVC_PPS 0x0121
+#define V4L2_CTRL_TYPE_HEVC_SLICE_PARAMS 0x0122
 
 #define V4L2_HEVC_SLICE_TYPE_B	0
 #define V4L2_HEVC_SLICE_TYPE_P	1
 #define V4L2_HEVC_SLICE_TYPE_I	2
 
+/* The controls are not stable at the moment and will likely be reworked. */
 struct v4l2_ctrl_hevc_sps {
 	/* ISO/IEC 23008-2, ITU-T Rec. H.265: Sequence parameter set */
 	__u8	chroma_format_idc;
