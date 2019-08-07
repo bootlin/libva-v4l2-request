@@ -41,6 +41,8 @@
 #include <drm_fourcc.h>
 #include <linux/videodev2.h>
 
+#include <h264-ctrls.h>
+
 #include "media.h"
 #include "utils.h"
 #include "v4l2.h"
@@ -61,6 +63,7 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	unsigned int destination_planes_count;
 	unsigned int format_width, format_height;
 	unsigned int capture_type;
+	unsigned int output_type;
 	unsigned int index_base;
 	unsigned int index;
 	unsigned int i, j;
@@ -72,6 +75,7 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
 
 	capture_type = v4l2_type_video_capture(driver_data->mplane);
+	output_type = v4l2_type_video_output(driver_data->mplane);
 
         if (!driver_data->video_format) {
 
@@ -90,6 +94,16 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 
 		driver_data->video_format = video_format;
 
+		/* Set output format in case driver limits capture format to
+		 * output format dimensions.
+		*/
+
+		unsigned int format = V4L2_PIX_FMT_H264_SLICE;
+		rc = v4l2_set_format(driver_data->video_fd, output_type,
+				     format, width, height);
+		if (rc < 0)
+			return VA_STATUS_ERROR_OPERATION_FAILED;
+
 		rc = v4l2_set_format(driver_data->video_fd, capture_type,
 				     video_format->v4l2_format, width, height);
 		if (rc < 0)
@@ -102,6 +116,9 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 			     &format_height, destination_bytesperlines,
 			     destination_sizes, NULL);
 	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	if (format_width < width || format_height < height)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	destination_planes_count = video_format->planes_count;
