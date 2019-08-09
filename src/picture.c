@@ -51,6 +51,7 @@
 #include "autoconfig.h"
 
 static VAStatus codec_store_buffer(struct request_data *driver_data,
+				   struct object_context *context,
 				   VAProfile profile,
 				   struct object_surface *surface_object,
 				   struct object_buffer *buffer_object)
@@ -63,6 +64,14 @@ static VAStatus codec_store_buffer(struct request_data *driver_data,
 		 * RenderPicture), we can't use a V4L2 buffer directly
 		 * and have to copy from a regular buffer.
 		 */
+		if (context->h264_start_code) {
+			static const char start_code[3] = { 0x00, 0x00, 0x01 };
+
+			memcpy(surface_object->source_data +
+			       surface_object->slices_size,
+			       start_code, sizeof(start_code));
+			surface_object->slices_size += sizeof(start_code);
+		}
 		memcpy(surface_object->source_data +
 			       surface_object->slices_size,
 		       buffer_object->data,
@@ -255,7 +264,8 @@ VAStatus RequestRenderPicture(VADriverContextP context, VAContextID context_id,
 		if (buffer_object == NULL)
 			return VA_STATUS_ERROR_INVALID_BUFFER;
 
-		rc = codec_store_buffer(driver_data, config_object->profile,
+		rc = codec_store_buffer(driver_data, context_object,
+					config_object->profile,
 					surface_object, buffer_object);
 		if (rc != VA_STATUS_SUCCESS)
 			return rc;

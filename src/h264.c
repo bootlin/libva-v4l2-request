@@ -330,6 +330,8 @@ static void h264_va_slice_to_v4l2(struct request_data *driver_data,
 				  struct v4l2_ctrl_h264_slice_params *slice)
 {
 	slice->size = VASlice->slice_data_size;
+	if (context->h264_start_code)
+		slice->size += 3;
 	slice->header_bit_size = VASlice->slice_data_bit_offset;
 	slice->first_mb_in_slice = VASlice->first_mb_in_slice;
 	slice->slice_type = VASlice->slice_type;
