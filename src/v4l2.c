@@ -428,12 +428,11 @@ int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
 	return 0;
 }
 
-int v4l2_set_controls(int video_fd, int request_fd,
-		      struct v4l2_ext_control *control_array,
-		      unsigned int num_controls)
+static int v4l2_ioctl_controls(int video_fd, int request_fd, unsigned long ioc,
+			       struct v4l2_ext_control *control_array,
+			       unsigned int num_controls)
 {
 	struct v4l2_ext_controls controls;
-	int rc;
 
 	memset(&controls, 0, sizeof(controls));
 
@@ -445,7 +444,33 @@ int v4l2_set_controls(int video_fd, int request_fd,
 		controls.request_fd = request_fd;
 	}
 
-	rc = ioctl(video_fd, VIDIOC_S_EXT_CTRLS, &controls);
+	return ioctl(video_fd, ioc, &controls);
+}
+
+int v4l2_get_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *control_array,
+		      unsigned int num_controls)
+{
+	int rc;
+
+	rc = v4l2_ioctl_controls(video_fd, request_fd, VIDIOC_G_EXT_CTRLS,
+				 control_array, num_controls);
+	if (rc < 0) {
+		request_log("Unable to get control(s): %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
+int v4l2_set_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *control_array,
+		      unsigned int num_controls)
+{
+	int rc;
+
+	rc = v4l2_ioctl_controls(video_fd, request_fd, VIDIOC_S_EXT_CTRLS,
+				 control_array, num_controls);
 	if (rc < 0) {
 		request_log("Unable to set control(s): %s\n", strerror(errno));
 		return -1;
