@@ -50,6 +50,7 @@ struct object_context {
 
 	/* H264 only */
 	struct h264_dpb dpb;
+	bool h264_start_code;
 };
 
 VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,

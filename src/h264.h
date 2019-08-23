@@ -51,6 +51,8 @@ struct h264_dpb {
 	unsigned int age;
 };
 
+int h264_get_controls(struct request_data *driver_data,
+		      struct object_context *context);
 int h264_set_controls(struct request_data *data,
 		      struct object_context *context,
 		      struct object_surface *surface);
