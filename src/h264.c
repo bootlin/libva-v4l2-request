@@ -197,6 +197,7 @@ static void h264_fill_dpb(struct request_data *data,
 		}
 
 		dpb->frame_num = entry->pic.frame_idx;
+		dpb->pic_num = entry->pic.picture_id;
 		dpb->top_field_order_cnt = entry->pic.TopFieldOrderCnt;
 		dpb->bottom_field_order_cnt = entry->pic.BottomFieldOrderCnt;
 
