@@ -317,6 +317,10 @@ static void h264_va_matrix_to_v4l2(struct request_data *driver_data,
 	 */
 	memcpy(v4l2_matrix->scaling_list_8x8[0], &VAMatrix->ScalingList8x8[0],
 	       sizeof(v4l2_matrix->scaling_list_8x8[0]));
+	/* FIXME --> */
+	memcpy(v4l2_matrix->scaling_list_8x8[1], &VAMatrix->ScalingList8x8[1],
+	       sizeof(v4l2_matrix->scaling_list_8x8[1]));
+	/* <-- FIXME */
 	memcpy(v4l2_matrix->scaling_list_8x8[3], &VAMatrix->ScalingList8x8[1],
 	       sizeof(v4l2_matrix->scaling_list_8x8[3]));
 }
