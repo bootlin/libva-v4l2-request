@@ -219,9 +219,23 @@ static void h264_va_picture_to_v4l2(struct request_data *driver_data,
 				    struct v4l2_ctrl_h264_pps *pps,
 				    struct v4l2_ctrl_h264_sps *sps)
 {
+	unsigned char *b;
+	unsigned char nal_ref_idc;
+	unsigned char nal_unit_type;
+
+	/* Extract missing nal_ref_idc and nal_unit_type */
+	b = surface->source_data;
+	if (context->h264_start_code)
+		b += 3;
+	nal_ref_idc = (b[0] >> 5) & 0x3;
+	nal_unit_type = b[0] & 0x1f;
+
 	h264_fill_dpb(driver_data, context, decode);
 
 	decode->num_slices = surface->slices_count;
+	decode->nal_ref_idc = nal_ref_idc;
+	if (nal_unit_type == 5)
+		decode->flags = V4L2_H264_DECODE_PARAM_FLAG_IDR_PIC;
 	decode->top_field_order_cnt = VAPicture->CurrPic.TopFieldOrderCnt;
 	decode->bottom_field_order_cnt = VAPicture->CurrPic.BottomFieldOrderCnt;
 
