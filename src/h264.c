@@ -354,6 +354,7 @@ static void h264_va_slice_to_v4l2(struct request_data *driver_data,
 	slice->frame_num = VAPicture->frame_num;
 	slice->idr_pic_id = VASlice->idr_pic_id;
 	slice->dec_ref_pic_marking_bit_size = VASlice->dec_ref_pic_marking_bit_size;
+	slice->pic_order_cnt_bit_size = VASlice->pic_order_cnt_bit_size;
 	slice->cabac_init_idc = VASlice->cabac_init_idc;
 	slice->slice_qp_delta = VASlice->slice_qp_delta;
 	slice->disable_deblocking_filter_idc =
