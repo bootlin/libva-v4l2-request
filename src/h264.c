@@ -464,8 +464,27 @@ int h264_get_controls(struct request_data *driver_data,
 	return VA_STATUS_SUCCESS;
 }
 
+static inline __u8 h264_profile_to_idc(VAProfile profile)
+{
+	switch (profile) {
+	case VAProfileH264Main:
+		return 77;
+	case VAProfileH264High:
+		return 100;
+	case VAProfileH264ConstrainedBaseline:
+		return 66;
+	case VAProfileH264MultiviewHigh:
+		return 118;
+	case VAProfileH264StereoHigh:
+		return 128;
+	default:
+		return 0;
+	}
+}
+
 int h264_set_controls(struct request_data *driver_data,
 		      struct object_context *context,
+		      VAProfile profile,
 		      struct object_surface *surface)
 {
 	struct v4l2_ctrl_h264_scaling_matrix matrix = { 0 };
@@ -493,6 +512,8 @@ int h264_set_controls(struct request_data *driver_data,
 	h264_va_slice_to_v4l2(driver_data, context,
 			      &surface->params.h264.slice,
 			      &surface->params.h264.picture, &slice);
+
+	sps.profile_idc = h264_profile_to_idc(profile);
 
 	struct v4l2_ext_control controls[5] = {
 		{
