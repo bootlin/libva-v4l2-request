@@ -270,6 +270,7 @@ static void h264_va_picture_to_v4l2(struct request_data *driver_data,
 	if (VAPicture->pic_fields.bits.redundant_pic_cnt_present_flag)
 		pps->flags |= V4L2_H264_PPS_FLAG_REDUNDANT_PIC_CNT_PRESENT;
 
+	sps->max_num_ref_frames = VAPicture->num_ref_frames;
 	sps->chroma_format_idc = VAPicture->seq_fields.bits.chroma_format_idc;
 	sps->bit_depth_luma_minus8 = VAPicture->bit_depth_luma_minus8;
 	sps->bit_depth_chroma_minus8 = VAPicture->bit_depth_chroma_minus8;
