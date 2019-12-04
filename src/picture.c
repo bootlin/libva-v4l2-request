@@ -233,6 +233,7 @@ VAStatus RequestBeginPicture(VADriverContextP context, VAContextID context_id,
 		RequestSyncSurface(context, surface_id);
 
 	surface_object->status = VASurfaceRendering;
+	surface_object->context_id = context_id;
 	context_object->render_surface_id = surface_id;
 
 	return VA_STATUS_SUCCESS;

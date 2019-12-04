@@ -39,6 +39,7 @@
 
 struct object_surface {
 	struct object_base base;
+	VAContextID context_id;
 
 	VAStatus status;
 	int width;

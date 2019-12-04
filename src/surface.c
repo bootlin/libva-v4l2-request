@@ -258,6 +258,7 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 			goto error;
 		}
 
+		surface_object->context_id = VA_INVALID_ID;
 		surface_object->status = VASurfaceReady;
 		surface_object->width = width;
 		surface_object->height = height;
@@ -408,6 +409,7 @@ VAStatus RequestSyncSurface(VADriverContextP context, VASurfaceID surface_id)
 	}
 
 	surface_object->status = VASurfaceDisplaying;
+	surface_object->context_id = VA_INVALID_ID;
 
 	status = VA_STATUS_SUCCESS;
 	goto complete;
