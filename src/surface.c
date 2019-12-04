@@ -43,6 +43,7 @@
 
 #include <h264-ctrls.h>
 
+#include "context.h"
 #include "media.h"
 #include "utils.h"
 #include "v4l2.h"
@@ -343,10 +344,12 @@ VAStatus RequestSyncSurface(VADriverContextP context, VASurfaceID surface_id)
 {
 	struct request_data *driver_data = context->pDriverData;
 	struct object_surface *surface_object;
+	struct object_context *context_object;
 	VAStatus status;
 	struct video_format *video_format;
 	unsigned int output_type, capture_type;
 	int request_fd = -1;
+	int video_fd;
 	int rc;
 
 	video_format = driver_data->video_format;
@@ -363,6 +366,12 @@ VAStatus RequestSyncSurface(VADriverContextP context, VASurfaceID surface_id)
 		status = VA_STATUS_ERROR_INVALID_SURFACE;
 		goto error;
 	}
+
+	context_object = CONTEXT(driver_data, surface_object->context_id);
+	if (context_object == NULL)
+		return VA_STATUS_ERROR_INVALID_CONTEXT;
+
+	video_fd = context_object->video_fd;
 
 	if (surface_object->status != VASurfaceRendering) {
 		status = VA_STATUS_SUCCESS;
@@ -393,14 +402,14 @@ VAStatus RequestSyncSurface(VADriverContextP context, VASurfaceID surface_id)
 		goto error;
 	}
 
-	rc = v4l2_dequeue_buffer(driver_data->video_fd, -1, output_type,
+	rc = v4l2_dequeue_buffer(video_fd, -1, output_type,
 				 surface_object->source_index, 1);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = v4l2_dequeue_dmabuf(driver_data->video_fd, -1, capture_type,
+	rc = v4l2_dequeue_dmabuf(video_fd, -1, capture_type,
 				 surface_object->destination_index,
 				 surface_object->destination_buffers_count);
 	if (rc < 0) {

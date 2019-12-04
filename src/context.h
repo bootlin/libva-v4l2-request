@@ -38,6 +38,7 @@
 
 struct object_context {
 	struct object_base base;
+	int video_fd;
 
 	VAConfigID config_id;
 	VASurfaceID render_surface_id;

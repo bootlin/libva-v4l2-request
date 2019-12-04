@@ -34,8 +34,10 @@
 
 #include <assert.h>
 
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 #include <linux/videodev2.h>
 #include <h264-ctrls.h>
@@ -70,6 +72,7 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	unsigned int index_base;
 	unsigned int index;
 	unsigned int i;
+	int video_fd;
 	int rc;
 
 	video_format = driver_data->video_format;
@@ -92,6 +95,15 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 		goto error;
 	}
 	memset(&context_object->dpb, 0, sizeof(context_object->dpb));
+
+	/* Open a new file descriptor to get a new in-kernel context */
+	video_fd = open(driver_data->video_path, O_RDWR | O_NONBLOCK);
+	if (video_fd < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
+	context_object->video_fd = video_fd;
 
 	switch (config_object->profile) {
 
@@ -121,16 +133,15 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 		goto error;
 	}
 
-	rc = v4l2_set_format(driver_data->video_fd, output_type, pixelformat,
-			     picture_width, picture_height);
+	rc = v4l2_set_format(video_fd, output_type, pixelformat, picture_width,
+			     picture_height);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = v4l2_create_buffers(driver_data->video_fd, output_type,
-				 V4L2_MEMORY_MMAP, surfaces_count,
-				 &index_base);
+	rc = v4l2_create_buffers(video_fd, output_type, V4L2_MEMORY_MMAP,
+				 surfaces_count, &index_base);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;
@@ -158,15 +169,15 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 			goto error;
 		}
 
-		rc = v4l2_query_buffer(driver_data->video_fd, output_type,
-				       index, &length, &offset, 1);
+		rc = v4l2_query_buffer(video_fd, output_type, index, &length,
+				       &offset, 1);
 		if (rc < 0) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 			goto error;
 		}
 
 		source_data = mmap(NULL, length, PROT_READ | PROT_WRITE,
-				   MAP_SHARED, driver_data->video_fd, offset);
+				   MAP_SHARED, video_fd, offset);
 		if (source_data == MAP_FAILED) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 			goto error;
@@ -177,13 +188,13 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 		surface_object->source_size = length;
 	}
 
-	rc = v4l2_set_stream(driver_data->video_fd, output_type, true);
+	rc = v4l2_set_stream(video_fd, output_type, true);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}
 
-	rc = v4l2_set_stream(driver_data->video_fd, capture_type, true);
+	rc = v4l2_set_stream(video_fd, capture_type, true);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
@@ -224,6 +235,7 @@ VAStatus RequestDestroyContext(VADriverContextP context, VAContextID context_id)
 	struct video_format *video_format;
 	unsigned int output_type, capture_type;
 	VAStatus status;
+	int video_fd;
 	int rc;
 
 	video_format = driver_data->video_format;
@@ -237,11 +249,13 @@ VAStatus RequestDestroyContext(VADriverContextP context, VAContextID context_id)
 	if (context_object == NULL)
 		return VA_STATUS_ERROR_INVALID_CONTEXT;
 
-	rc = v4l2_set_stream(driver_data->video_fd, output_type, false);
+	video_fd = context_object->video_fd;
+
+	rc = v4l2_set_stream(video_fd, output_type, false);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_set_stream(driver_data->video_fd, capture_type, false);
+	rc = v4l2_set_stream(video_fd, capture_type, false);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
@@ -257,13 +271,15 @@ VAStatus RequestDestroyContext(VADriverContextP context, VAContextID context_id)
 	object_heap_free(&driver_data->context_heap,
 			 (struct object_base *)context_object);
 
-	rc = v4l2_request_buffers(driver_data->video_fd, output_type, 0);
+	rc = v4l2_request_buffers(video_fd, output_type, 0);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_request_buffers(driver_data->video_fd, capture_type, 0);
+	rc = v4l2_request_buffers(video_fd, capture_type, 0);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	close(video_fd);
 
 	return VA_STATUS_SUCCESS;
 }

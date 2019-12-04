@@ -326,14 +326,14 @@ VAStatus RequestEndPicture(VADriverContextP context, VAContextID context_id)
 	if (rc != VA_STATUS_SUCCESS)
 		return rc;
 
-	rc = v4l2_queue_dmabuf(driver_data->video_fd, -1, capture_type, NULL,
+	rc = v4l2_queue_dmabuf(context_object->video_fd, -1, capture_type, NULL,
 			       surface_object->destination_index,
 			       surface_object->destination_dmabuf_fds,
 			       surface_object->destination_buffers_count);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_queue_buffer(driver_data->video_fd, request_fd, output_type,
+	rc = v4l2_queue_buffer(context_object->video_fd, request_fd, output_type,
 			       &surface_object->timestamp,
 			       surface_object->source_index,
 			       surface_object->slices_size, 1);

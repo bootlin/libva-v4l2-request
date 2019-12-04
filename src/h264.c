@@ -447,7 +447,7 @@ int h264_get_controls(struct request_data *driver_data,
 	};
 	int rc;
 
-	rc = v4l2_get_controls(driver_data->video_fd, -1, controls, 2);
+	rc = v4l2_get_controls(context->video_fd, -1, controls, 2);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
@@ -550,7 +550,7 @@ int h264_set_controls(struct request_data *driver_data,
 		}
 	};
 
-	rc = v4l2_set_controls(driver_data->video_fd, surface->request_fd,
+	rc = v4l2_set_controls(context->video_fd, surface->request_fd,
 			       controls, 5);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
