@@ -62,6 +62,6 @@ v4l2_request_drv_video_la_LDFLAGS = -module -avoid-version -no-undefined \
 				    -Wl,--no-undefined
 v4l2_request_drv_video_la_LIBADD = $(DRM_LIBS) $(LIBVA_LIBS)
 v4l2_request_drv_video_la_LTLIBRARIES = v4l2_request_drv_video.la
-v4l2_request_drv_video_ladir = /usr/lib/dri/
+v4l2_request_drv_video_ladir = $(exec_prefix)$(LIBVA_DRIVER_PATH)
 
 MAINTAINERCLEANFILES = Makefile.in autoconfig.h.in

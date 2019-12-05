@@ -36,6 +36,11 @@ AM_PROG_AS
 PKG_CHECK_MODULES([LIBVA], [libva >= 1.1.0])
 PKG_CHECK_MODULES([DRM], [libdrm >= 2.4.52])
 
+PKG_CHECK_VAR([DRM_LIBDIR], [libdrm], [libdir],
+              [],
+              [AC_MSG_FAILURE([Unable to detect DRM libdir path.])]
+)
+
 #LIBS="$LIBS $DRM_LIBS"
 #CFLAGS="$CFLAGS $DRM_CFLAGS $LIBVA_CFLAGS"
 
