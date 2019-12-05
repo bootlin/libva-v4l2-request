@@ -154,6 +154,8 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	if (video_fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
+	driver_data->video_path = video_path;
+
 	rc = v4l2_query_capabilities(video_fd, &capabilities);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;

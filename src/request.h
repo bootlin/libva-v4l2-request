@@ -51,6 +51,7 @@ struct request_data {
 	struct object_heap surface_heap;
 	struct object_heap buffer_heap;
 	struct object_heap image_heap;
+	const char *video_path;
 	int video_fd;
 	int media_fd;
 	bool mplane;
