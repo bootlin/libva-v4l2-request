@@ -67,6 +67,7 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	unsigned int index_base;
 	unsigned int index;
 	unsigned int i, j;
+	VAStatus status;
 	VASurfaceID id;
 	bool found;
 	int rc;
@@ -89,8 +90,10 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		if (found)
 			video_format = video_format_find(V4L2_PIX_FMT_NV12);
 
-		if (video_format == NULL)
-			return VA_STATUS_ERROR_OPERATION_FAILED;
+		if (video_format == NULL) {
+			status = VA_STATUS_ERROR_OPERATION_FAILED;
+			goto error;
+		}
 
 		driver_data->video_format = video_format;
 
@@ -101,13 +104,17 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		unsigned int format = V4L2_PIX_FMT_H264_SLICE;
 		rc = v4l2_set_format(driver_data->video_fd, output_type,
 				     format, width, height);
-		if (rc < 0)
-			return VA_STATUS_ERROR_OPERATION_FAILED;
+		if (rc < 0) {
+			status = VA_STATUS_ERROR_OPERATION_FAILED;
+			goto error;
+		}
 
 		rc = v4l2_set_format(driver_data->video_fd, capture_type,
 				     video_format->v4l2_format, width, height);
-		if (rc < 0)
-			return VA_STATUS_ERROR_OPERATION_FAILED;
+		if (rc < 0) {
+			status = VA_STATUS_ERROR_OPERATION_FAILED;
+			goto error;
+		}
         } else {
 		video_format = driver_data->video_format;
 	}
@@ -115,34 +122,44 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	rc = v4l2_get_format(driver_data->video_fd, capture_type, &format_width,
 			     &format_height, destination_bytesperlines,
 			     destination_sizes, NULL);
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
 
-	if (format_width < width || format_height < height)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	if (format_width < width || format_height < height) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
 
 	destination_planes_count = video_format->planes_count;
 
 	rc = v4l2_create_buffers(driver_data->video_fd, capture_type,
 				 surfaces_count, &index_base);
-	if (rc < 0)
-		return VA_STATUS_ERROR_ALLOCATION_FAILED;
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+		goto error;
+	}
 
 	for (i = 0; i < surfaces_count; i++) {
 		index = index_base + i;
 
 		id = object_heap_allocate(&driver_data->surface_heap);
 		surface_object = SURFACE(driver_data, id);
-		if (surface_object == NULL)
-			return VA_STATUS_ERROR_ALLOCATION_FAILED;
+		if (surface_object == NULL) {
+			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+			goto error;
+		}
 
 		rc = v4l2_query_buffer(driver_data->video_fd, capture_type,
 				       index,
 				       surface_object->destination_map_lengths,
 				       surface_object->destination_map_offsets,
 				       video_format->v4l2_buffers_count);
-		if (rc < 0)
-			return VA_STATUS_ERROR_ALLOCATION_FAILED;
+		if (rc < 0) {
+			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+			goto error;
+		}
 
 		for (j = 0; j < video_format->v4l2_buffers_count; j++) {
 			surface_object->destination_map[j] =
@@ -152,8 +169,10 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 				     driver_data->video_fd,
 				     surface_object->destination_map_offsets[j]);
 
-			if (surface_object->destination_map[j] == MAP_FAILED)
-				return VA_STATUS_ERROR_ALLOCATION_FAILED;
+			if (surface_object->destination_map[j] == MAP_FAILED) {
+				status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+				goto error;
+			}
 		}
 
 		/*
@@ -191,7 +210,8 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 					destination_bytesperlines[j];
 			}
 		} else {
-			return VA_STATUS_ERROR_ALLOCATION_FAILED;
+			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+			goto error;
 		}
 
 		surface_object->status = VASurfaceReady;
@@ -219,7 +239,14 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		surfaces_ids[i] = id;
 	}
 
-	return VA_STATUS_SUCCESS;
+	status = VA_STATUS_SUCCESS;
+	goto complete;
+
+error:
+	/* TODO */
+
+complete:
+	return status;
 }
 
 VAStatus RequestCreateSurfaces(VADriverContextP context, int width, int height,
