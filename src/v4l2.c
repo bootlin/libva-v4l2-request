@@ -401,6 +401,49 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 	return 0;
 }
 
+int v4l2_queue_dmabuf(int video_fd, int request_fd, unsigned int type,
+		      struct timeval *timestamp, unsigned int index,
+		      int *fds, unsigned int buffers_count)
+{
+	struct v4l2_plane planes[buffers_count];
+	struct v4l2_buffer buffer;
+	unsigned int i;
+	int rc;
+
+	memset(planes, 0, sizeof(planes));
+	memset(&buffer, 0, sizeof(buffer));
+
+	buffer.type = type;
+	buffer.memory = V4L2_MEMORY_DMABUF;
+	buffer.index = index;
+	buffer.length = buffers_count;
+	buffer.m.planes = planes;
+
+	if (v4l2_type_is_mplane(type)) {
+		for (i = 0; i < buffers_count; i++) {
+			buffer.m.planes[i].m.fd = fds[i];
+		}
+	} else {
+		buffer.m.fd = fds[0];
+	}
+
+	if (request_fd >= 0) {
+		buffer.flags = V4L2_BUF_FLAG_REQUEST_FD;
+		buffer.request_fd = request_fd;
+	}
+
+	if (timestamp != NULL)
+		buffer.timestamp = *timestamp;
+
+	rc = ioctl(video_fd, VIDIOC_QBUF, &buffer);
+	if (rc < 0) {
+		request_log("Unable to queue DMA buffer: %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
 int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 			unsigned int index, unsigned int buffers_count)
 {
@@ -413,6 +456,36 @@ int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	buffer.type = type;
 	buffer.memory = V4L2_MEMORY_MMAP;
+	buffer.index = index;
+	buffer.length = buffers_count;
+	buffer.m.planes = planes;
+
+	if (request_fd >= 0) {
+		buffer.flags = V4L2_BUF_FLAG_REQUEST_FD;
+		buffer.request_fd = request_fd;
+	}
+
+	rc = ioctl(video_fd, VIDIOC_DQBUF, &buffer);
+	if (rc < 0) {
+		request_log("Unable to dequeue buffer: %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
+int v4l2_dequeue_dmabuf(int video_fd, int request_fd, unsigned int type,
+			unsigned int index, unsigned int buffers_count)
+{
+	struct v4l2_plane planes[buffers_count];
+	struct v4l2_buffer buffer;
+	int rc;
+
+	memset(planes, 0, sizeof(planes));
+	memset(&buffer, 0, sizeof(buffer));
+
+	buffer.type = type;
+	buffer.memory = V4L2_MEMORY_DMABUF;
 	buffer.index = index;
 	buffer.length = buffers_count;
 	buffer.m.planes = planes;

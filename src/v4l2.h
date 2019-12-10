@@ -51,7 +51,12 @@ int v4l2_request_buffers(int video_fd, unsigned int type,
 int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 		      struct timeval *timestamp, unsigned int index,
 		      unsigned int size, unsigned int buffers_count);
+int v4l2_queue_dmabuf(int video_fd, int request_fd, unsigned int type,
+		      struct timeval *timestamp, unsigned int index,
+		      int *fds, unsigned int buffers_count);
 int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
+			unsigned int index, unsigned int buffers_count);
+int v4l2_dequeue_dmabuf(int video_fd, int request_fd, unsigned int type,
 			unsigned int index, unsigned int buffers_count);
 int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
 		       unsigned int flags, int *export_fds,
