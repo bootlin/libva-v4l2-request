@@ -135,7 +135,8 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	destination_planes_count = video_format->planes_count;
 
 	rc = v4l2_create_buffers(driver_data->video_fd, capture_type,
-				 surfaces_count, &index_base);
+				 V4L2_MEMORY_MMAP, surfaces_count,
+				 &index_base);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 		goto error;

@@ -235,7 +235,7 @@ int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 	return 0;
 }
 
-int v4l2_create_buffers(int video_fd, unsigned int type,
+int v4l2_create_buffers(int video_fd, unsigned int type, unsigned int memory,
 			unsigned int buffers_count, unsigned int *index_base)
 {
 	struct v4l2_create_buffers buffers;
@@ -243,7 +243,7 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 
 	memset(&buffers, 0, sizeof(buffers));
 	buffers.format.type = type;
-	buffers.memory = V4L2_MEMORY_MMAP;
+	buffers.memory = memory;
 	buffers.count = buffers_count;
 
 	rc = ioctl(video_fd, VIDIOC_G_FMT, &buffers.format);

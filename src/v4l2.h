@@ -39,7 +39,7 @@ int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 		    unsigned int *height, unsigned int *bytesperline,
 		    unsigned int *sizes, unsigned int *planes_count);
-int v4l2_create_buffers(int video_fd, unsigned int type,
+int v4l2_create_buffers(int video_fd, unsigned int type, unsigned int memory,
 			unsigned int buffers_count, unsigned int *index_base);
 int v4l2_query_buffer_capabilities(int video_fd, unsigned int type,
 				   unsigned int *capabilities);
