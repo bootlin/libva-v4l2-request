@@ -152,11 +152,23 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 			goto error;
 		}
 
+		for (j = 0; j < VIDEO_MAX_PLANES; j++)
+			surface_object->destination_dmabuf_fds[j] = -1;
+
 		rc = v4l2_query_buffer(driver_data->video_fd, capture_type,
 				       index,
 				       surface_object->destination_map_lengths,
 				       surface_object->destination_map_offsets,
 				       video_format->v4l2_buffers_count);
+		if (rc < 0) {
+			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+			goto error;
+		}
+
+		rc = v4l2_export_buffer(driver_data->video_fd, capture_type,
+					index, O_RDONLY,
+					surface_object->destination_dmabuf_fds,
+					video_format->v4l2_buffers_count);
 		if (rc < 0) {
 			status = VA_STATUS_ERROR_ALLOCATION_FAILED;
 			goto error;
@@ -277,9 +289,12 @@ VAStatus RequestDestroySurfaces(VADriverContextP context,
 
 		for (j = 0; j < surface_object->destination_buffers_count; j++)
 			if (surface_object->destination_map[j] != NULL &&
-			    surface_object->destination_map_lengths[j] > 0)
+			    surface_object->destination_map_lengths[j] > 0) {
 				munmap(surface_object->destination_map[j],
 				       surface_object->destination_map_lengths[j]);
+			if (surface_object->destination_dmabuf_fds[j] != -1)
+				close(surface_object->destination_dmabuf_fds[j]);
+		}
 
 		if (surface_object->request_fd > 0)
 			close(surface_object->request_fd);
@@ -505,11 +520,9 @@ VAStatus RequestExportSurfaceHandle(VADriverContextP context,
 	int *export_fds = NULL;
 	unsigned int export_fds_count;
 	unsigned int planes_count;
-	unsigned int capture_type;
 	unsigned int size;
 	unsigned int i;
 	VAStatus status;
-	int rc;
 
 	video_format = driver_data->video_format;
 	if (video_format == NULL)
@@ -525,14 +538,22 @@ VAStatus RequestExportSurfaceHandle(VADriverContextP context,
 	export_fds_count = surface_object->destination_buffers_count;
 	export_fds = malloc(export_fds_count * sizeof(*export_fds));
 
-	capture_type = v4l2_type_video_capture(driver_data->mplane);
-
-	rc = v4l2_export_buffer(driver_data->video_fd, capture_type,
-				surface_object->destination_index, O_RDONLY,
-				export_fds, export_fds_count);
-	if (rc < 0) {
-		status = VA_STATUS_ERROR_OPERATION_FAILED;
-		goto error;
+	for (i = 0; i < export_fds_count; i++) {
+		if (surface_object->destination_dmabuf_fds[i] == -1) {
+			for (i = 0; i < export_fds_count; i++)
+				export_fds[i] = -1;
+			status = VA_STATUS_ERROR_OPERATION_FAILED;
+			goto error;
+		}
+	}
+	for (i = 0; i < export_fds_count; i++) {
+		export_fds[i] = dup(surface_object->destination_dmabuf_fds[i]);
+		if (export_fds[i] == -1) {
+			while (++i < export_fds_count)
+				export_fds[i] = -1;
+			status = VA_STATUS_ERROR_OPERATION_FAILED;
+			goto error;
+		}
 	}
 
 	planes_count = surface_object->destination_planes_count;

@@ -199,15 +199,11 @@ VAStatus RequestAcquireBufferHandle(VADriverContextP context,
 	struct object_buffer *buffer_object;
 	struct object_surface *surface_object;
 	struct video_format *video_format;
-	unsigned int capture_type;
 	int export_fd;
-	int rc;
 
 	video_format = driver_data->video_format;
 	if (video_format == NULL)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
-
-	capture_type = v4l2_type_video_capture(driver_data->mplane);
 
 	if (buffer_info->mem_type != VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME ||
 	    !video_format_is_linear(driver_data->video_format))
@@ -227,10 +223,11 @@ VAStatus RequestAcquireBufferHandle(VADriverContextP context,
 	if (surface_object->destination_buffers_count > 1)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
-	rc = v4l2_export_buffer(driver_data->video_fd, capture_type,
-				surface_object->destination_index, O_RDONLY,
-				&export_fd, 1);
-	if (rc < 0)
+	if (surface_object->destination_dmabuf_fds[0] == -1)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	export_fd = dup(surface_object->destination_dmabuf_fds[0]);
+	if (export_fd == -1)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	buffer_info->handle = (uintptr_t) export_fd;
