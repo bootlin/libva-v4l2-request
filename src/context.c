@@ -69,6 +69,8 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	VAStatus status;
 	unsigned int output_type, capture_type;
 	unsigned int pixelformat;
+	unsigned int dmabuf_index_base;
+	unsigned int dmabuf_index;
 	unsigned int index_base;
 	unsigned int index;
 	unsigned int i;
@@ -147,6 +149,13 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 		goto error;
 	}
 
+	rc = v4l2_create_buffers(video_fd, capture_type, V4L2_MEMORY_DMABUF,
+				 surfaces_count, &dmabuf_index_base);
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
+		goto error;
+	}
+
 	/*
 	 * The surface_ids array has been allocated by the caller and
 	 * we don't have any indication wrt its life time. Let's make sure
@@ -162,6 +171,7 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 
 	for (i = 0; i < surfaces_count; i++) {
 		index = index_base + i;
+		dmabuf_index = dmabuf_index_base + i;
 
 		surface_object = SURFACE(driver_data, surfaces_ids[i]);
 		if (surface_object == NULL) {
@@ -186,6 +196,8 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 		surface_object->source_index = index;
 		surface_object->source_data = source_data;
 		surface_object->source_size = length;
+
+		surface_object->destination_index = dmabuf_index;
 	}
 
 	rc = v4l2_set_stream(video_fd, output_type, true);

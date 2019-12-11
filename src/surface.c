@@ -67,8 +67,6 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	unsigned int output_type;
 	unsigned int index_base;
 	unsigned int index;
-	unsigned int dmabuf_index_base;
-	unsigned int dmabuf_index;
 	unsigned int i, j;
 	VAStatus status;
 	VASurfaceID id;
@@ -166,17 +164,8 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		goto error;
 	}
 
-	rc = v4l2_create_buffers(driver_data->video_fd, capture_type,
-				 V4L2_MEMORY_DMABUF, surfaces_count,
-				 &dmabuf_index_base);
-	if (rc < 0) {
-		status = VA_STATUS_ERROR_ALLOCATION_FAILED;
-		goto error;
-	}
-
 	for (i = 0; i < surfaces_count; i++) {
 		index = index_base + i;
-		dmabuf_index = dmabuf_index_base + i;
 
 		id = object_heap_allocate(&driver_data->surface_heap);
 		surface_object = SURFACE(driver_data, id);
@@ -268,7 +257,7 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 		surface_object->source_data = NULL;
 		surface_object->source_size = 0;
 
-		surface_object->destination_index = dmabuf_index;
+		surface_object->destination_index = 0;
 
 		surface_object->destination_planes_count =
 			destination_planes_count;
