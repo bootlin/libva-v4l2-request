@@ -235,7 +235,7 @@ int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 	return 0;
 }
 
-int v4l2_create_buffers(int video_fd, unsigned int type,
+int v4l2_create_buffers(int video_fd, unsigned int type, unsigned int memory,
 			unsigned int buffers_count, unsigned int *index_base)
 {
 	struct v4l2_create_buffers buffers;
@@ -243,7 +243,7 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 
 	memset(&buffers, 0, sizeof(buffers));
 	buffers.format.type = type;
-	buffers.memory = V4L2_MEMORY_MMAP;
+	buffers.memory = memory;
 	buffers.count = buffers_count;
 
 	rc = ioctl(video_fd, VIDIOC_G_FMT, &buffers.format);
@@ -262,6 +262,37 @@ int v4l2_create_buffers(int video_fd, unsigned int type,
 
 	if (index_base != NULL)
 		*index_base = buffers.index;
+
+	return 0;
+}
+
+int v4l2_query_buffer_capabilities(int video_fd, unsigned int type,
+				   unsigned int *capabilities)
+{
+	struct v4l2_create_buffers buffers;
+	int rc;
+
+	memset(&buffers, 0, sizeof(buffers));
+	buffers.format.type = type;
+	buffers.memory = V4L2_MEMORY_MMAP;
+	buffers.count = 0;
+
+	rc = ioctl(video_fd, VIDIOC_G_FMT, &buffers.format);
+	if (rc < 0) {
+		request_log("Unable to get format for type %d: %s\n", type,
+			    strerror(errno));
+		return -1;
+	}
+
+	rc = ioctl(video_fd, VIDIOC_CREATE_BUFS, &buffers);
+	if (rc < 0) {
+		request_log("Unable to query buffer capabilities for type %d: %s\n",
+			    type, strerror(errno));
+		return -1;
+	}
+
+	if (capabilities != NULL)
+		*capabilities = buffers.capabilities;
 
 	return 0;
 }
@@ -370,6 +401,49 @@ int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 	return 0;
 }
 
+int v4l2_queue_dmabuf(int video_fd, int request_fd, unsigned int type,
+		      struct timeval *timestamp, unsigned int index,
+		      int *fds, unsigned int buffers_count)
+{
+	struct v4l2_plane planes[buffers_count];
+	struct v4l2_buffer buffer;
+	unsigned int i;
+	int rc;
+
+	memset(planes, 0, sizeof(planes));
+	memset(&buffer, 0, sizeof(buffer));
+
+	buffer.type = type;
+	buffer.memory = V4L2_MEMORY_DMABUF;
+	buffer.index = index;
+	buffer.length = buffers_count;
+	buffer.m.planes = planes;
+
+	if (v4l2_type_is_mplane(type)) {
+		for (i = 0; i < buffers_count; i++) {
+			buffer.m.planes[i].m.fd = fds[i];
+		}
+	} else {
+		buffer.m.fd = fds[0];
+	}
+
+	if (request_fd >= 0) {
+		buffer.flags = V4L2_BUF_FLAG_REQUEST_FD;
+		buffer.request_fd = request_fd;
+	}
+
+	if (timestamp != NULL)
+		buffer.timestamp = *timestamp;
+
+	rc = ioctl(video_fd, VIDIOC_QBUF, &buffer);
+	if (rc < 0) {
+		request_log("Unable to queue DMA buffer: %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
 int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 			unsigned int index, unsigned int buffers_count)
 {
@@ -382,6 +456,36 @@ int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
 
 	buffer.type = type;
 	buffer.memory = V4L2_MEMORY_MMAP;
+	buffer.index = index;
+	buffer.length = buffers_count;
+	buffer.m.planes = planes;
+
+	if (request_fd >= 0) {
+		buffer.flags = V4L2_BUF_FLAG_REQUEST_FD;
+		buffer.request_fd = request_fd;
+	}
+
+	rc = ioctl(video_fd, VIDIOC_DQBUF, &buffer);
+	if (rc < 0) {
+		request_log("Unable to dequeue buffer: %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
+int v4l2_dequeue_dmabuf(int video_fd, int request_fd, unsigned int type,
+			unsigned int index, unsigned int buffers_count)
+{
+	struct v4l2_plane planes[buffers_count];
+	struct v4l2_buffer buffer;
+	int rc;
+
+	memset(planes, 0, sizeof(planes));
+	memset(&buffer, 0, sizeof(buffer));
+
+	buffer.type = type;
+	buffer.memory = V4L2_MEMORY_DMABUF;
 	buffer.index = index;
 	buffer.length = buffers_count;
 	buffer.m.planes = planes;
@@ -428,35 +532,69 @@ int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
 	return 0;
 }
 
-int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
-		     unsigned int size)
+static int v4l2_ioctl_controls(int video_fd, int request_fd, unsigned long ioc,
+			       struct v4l2_ext_control *control_array,
+			       unsigned int num_controls)
 {
-	struct v4l2_ext_control control;
 	struct v4l2_ext_controls controls;
-	int rc;
 
-	memset(&control, 0, sizeof(control));
 	memset(&controls, 0, sizeof(controls));
 
-	control.id = id;
-	control.ptr = data;
-	control.size = size;
-
-	controls.controls = &control;
-	controls.count = 1;
+	controls.controls = control_array;
+	controls.count = num_controls;
 
 	if (request_fd >= 0) {
 		controls.which = V4L2_CTRL_WHICH_REQUEST_VAL;
 		controls.request_fd = request_fd;
 	}
 
-	rc = ioctl(video_fd, VIDIOC_S_EXT_CTRLS, &controls);
+	return ioctl(video_fd, ioc, &controls);
+}
+
+int v4l2_get_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *control_array,
+		      unsigned int num_controls)
+{
+	int rc;
+
+	rc = v4l2_ioctl_controls(video_fd, request_fd, VIDIOC_G_EXT_CTRLS,
+				 control_array, num_controls);
 	if (rc < 0) {
-		request_log("Unable to set control: %s\n", strerror(errno));
+		request_log("Unable to get control(s): %s\n", strerror(errno));
 		return -1;
 	}
 
 	return 0;
+}
+
+int v4l2_set_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *control_array,
+		      unsigned int num_controls)
+{
+	int rc;
+
+	rc = v4l2_ioctl_controls(video_fd, request_fd, VIDIOC_S_EXT_CTRLS,
+				 control_array, num_controls);
+	if (rc < 0) {
+		request_log("Unable to set control(s): %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
+int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
+		     unsigned int size)
+{
+	struct v4l2_ext_control control;
+
+	memset(&control, 0, sizeof(control));
+
+	control.id = id;
+	control.ptr = data;
+	control.size = size;
+
+	return v4l2_set_controls(video_fd, request_fd, &control, 1);
 }
 
 int v4l2_set_stream(int video_fd, unsigned int type, bool enable)

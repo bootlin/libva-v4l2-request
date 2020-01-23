@@ -38,6 +38,7 @@
 
 struct object_context {
 	struct object_base base;
+	int video_fd;
 
 	VAConfigID config_id;
 	VASurfaceID render_surface_id;
@@ -50,6 +51,7 @@ struct object_context {
 
 	/* H264 only */
 	struct h264_dpb dpb;
+	bool h264_start_code;
 };
 
 VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,

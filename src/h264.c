@@ -197,6 +197,7 @@ static void h264_fill_dpb(struct request_data *data,
 		}
 
 		dpb->frame_num = entry->pic.frame_idx;
+		dpb->pic_num = entry->pic.picture_id;
 		dpb->top_field_order_cnt = entry->pic.TopFieldOrderCnt;
 		dpb->bottom_field_order_cnt = entry->pic.BottomFieldOrderCnt;
 
@@ -218,9 +219,23 @@ static void h264_va_picture_to_v4l2(struct request_data *driver_data,
 				    struct v4l2_ctrl_h264_pps *pps,
 				    struct v4l2_ctrl_h264_sps *sps)
 {
+	unsigned char *b;
+	unsigned char nal_ref_idc;
+	unsigned char nal_unit_type;
+
+	/* Extract missing nal_ref_idc and nal_unit_type */
+	b = surface->source_data;
+	if (context->h264_start_code)
+		b += 3;
+	nal_ref_idc = (b[0] >> 5) & 0x3;
+	nal_unit_type = b[0] & 0x1f;
+
 	h264_fill_dpb(driver_data, context, decode);
 
 	decode->num_slices = surface->slices_count;
+	decode->nal_ref_idc = nal_ref_idc;
+	if (nal_unit_type == 5)
+		decode->flags = V4L2_H264_DECODE_PARAM_FLAG_IDR_PIC;
 	decode->top_field_order_cnt = VAPicture->CurrPic.TopFieldOrderCnt;
 	decode->bottom_field_order_cnt = VAPicture->CurrPic.BottomFieldOrderCnt;
 
@@ -231,6 +246,10 @@ static void h264_va_picture_to_v4l2(struct request_data *driver_data,
 	pps->chroma_qp_index_offset = VAPicture->chroma_qp_index_offset;
 	pps->second_chroma_qp_index_offset =
 		VAPicture->second_chroma_qp_index_offset;
+	pps->num_ref_idx_l0_default_active_minus1 =
+		VAPicture->num_ref_idx_l0_default_active_minus1;
+	pps->num_ref_idx_l1_default_active_minus1 =
+		VAPicture->num_ref_idx_l1_default_active_minus1;
 
 	if (VAPicture->pic_fields.bits.entropy_coding_mode_flag)
 		pps->flags |= V4L2_H264_PPS_FLAG_ENTROPY_CODING_MODE;
@@ -255,6 +274,7 @@ static void h264_va_picture_to_v4l2(struct request_data *driver_data,
 	if (VAPicture->pic_fields.bits.redundant_pic_cnt_present_flag)
 		pps->flags |= V4L2_H264_PPS_FLAG_REDUNDANT_PIC_CNT_PRESENT;
 
+	sps->max_num_ref_frames = VAPicture->num_ref_frames;
 	sps->chroma_format_idc = VAPicture->seq_fields.bits.chroma_format_idc;
 	sps->bit_depth_luma_minus8 = VAPicture->bit_depth_luma_minus8;
 	sps->bit_depth_chroma_minus8 = VAPicture->bit_depth_chroma_minus8;
@@ -297,6 +317,10 @@ static void h264_va_matrix_to_v4l2(struct request_data *driver_data,
 	 */
 	memcpy(v4l2_matrix->scaling_list_8x8[0], &VAMatrix->ScalingList8x8[0],
 	       sizeof(v4l2_matrix->scaling_list_8x8[0]));
+	/* FIXME --> */
+	memcpy(v4l2_matrix->scaling_list_8x8[1], &VAMatrix->ScalingList8x8[1],
+	       sizeof(v4l2_matrix->scaling_list_8x8[1]));
+	/* <-- FIXME */
 	memcpy(v4l2_matrix->scaling_list_8x8[3], &VAMatrix->ScalingList8x8[1],
 	       sizeof(v4l2_matrix->scaling_list_8x8[3]));
 }
@@ -330,9 +354,15 @@ static void h264_va_slice_to_v4l2(struct request_data *driver_data,
 				  struct v4l2_ctrl_h264_slice_params *slice)
 {
 	slice->size = VASlice->slice_data_size;
+	if (context->h264_start_code)
+		slice->size += 3;
 	slice->header_bit_size = VASlice->slice_data_bit_offset;
 	slice->first_mb_in_slice = VASlice->first_mb_in_slice;
 	slice->slice_type = VASlice->slice_type;
+	slice->frame_num = VAPicture->frame_num;
+	slice->idr_pic_id = VASlice->idr_pic_id;
+	slice->dec_ref_pic_marking_bit_size = VASlice->dec_ref_pic_marking_bit_size;
+	slice->pic_order_cnt_bit_size = VASlice->pic_order_cnt_bit_size;
 	slice->cabac_init_idc = VASlice->cabac_init_idc;
 	slice->slice_qp_delta = VASlice->slice_qp_delta;
 	slice->disable_deblocking_filter_idc =
@@ -405,8 +435,67 @@ static void h264_va_slice_to_v4l2(struct request_data *driver_data,
 				     VASlice->chroma_offset_l1);
 }
 
+int h264_get_controls(struct request_data *driver_data,
+		      struct object_context *context)
+{
+	struct v4l2_ext_control controls[2] = {
+		{
+			.id = V4L2_CID_MPEG_VIDEO_H264_DECODE_MODE,
+		}, {
+			.id = V4L2_CID_MPEG_VIDEO_H264_START_CODE,
+		}
+	};
+	int rc;
+
+	rc = v4l2_get_controls(context->video_fd, -1, controls, 2);
+	if (rc < 0)
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+
+	switch (controls[0].value) {
+	case V4L2_MPEG_VIDEO_H264_DECODE_MODE_SLICE_BASED:
+		break;
+	case V4L2_MPEG_VIDEO_H264_DECODE_MODE_FRAME_BASED:
+		break;
+	default:
+		request_log("Unsupported decode mode\n");
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+	}
+
+	switch (controls[1].value) {
+	case V4L2_MPEG_VIDEO_H264_START_CODE_NONE:
+		break;
+	case V4L2_MPEG_VIDEO_H264_START_CODE_ANNEX_B:
+		context->h264_start_code = true;
+		break;
+	default:
+		request_log("Unsupported start code\n");
+		return VA_STATUS_ERROR_OPERATION_FAILED;
+	}
+
+	return VA_STATUS_SUCCESS;
+}
+
+static inline __u8 h264_profile_to_idc(VAProfile profile)
+{
+	switch (profile) {
+	case VAProfileH264Main:
+		return 77;
+	case VAProfileH264High:
+		return 100;
+	case VAProfileH264ConstrainedBaseline:
+		return 66;
+	case VAProfileH264MultiviewHigh:
+		return 118;
+	case VAProfileH264StereoHigh:
+		return 128;
+	default:
+		return 0;
+	}
+}
+
 int h264_set_controls(struct request_data *driver_data,
 		      struct object_context *context,
+		      VAProfile profile,
 		      struct object_surface *surface)
 {
 	struct v4l2_ctrl_h264_scaling_matrix matrix = { 0 };
@@ -435,31 +524,34 @@ int h264_set_controls(struct request_data *driver_data,
 			      &surface->params.h264.slice,
 			      &surface->params.h264.picture, &slice);
 
-	rc = v4l2_set_control(driver_data->video_fd, surface->request_fd,
-			      V4L2_CID_MPEG_VIDEO_H264_DECODE_PARAMS, &decode,
-			      sizeof(decode));
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	sps.profile_idc = h264_profile_to_idc(profile);
 
-	rc = v4l2_set_control(driver_data->video_fd, surface->request_fd,
-			      V4L2_CID_MPEG_VIDEO_H264_SLICE_PARAMS, &slice,
-			      sizeof(slice));
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
+	struct v4l2_ext_control controls[5] = {
+		{
+			.id = V4L2_CID_MPEG_VIDEO_H264_SPS,
+			.ptr = &sps,
+			.size = sizeof(sps),
+		}, {
+			.id = V4L2_CID_MPEG_VIDEO_H264_PPS,
+			.ptr = &pps,
+			.size = sizeof(pps),
+		}, {
+			.id = V4L2_CID_MPEG_VIDEO_H264_SCALING_MATRIX,
+			.ptr = &matrix,
+			.size = sizeof(matrix),
+		}, {
+			.id = V4L2_CID_MPEG_VIDEO_H264_SLICE_PARAMS,
+			.ptr = &slice,
+			.size = sizeof(slice),
+		}, {
+			.id = V4L2_CID_MPEG_VIDEO_H264_DECODE_PARAMS,
+			.ptr = &decode,
+			.size = sizeof(decode),
+		}
+	};
 
-	rc = v4l2_set_control(driver_data->video_fd, surface->request_fd,
-			      V4L2_CID_MPEG_VIDEO_H264_PPS, &pps, sizeof(pps));
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
-
-	rc = v4l2_set_control(driver_data->video_fd, surface->request_fd,
-			      V4L2_CID_MPEG_VIDEO_H264_SPS, &sps, sizeof(sps));
-	if (rc < 0)
-		return VA_STATUS_ERROR_OPERATION_FAILED;
-
-	rc = v4l2_set_control(driver_data->video_fd, surface->request_fd,
-			      V4L2_CID_MPEG_VIDEO_H264_SCALING_MATRIX, &matrix,
-			      sizeof(matrix));
+	rc = v4l2_set_controls(context->video_fd, surface->request_fd,
+			       controls, 5);
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 

@@ -382,14 +382,16 @@ int h265_set_controls(struct request_data *driver_data,
 
 	h265_fill_pps(picture, slice, &pps);
 
-	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd,
+	rc = v4l2_set_control(context_object->video_fd,
+			      surface_object->request_fd,
 			      V4L2_CID_MPEG_VIDEO_HEVC_PPS, &pps, sizeof(pps));
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
 	h265_fill_sps(picture, &sps);
 
-	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd,
+	rc = v4l2_set_control(context_object->video_fd,
+			      surface_object->request_fd,
 			      V4L2_CID_MPEG_VIDEO_HEVC_SPS, &sps, sizeof(sps));
 	if (rc < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
@@ -397,7 +399,8 @@ int h265_set_controls(struct request_data *driver_data,
 	h265_fill_slice_params(picture, slice, &driver_data->surface_heap,
 			       surface_object->source_data, &slice_params);
 
-	rc = v4l2_set_control(driver_data->video_fd, surface_object->request_fd,
+	rc = v4l2_set_control(context_object->video_fd,
+			      surface_object->request_fd,
 			      V4L2_CID_MPEG_VIDEO_HEVC_SLICE_PARAMS,
 			      &slice_params, sizeof(slice_params));
 	if (rc < 0)

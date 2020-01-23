@@ -39,8 +39,10 @@ int v4l2_set_format(int video_fd, unsigned int type, unsigned int pixelformat,
 int v4l2_get_format(int video_fd, unsigned int type, unsigned int *width,
 		    unsigned int *height, unsigned int *bytesperline,
 		    unsigned int *sizes, unsigned int *planes_count);
-int v4l2_create_buffers(int video_fd, unsigned int type,
+int v4l2_create_buffers(int video_fd, unsigned int type, unsigned int memory,
 			unsigned int buffers_count, unsigned int *index_base);
+int v4l2_query_buffer_capabilities(int video_fd, unsigned int type,
+				   unsigned int *capabilities);
 int v4l2_query_buffer(int video_fd, unsigned int type, unsigned int index,
 		      unsigned int *lengths, unsigned int *offsets,
 		      unsigned int buffers_count);
@@ -49,11 +51,22 @@ int v4l2_request_buffers(int video_fd, unsigned int type,
 int v4l2_queue_buffer(int video_fd, int request_fd, unsigned int type,
 		      struct timeval *timestamp, unsigned int index,
 		      unsigned int size, unsigned int buffers_count);
+int v4l2_queue_dmabuf(int video_fd, int request_fd, unsigned int type,
+		      struct timeval *timestamp, unsigned int index,
+		      int *fds, unsigned int buffers_count);
 int v4l2_dequeue_buffer(int video_fd, int request_fd, unsigned int type,
+			unsigned int index, unsigned int buffers_count);
+int v4l2_dequeue_dmabuf(int video_fd, int request_fd, unsigned int type,
 			unsigned int index, unsigned int buffers_count);
 int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
 		       unsigned int flags, int *export_fds,
 		       unsigned int export_fds_count);
+int v4l2_get_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *controls,
+		      unsigned int num_controls);
+int v4l2_set_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *controls,
+		      unsigned int num_controls);
 int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
 		     unsigned int size);
 int v4l2_set_stream(int video_fd, unsigned int type, bool enable);

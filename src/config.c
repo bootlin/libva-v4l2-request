@@ -33,6 +33,7 @@
 #include <sys/ioctl.h>
 
 #include <linux/videodev2.h>
+#include <h264-ctrls.h>
 
 #include <mpeg2-ctrls.h>
 #include <h264-ctrls.h>
@@ -115,20 +116,19 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 				    VAProfile *profiles, int *profiles_count)
 {
 	struct request_data *driver_data = context->pDriverData;
+	unsigned int type = v4l2_type_video_output(driver_data->mplane);
 	unsigned int index = 0;
 	bool found;
 
-	found = v4l2_find_format(driver_data->video_fd,
-				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
+	found = v4l2_find_format(driver_data->video_fd, type,
 				 V4L2_PIX_FMT_MPEG2_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 2)) {
 		profiles[index++] = VAProfileMPEG2Simple;
 		profiles[index++] = VAProfileMPEG2Main;
 	}
 
-	found = v4l2_find_format(driver_data->video_fd,
-				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
-				 V4L2_PIX_FMT_H264_SLICE_RAW);
+	found = v4l2_find_format(driver_data->video_fd, type,
+				 V4L2_PIX_FMT_H264_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 5)) {
 		profiles[index++] = VAProfileH264Main;
 		profiles[index++] = VAProfileH264High;
@@ -137,11 +137,12 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 		profiles[index++] = VAProfileH264StereoHigh;
 	}
 
-	found = v4l2_find_format(driver_data->video_fd,
-				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
+#if 1
+	found = v4l2_find_format(driver_data->video_fd, type,
 				 V4L2_PIX_FMT_HEVC_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 1))
 		profiles[index++] = VAProfileHEVCMain;
+#endif
 
 	*profiles_count = index;
 

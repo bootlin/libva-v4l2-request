@@ -64,6 +64,7 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	VAStatus status;
 	unsigned int capabilities;
 	unsigned int capabilities_required;
+	unsigned int capture_type;
 	int video_fd = -1;
 	int media_fd = -1;
 	char *video_path;
@@ -154,6 +155,8 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 	if (video_fd < 0)
 		return VA_STATUS_ERROR_OPERATION_FAILED;
 
+	driver_data->video_path = video_path;
+
 	rc = v4l2_query_capabilities(video_fd, &capabilities);
 	if (rc < 0) {
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
@@ -164,6 +167,33 @@ VAStatus VA_DRIVER_INIT_FUNC(VADriverContextP context)
 
 	if ((capabilities & capabilities_required) != capabilities_required) {
 		request_log("Missing required driver capabilities\n");
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
+	if (capabilities & V4L2_CAP_VIDEO_M2M_MPLANE) {
+		driver_data->mplane = true;
+	} else if (!(capabilities & V4L2_CAP_VIDEO_M2M)) {
+		request_log("Missing memory to memory interface\n");
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
+	capabilities_required = V4L2_BUF_CAP_SUPPORTS_MMAP |
+				V4L2_BUF_CAP_SUPPORTS_DMABUF |
+				V4L2_BUF_CAP_SUPPORTS_ORPHANED_BUFS;
+
+	capture_type = v4l2_type_video_capture(driver_data->mplane);
+
+	rc = v4l2_query_buffer_capabilities(video_fd, capture_type,
+					    &capabilities);
+	if (rc < 0) {
+		status = VA_STATUS_ERROR_OPERATION_FAILED;
+		goto error;
+	}
+
+	if ((capabilities & capabilities_required) != capabilities_required) {
+		request_log("Missing required buffer capabilities\n");
 		status = VA_STATUS_ERROR_OPERATION_FAILED;
 		goto error;
 	}

@@ -39,6 +39,7 @@
 
 struct object_surface {
 	struct object_base base;
+	VAContextID context_id;
 
 	VAStatus status;
 	int width;
@@ -58,6 +59,7 @@ struct object_surface {
 	unsigned int destination_bytesperlines[VIDEO_MAX_PLANES];
 	unsigned int destination_planes_count;
 	unsigned int destination_buffers_count;
+	int destination_dmabuf_fds[VIDEO_MAX_PLANES];
 
 	unsigned int slices_size;
 	unsigned int slices_count;
