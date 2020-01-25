@@ -428,35 +428,69 @@ int v4l2_export_buffer(int video_fd, unsigned int type, unsigned int index,
 	return 0;
 }
 
-int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
-		     unsigned int size)
+static int v4l2_ioctl_controls(int video_fd, int request_fd, unsigned long ioc,
+			       struct v4l2_ext_control *control_array,
+			       unsigned int num_controls)
 {
-	struct v4l2_ext_control control;
 	struct v4l2_ext_controls controls;
-	int rc;
 
-	memset(&control, 0, sizeof(control));
 	memset(&controls, 0, sizeof(controls));
 
-	control.id = id;
-	control.ptr = data;
-	control.size = size;
-
-	controls.controls = &control;
-	controls.count = 1;
+	controls.controls = control_array;
+	controls.count = num_controls;
 
 	if (request_fd >= 0) {
 		controls.which = V4L2_CTRL_WHICH_REQUEST_VAL;
 		controls.request_fd = request_fd;
 	}
 
-	rc = ioctl(video_fd, VIDIOC_S_EXT_CTRLS, &controls);
+	return ioctl(video_fd, ioc, &controls);
+}
+
+int v4l2_get_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *control_array,
+		      unsigned int num_controls)
+{
+	int rc;
+
+	rc = v4l2_ioctl_controls(video_fd, request_fd, VIDIOC_G_EXT_CTRLS,
+				 control_array, num_controls);
 	if (rc < 0) {
-		request_log("Unable to set control: %s\n", strerror(errno));
+		request_log("Unable to get control(s): %s\n", strerror(errno));
 		return -1;
 	}
 
 	return 0;
+}
+
+int v4l2_set_controls(int video_fd, int request_fd,
+		      struct v4l2_ext_control *control_array,
+		      unsigned int num_controls)
+{
+	int rc;
+
+	rc = v4l2_ioctl_controls(video_fd, request_fd, VIDIOC_S_EXT_CTRLS,
+				 control_array, num_controls);
+	if (rc < 0) {
+		request_log("Unable to set control(s): %s\n", strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
+int v4l2_set_control(int video_fd, int request_fd, unsigned int id, void *data,
+		     unsigned int size)
+{
+	struct v4l2_ext_control control;
+
+	memset(&control, 0, sizeof(control));
+
+	control.id = id;
+	control.ptr = data;
+	control.size = size;
+
+	return v4l2_set_controls(video_fd, request_fd, &control, 1);
 }
 
 int v4l2_set_stream(int video_fd, unsigned int type, bool enable)
