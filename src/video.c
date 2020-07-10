@@ -45,6 +45,8 @@ static struct video_format formats[] = {
 		.planes_count		= 2,
 		.bpp			= 16,
 	},
+// Code to handle this DRM_FORMAT is __arm__ only
+#ifdef __arm__
 	{
 		.description		= "Sunxi tiled NV12 YUV",
 		.v4l2_format		= V4L2_PIX_FMT_SUNXI_TILED_NV12,
@@ -55,6 +57,7 @@ static struct video_format formats[] = {
 		.planes_count		= 2,
 		.bpp			= 16
 	},
+#endif
 };
 
 static unsigned int formats_count = sizeof(formats) / sizeof(formats[0]);
