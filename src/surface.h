@@ -40,7 +40,7 @@
 struct object_surface {
 	struct object_base base;
 
-	VAStatus status;
+	VASurfaceStatus status;
 	int width;
 	int height;
 

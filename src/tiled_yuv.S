@@ -27,7 +27,7 @@
 .section .note.GNU-stack,"",%progbits /* mark stack as non-executable */
 #endif
 
-#ifndef __aarch64__
+#ifdef __arm__
 
 .text
 .syntax unified

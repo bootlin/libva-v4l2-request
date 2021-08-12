@@ -35,7 +35,6 @@
 #include <linux/videodev2.h>
 
 #include <mpeg2-ctrls.h>
-#include <h264-ctrls.h>
 #include <hevc-ctrls.h>
 
 #include "utils.h"
@@ -54,18 +53,17 @@ VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
 	int i, index;
 
 	switch (profile) {
-	case VAProfileMPEG2Simple:
-	case VAProfileMPEG2Main:
+	
 	case VAProfileH264Main:
 	case VAProfileH264High:
 	case VAProfileH264ConstrainedBaseline:
 	case VAProfileH264MultiviewHigh:
 	case VAProfileH264StereoHigh:
-		case VAProfileHEVCMain:
-		if (entrypoint != VAEntrypointVLD)
-			return VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
+		// FIXME
 		break;
-
+	case VAProfileMPEG2Simple:
+	case VAProfileMPEG2Main:
+	case VAProfileHEVCMain:
 	default:
 		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
@@ -128,7 +126,7 @@ VAStatus RequestQueryConfigProfiles(VADriverContextP context,
 
 	found = v4l2_find_format(driver_data->video_fd,
 				 V4L2_BUF_TYPE_VIDEO_OUTPUT,
-				 V4L2_PIX_FMT_H264_SLICE_RAW);
+				 V4L2_PIX_FMT_H264_SLICE);
 	if (found && index < (V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES - 5)) {
 		profiles[index++] = VAProfileH264Main;
 		profiles[index++] = VAProfileH264High;

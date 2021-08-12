@@ -46,6 +46,8 @@
 #include "v4l2.h"
 #include "video.h"
 
+bool SET_FORMAT_OF_OUTPUT_ONCE = false;
+
 VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 				unsigned int width, unsigned int height,
 				VASurfaceID *surfaces_ids,
@@ -68,9 +70,33 @@ VAStatus RequestCreateSurfaces2(VADriverContextP context, unsigned int format,
 	bool found;
 	int rc;
 
+	//////////// HACK: this portion of the code should get cleaned up.
+
+	// v4l2_set_format needs to be called BEFORE we create any buffers
+	//
+	// we originally did this for the output stream in context.c, but 
+	// RequestCreateSurfaces2 gets called multiple times before RequestCreateContext 
+	// to allocate & map buffers. this doesn't seem to work in recent kernel versions.
+	// 
+	// we declare SET_FORMAT_OF_OUTPUT_ONCE to ensure v4l2_set_format only gets called once
+	// (in the first RequestCreateSurfaces2 call BEFORE any buffers are created later on)
+	unsigned int pixelformat = V4L2_PIX_FMT_H264_SLICE;
+	unsigned int output_type = v4l2_type_video_output(false);
+
+	if (!SET_FORMAT_OF_OUTPUT_ONCE) {
+		rc = v4l2_set_format(driver_data->video_fd, output_type, pixelformat,
+				width, height);
+		if (rc < 0) {
+			return VA_STATUS_ERROR_OPERATION_FAILED;
+		}
+
+		SET_FORMAT_OF_OUTPUT_ONCE = true;
+	}
+
+	/////////// ENDHACK
+
 	if (format != VA_RT_FORMAT_YUV420)
 		return VA_STATUS_ERROR_UNSUPPORTED_RT_FORMAT;
-
 
         if (!driver_data->video_format) {
 		found = v4l2_find_format(driver_data->video_fd,

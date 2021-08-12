@@ -40,7 +40,6 @@
 #include <linux/videodev2.h>
 
 #include <mpeg2-ctrls.h>
-#include <h264-ctrls.h>
 #include <hevc-ctrls.h>
 
 #include "utils.h"
@@ -65,7 +64,6 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 	VAContextID id;
 	VAStatus status;
 	unsigned int output_type, capture_type;
-	unsigned int pixelformat;
 	unsigned int index_base;
 	unsigned int index;
 	unsigned int i;
@@ -91,37 +89,6 @@ VAStatus RequestCreateContext(VADriverContextP context, VAConfigID config_id,
 		goto error;
 	}
 	memset(&context_object->dpb, 0, sizeof(context_object->dpb));
-
-	switch (config_object->profile) {
-
-	case VAProfileMPEG2Simple:
-	case VAProfileMPEG2Main:
-		pixelformat = V4L2_PIX_FMT_MPEG2_SLICE;
-		break;
-
-	case VAProfileH264Main:
-	case VAProfileH264High:
-	case VAProfileH264ConstrainedBaseline:
-	case VAProfileH264MultiviewHigh:
-	case VAProfileH264StereoHigh:
-		pixelformat = V4L2_PIX_FMT_H264_SLICE_RAW;
-		break;
-
-	case VAProfileHEVCMain:
-		pixelformat = V4L2_PIX_FMT_HEVC_SLICE;
-		break;
-
-	default:
-		status = VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
-		goto error;
-	}
-
-	rc = v4l2_set_format(driver_data->video_fd, output_type, pixelformat,
-			     picture_width, picture_height);
-	if (rc < 0) {
-		status = VA_STATUS_ERROR_OPERATION_FAILED;
-		goto error;
-	}
 
 	rc = v4l2_create_buffers(driver_data->video_fd, output_type,
 				 surfaces_count, &index_base);
