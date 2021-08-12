@@ -43,6 +43,7 @@ struct object_config {
 	VAEntrypoint entrypoint;
 	VAConfigAttrib attributes[V4L2_REQUEST_MAX_CONFIG_ATTRIBUTES];
 	int attributes_count;
+	unsigned int pixelformat;
 };
 
 VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
