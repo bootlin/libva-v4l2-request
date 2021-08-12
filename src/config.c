@@ -53,18 +53,17 @@ VAStatus RequestCreateConfig(VADriverContextP context, VAProfile profile,
 	int i, index;
 
 	switch (profile) {
-	case VAProfileMPEG2Simple:
-	case VAProfileMPEG2Main:
+	
 	case VAProfileH264Main:
 	case VAProfileH264High:
 	case VAProfileH264ConstrainedBaseline:
 	case VAProfileH264MultiviewHigh:
 	case VAProfileH264StereoHigh:
-		case VAProfileHEVCMain:
-		if (entrypoint != VAEntrypointVLD)
-			return VA_STATUS_ERROR_UNSUPPORTED_ENTRYPOINT;
+		// FIXME
 		break;
-
+	case VAProfileMPEG2Simple:
+	case VAProfileMPEG2Main:
+	case VAProfileHEVCMain:
 	default:
 		return VA_STATUS_ERROR_UNSUPPORTED_PROFILE;
 	}
